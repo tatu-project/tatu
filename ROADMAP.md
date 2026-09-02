@@ -2,6 +2,7 @@
 
 > Current status: Stage 1 — repository foundation
 > Rule: check an item only after its acceptance criterion has been verified.
+> Compact session context: [`brain/04-Current-State.md`](brain/04-Current-State.md).
 
 ## Stage 1 — Repository and collaboration foundation
 
@@ -17,6 +18,11 @@ Outcome: both partners can safely work on the same public repository with Codex 
 - [ ] Node.js availability checked on both computers.
 - [x] `AGENTS.md` instructions confirmed by Codex.
 - [x] Initial documentation commit pushed to `main`.
+- [x] Project-scoped `recon`, `executor`, and `reviewer` agents configured.
+- [x] Primary-session orchestrator workflow documented.
+- [x] Obsidian-compatible project brain created.
+- [x] Agent and brain configuration shared through Git for cross-workstation synchronization.
+- [ ] Custom-agent discovery validated after restarting Codex.
 
 Acceptance test:
 
@@ -26,9 +32,9 @@ Acceptance test:
 - External contributors cannot push directly and must contribute through pull requests.
 - Codex can summarize the repository instructions from `AGENTS.md`.
 
-Verification note (September 2, 2026): the initial file set and repository-safe VS Code configuration were reviewed; Codex confirmed the `AGENTS.md` workflow; Git, Node.js, npm, and Docker were detected on the first founder's computer; and commit `9134593` containing the documentation foundation was pushed directly to `origin/main` using the configured founder bypass. Checks that require evidence from both partners remain open.
+Verification note (September 2, 2026): the initial file set and repository-safe VS Code configuration were reviewed; Codex confirmed the `AGENTS.md` workflow; Git, Node.js, npm, and Docker were detected on the first founder's computer; and commit `9134593` containing the documentation foundation was pushed directly to `origin/main` using the configured founder bypass. The project-scoped custom-agent TOML and Obsidian-compatible brain were validated and prepared for Git synchronization. Agent discovery remains unchecked because the files were created inside an already-running Codex session. Checks that require evidence from both partners remain open.
 
-Next action: verify the remaining collaboration and environment checks with the second partner before declaring Stage 1 complete. Do not begin Stage 2 until then.
+Next action: restart Codex, verify that `recon`, `executor`, and `reviewer` are discoverable, then verify the remaining collaboration and environment checks with the second partner before declaring Stage 1 complete. Do not begin Stage 2 until then.
 
 ## Stage 2 — Technical foundation
 

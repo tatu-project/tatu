@@ -4,14 +4,17 @@
 
 Build Tatu according to `PROJECT.md`, advancing one verifiable outcome at a time through `ROADMAP.md`.
 
+The primary Codex session is the **orchestrator**. The user selects its model and reasoning effort per session; repository configuration must not pin either value. The orchestrator is the only user-facing role and owns planning, Git operations, authoritative status updates, final integration, and publication.
+
 ## Required reading
 
 Before changing code:
 
 1. Read `PROJECT.md`.
 2. Read `ROADMAP.md`.
-3. Read the closest applicable `AGENTS.md`.
-4. Run the automatic session-start Git protocol below.
+3. Read `brain/04-Current-State.md`.
+4. Read the closest applicable `AGENTS.md`.
+5. Run the automatic session-start Git protocol below.
 
 ## Automatic session-start Git protocol
 
@@ -31,9 +34,46 @@ Authentication or approval prompts may still require a one-time user confirmatio
 - `PROJECT.md`: product vision, architecture, principles, scope, and major decisions.
 - `ROADMAP.md`: execution stages, acceptance criteria, progress, blockers, and next action.
 - `docs/decisions/`: Architecture Decision Records for concrete technical choices.
+- `brain/`: compact Obsidian-compatible navigation, current-state, learning, open-question, and session notes. It summarizes and connects authoritative sources without replacing them.
 - Code and automated tests: implemented behavior.
 
 Do not invent requirements that conflict with these files. If they conflict with each other, stop and explain the conflict before implementation.
+
+## Multi-agent development team
+
+Project-scoped custom agents are defined under `.codex/agents/`:
+
+- `recon`: read-only evidence gathering before implementation or consequential conclusions.
+- `executor`: bounded implementation without Git publication or authoritative project-status updates.
+- `reviewer`: strict, read-only final review of the diff, behavior, risks, evidence, and roadmap claims.
+
+For every meaningful implementation task, the orchestrator must:
+
+1. Synchronize and inspect Git using the session-start protocol.
+2. Read `PROJECT.md`, `ROADMAP.md`, and `brain/04-Current-State.md`.
+3. Spawn `recon` with a concrete English evidence-gathering prompt.
+4. Use the recon evidence to define a bounded plan and acceptance criteria.
+5. Spawn `executor` with a concrete English implementation prompt containing that scope and those criteria.
+6. Inspect the executor result and the actual working-tree diff.
+7. Spawn `reviewer` with a concrete English prompt covering the implemented outcome and required verification.
+8. Address every blocking finding, repeating executor and reviewer passes when necessary.
+9. Run final verification from the orchestrator.
+10. Update `ROADMAP.md`, the brain, ADRs, and other documentation only when supported by evidence.
+11. Commit and push through the session-end Git protocol.
+12. Report the pushed commit and verified outcome to the user.
+
+For read-only investigations, spawn `recon`; also spawn `reviewer` when the conclusion involves architectural, security, privacy, or other consequential judgment. The orchestrator synthesizes and communicates the result.
+
+Every orchestrator-to-sub-agent prompt must be written in English and include:
+
+- Objective.
+- Bounded scope and relevant paths or context.
+- Constraints.
+- Expected evidence or deliverable.
+- Acceptance criteria.
+- An explicit prohibition against committing, merging, rebasing, or pushing.
+
+Never delegate vague prompts such as “investigate this” or “fix everything.” Sub-agents do not communicate directly with the user. If custom agents were added during the current session and cannot yet be loaded, validate and publish their configuration without pretending they ran, then instruct the user to restart Codex and verify discovery before further development.
 
 ## Work model
 
@@ -78,6 +118,7 @@ Do not commit or push failed, partially verified, secret-containing, or ambiguou
 - Update `ROADMAP.md` when execution progress changes.
 - Update `PROJECT.md` when a product principle, scope, or architectural direction changes.
 - Add an ADR under `docs/decisions/` for meaningful technical choices with alternatives or long-term consequences.
+- Update `brain/04-Current-State.md` and append concise entries to the learning, open-question, or session notes only when durable project context changes.
 - Update `.env.example` whenever environment variables change, but never insert real secrets.
 - Update user/developer documentation when behavior or setup changes.
 

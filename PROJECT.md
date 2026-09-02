@@ -666,4 +666,6 @@ This file is the portable, detailed source of truth for the project. Product pri
 
 Concrete technical decisions should also receive short Architecture Decision Records in the repository so alternatives and reasoning are not lost.
 
+The Git-versioned [`brain/`](brain/README.md) directory provides an Obsidian-compatible navigation and continuity layer. It summarizes current state, learnings, and open questions but never overrides this file, `ROADMAP.md`, accepted ADRs, code, or tests.
+
 When moving to another conversation, provide this file and continue from its latest version rather than reconstructing the project from memory.

@@ -30,6 +30,7 @@ The project is in repository and technical-foundation setup. See:
 - [`PROJECT.md`](PROJECT.md) for the product source of truth.
 - [`ROADMAP.md`](ROADMAP.md) for stages and current progress.
 - [`AGENTS.md`](AGENTS.md) for Codex working agreements.
+- [`brain/`](brain/README.md) for the Obsidian-compatible project brain and compact current context.
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) for contribution workflow.
 
 ## Planned MVP surfaces

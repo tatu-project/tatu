@@ -41,6 +41,17 @@ logs/
 .DS_Store
 Thumbs.db
 
+# Project-scoped Codex configuration only
+.codex/*
+!.codex/config.toml
+!.codex/agents/
+.codex/agents/*
+!.codex/agents/*.toml
+
+# Local Obsidian workspace state
+brain/.obsidian/
+brain/.trash/
+
 # Temporary files
 tmp/
 temp/
