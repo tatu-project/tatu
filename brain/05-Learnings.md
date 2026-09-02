@@ -19,8 +19,4 @@ updated: 2026-09-02
 - Agent files can pin subagent model, reasoning effort, and sandbox mode without pinning the primary orchestrator model.
 - A running Codex session may not reload newly added custom-agent files; discovery must be tested after restart.
 
-## 2026-09-02 — Product scope
-
-- A deprecated external-integration direction and business-briefing scope were removed from the product direction and later roadmap.
-
 Add only durable discoveries that will change future execution or decisions. Do not copy session transcripts here.
