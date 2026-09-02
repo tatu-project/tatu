@@ -10,7 +10,7 @@ updated: 2026-09-02
 
 ## Future architecture
 
-- Which local-first persistence and scheduler design should Stage 3 adopt while preserving reliable restart recovery?
+- Which scheduler design should Stage 4 adopt while preserving reliable restart recovery for the decided local SQLite task store?
 - Which zero-cost research route can satisfy the cited-briefing requirements in Stage 5?
 - What encrypted-secret storage approach best supports future BYOK connections across the supported deployment paths?
 

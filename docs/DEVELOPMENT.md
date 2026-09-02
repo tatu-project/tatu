@@ -41,7 +41,7 @@ Run the complete local quality suite with:
 npm run ci
 ```
 
-The selected npm-workspaces TypeScript stack and Node-built-in production runtime are recorded in [`ADR-0001`](decisions/ADR-0001-initial-stack.md).
+[`ADR-0001`](decisions/ADR-0001-initial-stack.md) records the dependency-free Stage 2 foundation. [`ADR-0002`](decisions/ADR-0002-local-task-persistence.md) supersedes that narrow restriction for Stage 3 and approves `better-sqlite3` as the sole production runtime dependency.
 
 ## Why Docker Desktop
 
@@ -63,7 +63,7 @@ The repository `AGENTS.md` instructs Codex to synchronize `main`, read the proje
 
 For a specific objective, say:
 
-> Continue o Tatu e conclua a Etapa 2.
+> Continue o Tatu com o próximo objetivo elegível.
 
 The user does not need to type Git commands during normal work. GitHub authentication, Codex execution approval, an ambiguous conflict, or a security-sensitive situation may still require user interaction. Those stops are intentional safety boundaries.
 
@@ -139,4 +139,4 @@ git switch main
 git pull --ff-only
 ```
 
-Stage 2 is complete. The next gated Codex task is Stage 3; do not begin it until explicitly directed.
+Stage 3 is complete: the current setup includes local persisted briefing tasks. The next gated Codex task is Stage 4; do not begin it until explicitly directed.

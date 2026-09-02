@@ -1,6 +1,6 @@
 # Tatu Roadmap
 
-> Current status: Stage 2 — technical foundation complete
+> Current status: Stage 3 — persisted briefing task complete; Stage 4 is gated and not started
 > Rule: check an item only after its acceptance criterion has been verified.
 > Compact session context: [`brain/04-Current-State.md`](brain/04-Current-State.md).
 
@@ -64,19 +64,21 @@ Next action: begin Stage 3 only when explicitly directed.
 
 Outcome: the user can request a recurring briefing and see a persisted task.
 
-- [ ] Chat accepts a natural-language briefing request.
-- [ ] Schedule, timezone, topic, quantity, and delivery intent are parsed.
-- [ ] Ambiguous requests trigger a clarification or confirmation.
-- [ ] Confirmed task is persisted.
-- [ ] Task appears in the Tasks interface.
-- [ ] Task survives an application restart.
-- [ ] Parsing and persistence tests pass.
+- [x] Chat accepts a natural-language briefing request.
+- [x] Schedule, timezone, topic, quantity, and delivery intent are parsed.
+- [x] Ambiguous requests trigger a clarification or confirmation.
+- [x] Confirmed task is persisted.
+- [x] Task appears in the Tasks interface.
+- [x] Task survives an application restart.
+- [x] Parsing and persistence tests pass.
 
 Acceptance test:
 
 > “Todos os dias às 8h, encontre as três notícias mais importantes sobre inteligência artificial e me envie.”
 
 creates one visible, enabled, persistent daily task in the user's timezone.
+
+Verification note (September 2, 2026): the deterministic parser, API, SQLite repository, and UI were verified through seven Node tests, including create → confirm → API restart → list and bounded request-body rejection. `npm run ci` passed. Task delivery is requested but not implemented; Stage 4 remains unchecked.
 
 ## Stage 4 — Durable execution engine
 

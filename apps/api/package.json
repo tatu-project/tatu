@@ -5,6 +5,7 @@
   "type": "module",
   "dependencies": {
     "@tatu/shared": "*",
-    "@tatu/web": "*"
+    "@tatu/web": "*",
+    "better-sqlite3": "13.0.3"
   }
 }

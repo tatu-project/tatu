@@ -40,3 +40,8 @@ updated: 2026-09-02
 - Stage 2 is complete. Stage 3 has not started.
 
 Use [[templates/Session]] for future entries. Record outcomes and durable context, not full transcripts.
+
+## 2026-09-02 — Stage 3 persisted briefing task
+
+- Added deterministic Portuguese drafting, confirmation, local SQLite persistence, Tasks UI, and restart recovery verification.
+- Stage 4 execution and scheduling have not started.

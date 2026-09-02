@@ -2,7 +2,7 @@
 
 > A free and open-source personal AI agent that works for you 24/7.
 
-**Status:** early development. The technical foundation is ready; Tatu is not ready for production use yet.
+**Status:** early development. Stage 3 can persist confirmed daily briefing tasks locally; Tatu is not ready for production use yet.
 
 Tatu aims to let anyone describe what they want in natural language while the system handles scheduling, research, tools, memory, model selection, free-provider fallback, permissions, and execution traces.
 
@@ -25,7 +25,7 @@ Tatu must execute this automatically on the following day, use an available free
 
 ## Current status
 
-Stage 2 technical foundation is complete. See:
+Stage 3 is complete: a daily briefing request can be parsed, confirmed, persisted locally, listed, and recovered after an API restart. Stage 4 execution is not started. See:
 
 - [`PROJECT.md`](PROJECT.md) for the product source of truth.
 - [`ROADMAP.md`](ROADMAP.md) for stages and current progress.
@@ -60,7 +60,7 @@ Run the full local quality suite with:
 npm run ci
 ```
 
-The initial stack and its dependency-free production-runtime decision are recorded in [`ADR-0001`](docs/decisions/ADR-0001-initial-stack.md).
+[`ADR-0001`](docs/decisions/ADR-0001-initial-stack.md) records the dependency-free Stage 2 foundation. [`ADR-0002`](docs/decisions/ADR-0002-local-task-persistence.md) supersedes that narrow runtime restriction for Stage 3 and approves `better-sqlite3` as the sole production runtime dependency.
 
 ## Security
 
