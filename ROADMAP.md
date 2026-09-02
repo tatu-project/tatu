@@ -11,11 +11,11 @@ Outcome: both partners can safely work on the same public repository with Codex 
 - [x] Project name chosen: Tatu.
 - [x] Public repository created under the organization.
 - [x] `main` protection ruleset configured.
-- [ ] Partner invited and has accepted organization access.
+- [x] Partner invited and has accepted organization access.
 - [x] Initial repository files added.
-- [ ] Both partners can clone/open the repository in VS Code.
-- [ ] Both partners are authenticated with GitHub for push access.
-- [ ] Node.js availability checked on both computers.
+- [x] Both partners can clone/open the repository in VS Code.
+- [x] Both partners are authenticated with GitHub for push access.
+- [x] Node.js availability checked on both computers.
 - [x] `AGENTS.md` instructions confirmed by Codex.
 - [x] Initial documentation commit pushed to `main`.
 - [x] Project-scoped `recon`, `executor`, and `reviewer` agents configured.
@@ -32,9 +32,9 @@ Acceptance test:
 - External contributors cannot push directly and must contribute through pull requests.
 - Codex can summarize the repository instructions from `AGENTS.md`.
 
-Verification note (September 2, 2026): the initial file set and repository-safe VS Code configuration were reviewed; Codex confirmed the `AGENTS.md` workflow; Git, Node.js, npm, and Docker were detected on the first founder's computer; and commit `9134593` containing the documentation foundation was pushed directly to `origin/main` using the configured founder bypass. After Codex and VS Code were restarted, the project-scoped `recon`, `executor`, and `reviewer` agents were each dispatched successfully. Their declared models, reasoning effort, sandbox modes, required fields, and Git restrictions were independently verified. Checks that require evidence from both partners remain open.
+Verification note (September 2, 2026): the initial file set and repository-safe VS Code configuration were reviewed; Codex confirmed the `AGENTS.md` workflow; Git, Node.js, npm, and Docker were detected on the first founder's computer; and commit `9134593` containing the documentation foundation was pushed directly to `origin/main` using the configured founder bypass. After Codex and VS Code were restarted, the project-scoped `recon`, `executor`, and `reviewer` agents were each dispatched successfully. Their declared models, reasoning effort, sandbox modes, required fields, and Git restrictions were independently verified. Founder 2 attested that they accepted organization access, cloned the repository at `C:\Users\vitti\OneDrive\Desktop\tatu`, opened it in VS Code, and ran `git push --dry-run origin main` with `Everything up-to-date`; commit `844ed99` by Vittor Augusto Gomes is on `origin/main`. Founder 2 also reported Node.js `v24.13.0` and npm `11.6.2`.
 
-Next action: verify the remaining collaboration and environment checks with the second partner before declaring Stage 1 complete. Do not begin Stage 2 until then.
+Next action: Stage 1 is complete. Do not begin Stage 2 until explicitly directed.
 
 ## Stage 2 — Technical foundation
 
