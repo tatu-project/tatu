@@ -59,9 +59,9 @@ Users may voluntarily connect API keys, subscriptions, paid models, or paid infr
 
 ### 2.3 Beginner-simple, developer-powerful
 
-The beginner sees Chat, Tasks, Connections, and clear health/status information. They should not need to understand LLMs, MCP, APIs, OAuth scopes, cron, context windows, vector databases, tool calling, Docker, or cloud infrastructure.
+The beginner sees Chat, Tasks, Connections, and clear health/status information. They should not need to understand LLMs, APIs, OAuth scopes, cron, context windows, vector databases, tool calling, Docker, or cloud infrastructure.
 
-Advanced Mode may expose prompts, models, provider routing, quota, tools, MCP, memory, schedules, API, webhooks, logs, traces, tokens, permissions, secrets, and runtime details.
+Advanced Mode may expose prompts, models, provider routing, quota, tools, memory, schedules, API, webhooks, logs, traces, tokens, permissions, secrets, and runtime details.
 
 ### 2.4 Provider-agnostic and portable
 
@@ -88,7 +88,6 @@ The creator is the first user. The initial need is an agent that autonomously de
 - Three important gaming stories every day.
 - Daily AI developments.
 - Stock-market and crypto news.
-- Eventually, a daily business briefing from Up Digital.
 
 The system should search, fetch, read, rank, summarize, remember relevant preferences, and deliver results without manual execution the following day.
 
@@ -113,7 +112,7 @@ Advanced Mode provides control over:
 - Agent instructions and planning.
 - Model and provider routing.
 - Memory.
-- Tools, MCP, REST, webhooks, and plugins.
+- Tools, REST, webhooks, and plugins.
 - Schedules and event triggers.
 - API access.
 - Executions and traces.
@@ -132,7 +131,7 @@ View, create, edit, pause, resume, and inspect recurring or conditional automati
 
 ### 5.3 Connections
 
-Connect and manage services such as Gmail, Calendar, GitHub, MCP servers, and future device executors.
+Connect and manage services such as Gmail, Calendar, GitHub, and future device executors.
 
 ### 5.4 Setup Health
 
@@ -203,7 +202,6 @@ Later versions should support triggers such as:
 
 - Bitcoin falls more than 5%.
 - Important OpenAI news appears.
-- A new Up Digital business condition is detected.
 - An external webhook is received.
 
 This evolves the scheduler into a general automation engine.
@@ -264,7 +262,6 @@ Secrets must be encrypted at rest, redacted from logs, scoped to the owning user
 Agent
   -> Capability Registry
       -> Native tools
-      -> MCP
       -> REST APIs
       -> OAuth apps
       -> Webhooks
@@ -274,19 +271,7 @@ Agent
 
 Tools require schemas, permission metadata, risk level, timeout, retry policy, audit behavior, and secret requirements.
 
-## 14. MCP
-
-MCP is a first-class integration mechanism.
-
-Advanced flow:
-
-```text
-Settings -> Connections -> Add MCP server -> Discover tools -> Review permissions -> Enable
-```
-
-The project should eventually provide an Up Digital MCP integration. An authorized client could request a daily briefing of business metrics, conversations, funnel activity, sales opportunities, and other permitted information without exposing raw credentials to the agent.
-
-## 15. OAuth and connected accounts
+## 14. OAuth and connected accounts
 
 Preferred flow:
 
@@ -298,7 +283,7 @@ Potential integrations include Gmail, Google Calendar, Google Drive, GitHub, Sla
 
 The agent should never ask to store a service password when OAuth, passkey, or delegated tokens can solve the task.
 
-## 16. Permission Engine and action risk
+## 15. Permission Engine and action risk
 
 Permissions are capability-specific and user-configurable. The initial risk model is:
 
@@ -314,7 +299,7 @@ Permission checks must happen in deterministic application code, not only in an 
 
 An action proposal should show the target, effect, price when applicable, data shared, selected tool, and whether it can be reversed.
 
-## 17. Commerce and payments — future capability
+## 16. Commerce and payments — future capability
 
 The long-term agent may research products, ask for missing requirements such as color and size, recommend options, and initiate checkout after explicit user approval.
 
@@ -337,7 +322,7 @@ Security rules:
 
 This is a long-term direction, not MVP scope.
 
-## 18. Device Agent — future capability
+## 17. Device Agent — future capability
 
 The same agent brain may eventually use local executors for desktop or mobile actions, for example opening YouTube or another app.
 
@@ -347,11 +332,11 @@ Agent -> Permission Engine -> Device executor -> Operating-system action
 
 Device control must be opt-in, locally scoped, visible, revocable, and auditable. Arbitrary remote control is not an MVP feature.
 
-## 19. Plugin and tool ecosystem
+## 18. Plugin and tool ecosystem
 
 A future registry may let developers publish integrations. Installation must include manifest validation, declared permissions, version pinning, provenance, sandboxing where feasible, and clear warnings for privileged tools.
 
-## 20. Web, mobile, and runtime strategy
+## 19. Web, mobile, and runtime strategy
 
 Start with a responsive web application and installable PWA rather than separate native iOS and Android codebases.
 
@@ -364,7 +349,7 @@ Target runtimes:
 
 Native/mobile executors can be added later if required for device capabilities.
 
-## 21. Deployment and onboarding
+## 20. Deployment and onboarding
 
 Initial deployment methods should include:
 
@@ -376,7 +361,7 @@ Long-term onboarding may detect available free options and guide the user throug
 
 The architecture may later support hosted service, sponsored infrastructure, or a separate commercial convenience offering. None is currently an official product direction or dependency.
 
-## 22. API
+## 21. API
 
 Core capabilities should eventually be API-accessible, including:
 
@@ -390,7 +375,7 @@ Core capabilities should eventually be API-accessible, including:
 
 The web app should use the same domain services as the public/local API rather than maintaining separate business logic.
 
-## 23. Observability
+## 22. Observability
 
 Every autonomous run receives an execution ID and structured trace.
 
@@ -411,7 +396,7 @@ Useful events include:
 
 Secrets and unnecessarily sensitive tool payloads must be redacted. Beginner UI explains failures plainly; Advanced Mode exposes technical detail.
 
-## 24. Security and privacy baseline
+## 23. Security and privacy baseline
 
 - No secrets committed to Git.
 - `.env` and local secret files ignored by default.
@@ -428,7 +413,7 @@ Secrets and unnecessarily sensitive tool payloads must be redacted. Beginner UI 
 - No untrusted pull-request workflow may access production secrets.
 - Clear retention and deletion controls.
 
-## 25. Conceptual architecture
+## 24. Conceptual architecture
 
 ```text
 User / PWA / API
@@ -445,14 +430,14 @@ Permission Engine
 Capability / Tool Registry
   +-----+--------+---------+----------+
   |              |         |          |
- Web           MCP/API    OAuth     Device (future)
+ Web             API      OAuth     Device (future)
         |
 Model Router -> Quota/Provider Router -> Providers/local models
 ```
 
 Cross-cutting concerns are authentication, secrets, security, privacy, observability, tenancy, reliability, and cost accounting.
 
-## 26. MVP: the first useful vertical slice
+## 25. MVP: the first useful vertical slice
 
 The MVP is deliberately narrower than the complete vision.
 
@@ -493,7 +478,7 @@ The agent executes it the following day without user intervention, uses a free a
 - Advanced vector-memory system unless evidence proves it necessary.
 - Automatic deployment to many clouds.
 
-## 27. Proposed delivery roadmap
+## 26. Proposed delivery roadmap
 
 ### Development operating model
 
@@ -559,10 +544,8 @@ Coordination rules:
 
 ### Phase 3 — Extensibility (v0.3)
 
-- MCP client integration.
 - Stable tool schemas and permission metadata.
 - Local/public API.
-- Up Digital MCP proof of concept for authorized daily business briefing.
 
 ### Phase 4 — Connected accounts (v0.4)
 
@@ -584,7 +567,7 @@ Coordination rules:
 - More sophisticated workflows and optional multi-agent behavior.
 - Possible hosted convenience product, without weakening the free self-hosted core.
 
-## 28. Immediate technical decisions still required
+## 27. Immediate technical decisions still required
 
 Before implementation, decide and record ADRs for:
 
@@ -610,7 +593,7 @@ Current recommendation to validate, not yet a final decision:
 - Docker Compose as the reference runtime.
 - Provider, search, delivery, and tool adapters defined as interfaces from day one.
 
-## 29. First acceptance test
+## 28. First acceptance test
 
 The first development milestone is complete only when:
 
@@ -625,7 +608,7 @@ The first development milestone is complete only when:
 9. The execution page shows steps, provider route, fallbacks, latency, errors, and estimated cost.
 10. No secret appears in source control or logs.
 
-## 30. Success criteria
+## 29. Success criteria
 
 - The creator depends on it for 30 consecutive days.
 - The normal operating path remains R$0 for creator and user.
@@ -633,10 +616,10 @@ The first development milestone is complete only when:
 - Nontechnical users can create reliable automations in natural language.
 - Free-provider failures fall back cleanly.
 - Users can understand why an action happened or failed.
-- Developers can extend the agent through documented adapters, MCP, and APIs.
+- Developers can extend the agent through documented adapters and APIs.
 - GitHub adoption comes from real utility rather than feature count.
 
-## 31. Decisions versus possibilities
+## 30. Decisions versus possibilities
 
 Decided:
 
@@ -646,7 +629,6 @@ Decided:
 - PWA before native apps.
 - Provider-agnostic and self-hostable.
 - Optional BYOK/premium power.
-- MCP as a first-class mechanism.
 - Explicit permissions and risk-based confirmation.
 - No password/raw payment credential storage.
 - Narrow daily-briefing vertical slice first.
@@ -660,7 +642,7 @@ Future possibilities, not current commitments:
 - Plugin marketplace.
 - Multi-agent workflows.
 
-## 32. Source-of-truth rule
+## 31. Source-of-truth rule
 
 This file is the portable, detailed source of truth for the project. Product principles, architectural decisions, scope changes, roadmap changes, and important unresolved questions must be reflected here.
 

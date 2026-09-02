@@ -21,4 +21,8 @@ updated: 2026-09-02
 - Created the Git-versioned Obsidian-compatible project brain.
 - Custom-agent discovery remains pending until Codex is restarted.
 
+## 2026-09-02 — Product scope update
+
+- Removed the deprecated external-integration and business-briefing scope from the project source of truth, roadmap, architecture map, and agent instructions.
+
 Use [[templates/Session]] for future entries. Record outcomes and durable context, not full transcripts.

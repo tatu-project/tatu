@@ -141,7 +141,6 @@ Acceptance test:
 
 ## Later roadmap
 
-- MCP foundation and Up Digital daily business briefing.
 - OAuth and first connected account.
 - Conditional/event automations.
 - Plugin/tool ecosystem.

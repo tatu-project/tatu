@@ -16,7 +16,7 @@ User / PWA / API
   -> Memory, planning, scheduling, and automation
   -> Permission Engine
   -> Capability / Tool Registry
-  -> Web, MCP/API, OAuth, and future device adapters
+  -> Web/API, OAuth, and future device adapters
   -> Model Router
   -> Quota / Provider Router
   -> Replaceable providers or local models
