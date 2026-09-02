@@ -19,6 +19,6 @@ updated: 2026-09-02
 - Added project-scoped `recon`, `executor`, and `reviewer` definitions with fixed subagent models and bounded responsibilities.
 - Documented the primary-session orchestrator workflow without pinning its model.
 - Created the Git-versioned Obsidian-compatible project brain.
-- Custom-agent discovery remains pending until Codex is restarted.
+- After restarting Codex and VS Code, `recon`, `executor`, and `reviewer` were each dispatched successfully; their scoped configuration and Git restrictions were verified.
 
 Use [[templates/Session]] for future entries. Record outcomes and durable context, not full transcripts.
