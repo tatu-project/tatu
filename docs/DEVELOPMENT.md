@@ -6,7 +6,7 @@
 - Visual Studio Code.
 - Codex extension for VS Code.
 - A GitHub account with access to the repository.
-- Node.js only after Stage 2 confirms the supported version.
+- Node.js `>=24.11.0 <25` and npm `>=11.6.0 <12`.
 
 Docker Desktop and GitHub CLI are useful but are not mandatory for adding the initial documentation files.
 
@@ -24,9 +24,24 @@ gh --version
 
 `command not found` means that tool is not installed or not available in the terminal path.
 
-## Why Node.js
+## Local development
 
-The current technical recommendation is a TypeScript application. Node.js runs the development tools, web/backend code, package manager scripts, tests, and builds. The exact supported Node.js version will be pinned during Stage 2 instead of relying on whichever version happens to be installed.
+From a clean clone, install the committed dependency set and start the API with its standby worker:
+
+```bash
+npm ci
+npm run dev
+```
+
+Open `http://localhost:3000` for the responsive Tatu Health page. Its machine-readable health contract is available at `http://localhost:3000/api/health`.
+
+Run the complete local quality suite with:
+
+```bash
+npm run ci
+```
+
+The selected npm-workspaces TypeScript stack and Node-built-in production runtime are recorded in [`ADR-0001`](decisions/ADR-0001-initial-stack.md).
 
 ## Why Docker Desktop
 
@@ -91,7 +106,7 @@ Repository-safe VS Code settings may be committed under `.vscode/`. The `.gitign
 
 This keeps useful project behavior aligned without attempting to clone the entire workstation. Credentials, GitHub login, Codex login, personal VS Code preferences, absolute local paths, caches, and secrets must remain local.
 
-When Stage 2 selects the stack, the repository will also pin the Node.js version, package manager, lockfile, formatter, lint rules, TypeScript settings, and repeatable setup commands. Those files—not Docker alone—will make both development environments equivalent.
+The repository pins the Node.js range, npm version, lockfile, formatter, lint rules, TypeScript settings, and repeatable setup commands. Those files—not Docker alone—make both development environments equivalent.
 
 ## First documentation commit
 
@@ -124,4 +139,4 @@ git switch main
 git pull --ff-only
 ```
 
-The next Codex task is Stage 2, beginning with ADR-0001 and environment detection. Do not scaffold the application before that decision is recorded.
+Stage 2 is complete. The next gated Codex task is Stage 3; do not begin it until explicitly directed.

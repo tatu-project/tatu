@@ -1,0 +1,32 @@
+{
+  "name": "tatu",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=24.11.0 <25",
+    "npm": ">=11.6.0 <12"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run build && node scripts/dev.mjs",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "typecheck": "tsc -b --pretty false",
+    "test": "npm run build && node --test packages/shared/dist/**/*.test.js apps/api/dist/**/*.test.js",
+    "build": "tsc -b --pretty false",
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run build",
+    "ci": "npm run check"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@types/node": "^24.10.1",
+    "eslint": "^9.39.1",
+    "prettier": "^3.7.4",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.4"
+  }
+}

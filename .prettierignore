@@ -1,0 +1,6 @@
+node_modules/
+dist/
+coverage/
+.github/ISSUE_TEMPLATE/
+PROJECT.md
+brain/07-Session-Log.md

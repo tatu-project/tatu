@@ -2,7 +2,7 @@
 
 > A free and open-source personal AI agent that works for you 24/7.
 
-**Status:** early development. Tatu is not ready for production use yet.
+**Status:** early development. The technical foundation is ready; Tatu is not ready for production use yet.
 
 Tatu aims to let anyone describe what they want in natural language while the system handles scheduling, research, tools, memory, model selection, free-provider fallback, permissions, and execution traces.
 
@@ -25,7 +25,7 @@ Tatu must execute this automatically on the following day, use an available free
 
 ## Current status
 
-The project is in repository and technical-foundation setup. See:
+Stage 2 technical foundation is complete. See:
 
 - [`PROJECT.md`](PROJECT.md) for the product source of truth.
 - [`ROADMAP.md`](ROADMAP.md) for stages and current progress.
@@ -43,7 +43,24 @@ The project is in repository and technical-foundation setup. See:
 
 ## Development
 
-The development stack is not final until Stage 2 records ADR-0001. Do not follow guessed installation commands yet. Start with [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md).
+Requirements: Node.js `>=24.11.0 <25` and npm `>=11.6.0 <12`.
+
+From a clean clone, install and start both the API and standby worker with:
+
+```sh
+npm ci
+npm run dev
+```
+
+Open `http://localhost:3000` for the responsive Tatu Health page, or `http://localhost:3000/api/health` for its JSON contract. Stop the development processes with `Ctrl+C`.
+
+Run the full local quality suite with:
+
+```sh
+npm run ci
+```
+
+The initial stack and its dependency-free production-runtime decision are recorded in [`ADR-0001`](docs/decisions/ADR-0001-initial-stack.md).
 
 ## Security
 

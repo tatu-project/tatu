@@ -12,12 +12,8 @@ Individual technical decisions are authoritative only when recorded under [`docs
 
 ## Accepted ADRs
 
-None yet.
+- [ADR-0001: Initial technical foundation](../docs/decisions/ADR-0001-initial-stack.md) — accepted September 2, 2026; selects npm workspaces, TypeScript, Node.js, and a dependency-free production runtime.
 
-## Next expected decision
-
-ADR-0001 will select the initial technical stack during Stage 2. It has not been created or accepted.
-
-Use [[templates/Decision]] as a drafting aid, then place the accepted record in `docs/decisions/` using the repository's sequential naming convention.
+Use [[templates/Decision]] as a drafting aid, then place accepted records in `docs/decisions/` using the repository's sequential naming convention.
 
 Related: [[06-Open-Questions]].

@@ -1,6 +1,6 @@
 # Tatu Roadmap
 
-> Current status: Stage 1 — repository foundation
+> Current status: Stage 2 — technical foundation complete
 > Rule: check an item only after its acceptance criterion has been verified.
 > Compact session context: [`brain/04-Current-State.md`](brain/04-Current-State.md).
 
@@ -34,27 +34,31 @@ Acceptance test:
 
 Verification note (September 2, 2026): the initial file set and repository-safe VS Code configuration were reviewed; Codex confirmed the `AGENTS.md` workflow; Git, Node.js, npm, and Docker were detected on the first founder's computer; and commit `9134593` containing the documentation foundation was pushed directly to `origin/main` using the configured founder bypass. After Codex and VS Code were restarted, the project-scoped `recon`, `executor`, and `reviewer` agents were each dispatched successfully. Their declared models, reasoning effort, sandbox modes, required fields, and Git restrictions were independently verified. Founder 2 attested that they accepted organization access, cloned the repository at `C:\Users\vitti\OneDrive\Desktop\tatu`, opened it in VS Code, and ran `git push --dry-run origin main` with `Everything up-to-date`; commit `844ed99` by Vittor Augusto Gomes is on `origin/main`. Founder 2 also reported Node.js `v24.13.0` and npm `11.6.2`.
 
-Next action: Stage 1 is complete. Do not begin Stage 2 until explicitly directed.
+Next action: Stage 1 is complete; its collaboration foundation supports the completed Stage 2 technical foundation.
 
 ## Stage 2 — Technical foundation
 
 Outcome: a clean development environment starts the initial Tatu application and runs all checks.
 
-- [ ] Create ADR-0001 for the initial stack.
-- [ ] Confirm the supported Node.js version and package manager.
-- [ ] Create the TypeScript monorepo structure.
-- [ ] Add web application, API/worker, and shared packages.
-- [ ] Add formatting, lint, typecheck, tests, and build scripts.
-- [ ] Add `.env.example` with no real credentials.
-- [ ] Add CI workflow with required checks.
-- [ ] Document one-command local development setup.
-- [ ] Render a basic Tatu health page locally.
+- [x] Create ADR-0001 for the initial stack.
+- [x] Confirm the supported Node.js version and package manager.
+- [x] Create the TypeScript monorepo structure.
+- [x] Add web application, API/worker, and shared packages.
+- [x] Add formatting, lint, typecheck, tests, and build scripts.
+- [x] Add `.env.example` with no real credentials.
+- [x] Add CI workflow with required checks.
+- [x] Document one-command local development setup.
+- [x] Render a basic Tatu health page locally.
 
 Acceptance test:
 
 - A clean clone installs dependencies and starts locally using documented commands.
 - Formatting, lint, typecheck, tests, and build all pass.
 - CI runs the same checks on a pull request.
+
+Verification note (September 2, 2026): Node.js `v24.11.1` and npm `11.6.4` ran `npm ci` successfully. `npm run ci` passed formatting, lint, TypeScript typecheck, three Node built-in tests, and build. `npm run dev` started the API and standby worker; `GET /api/health` returned `200` with the typed healthy status, and `GET /` returned `200` with the Tatu Health page.
+
+Next action: begin Stage 3 only when explicitly directed.
 
 ## Stage 3 — Create and persist a scheduled briefing
 

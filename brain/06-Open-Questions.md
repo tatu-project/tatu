@@ -8,14 +8,10 @@ updated: 2026-09-02
 
 # Open Questions
 
-## Foundation
+## Future architecture
 
-- Has the second founder accepted organization access and verified clone, VS Code, push authentication, and Node.js availability?
-- Does a freshly restarted Codex session discover `recon`, `executor`, and `reviewer` from the project configuration?
-
-## Stage 2 decisions
-
-- Which Node.js version and package manager will be supported?
-- Which TypeScript monorepo, web, API, database, scheduler, and testing stack best satisfies the zero-cost and local-first constraints?
+- Which local-first persistence and scheduler design should Stage 3 adopt while preserving reliable restart recovery?
+- Which zero-cost research route can satisfy the cited-briefing requirements in Stage 5?
+- What encrypted-secret storage approach best supports future BYOK connections across the supported deployment paths?
 
 The full list of technical decisions awaiting ADRs remains in [`PROJECT.md`](../PROJECT.md). Progress and blockers remain in [`ROADMAP.md`](../ROADMAP.md).

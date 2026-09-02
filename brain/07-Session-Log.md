@@ -32,4 +32,11 @@ updated: 2026-09-02
 - Founder 2 reported Node.js `v24.13.0` and npm `11.6.2`; commit `844ed99` by Vittor Augusto Gomes is on `origin/main`.
 - The remaining Stage 1 collaboration checks are complete. Stage 2 has not started.
 
+## 2026-09-02 — Stage 2 technical foundation
+
+- Added the npm-workspaces TypeScript monorepo with a Node HTTP API, responsive Tatu Health page, standby worker, and typed shared health contract.
+- Chose Node.js `>=24.11.0 <25`, npm `>=11.6.0 <12`, and a production runtime using only Node built-ins and TypeScript; the decision is recorded in ADR-0001.
+- Verified `npm ci`, the full `npm run ci` quality suite, and the development server responses for `/` and `/api/health`.
+- Stage 2 is complete. Stage 3 has not started.
+
 Use [[templates/Session]] for future entries. Record outcomes and durable context, not full transcripts.
