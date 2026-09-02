@@ -1,0 +1,28 @@
+name: Feature request
+description: Propose a focused improvement aligned with the Tatu roadmap
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: Please review PROJECT.md and ROADMAP.md before proposing a change.
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Desired outcome
+      description: Describe the user outcome rather than only a specific implementation.
+    validations:
+      required: true
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: Explain who benefits and which problem this solves.
+    validations:
+      required: true
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Constraints and alternatives
+      description: Note zero-cost, security, portability, or compatibility implications and alternatives considered.

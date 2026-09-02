@@ -1,0 +1,8 @@
+{
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "editor.formatOnSave": false,
+  "git.autofetch": true,
+  "git.confirmSync": true
+}
