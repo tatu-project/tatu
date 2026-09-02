@@ -21,4 +21,9 @@ updated: 2026-09-02
 - Created the Git-versioned Obsidian-compatible project brain.
 - After restarting Codex and VS Code, `recon`, `executor`, and `reviewer` were each dispatched successfully; their scoped configuration and Git restrictions were verified.
 
+## 2026-09-02 — Founder 2 online
+
+- Founder 2 is online for the Tatu session.
+- This records presence only; organization access, clone/open, GitHub push authentication, and Node.js availability remain unverified.
+
 Use [[templates/Session]] for future entries. Record outcomes and durable context, not full transcripts.
