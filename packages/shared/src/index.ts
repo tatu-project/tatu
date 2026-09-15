@@ -201,6 +201,15 @@ export interface QuotaProviderRouter {
 }
 
 export type { ExecutionStore, TaskStore, TatuStore } from './persistence.js';
+export type {
+  ByokAuthKind,
+  ByokConnectionInput,
+  ByokConnectionMetadata,
+  ByokConnectionManager,
+  EncryptedSecretEnvelope,
+  EncryptedSecretRecord,
+  EncryptedSecretRecordStore,
+} from './byok.js';
 
 const normalize = (value: string) =>
   value

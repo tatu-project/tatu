@@ -1,6 +1,6 @@
 # Tatu Roadmap
 
-> Current status: Stages 4 and 5 are complete; Stage 6 has capability-metadata, provider-state, model-router, quota/provider-router, and development-fallback foundations.
+> Current status: Stages 4 and 5 are complete; Stage 6 has capability-metadata, provider-state, model-router, quota/provider-router, development-fallback, and local BYOK encrypted-storage foundations.
 > Rule: check an item only after its acceptance criterion has been verified.
 > Compact session context: [`brain/04-Current-State.md`](brain/04-Current-State.md).
 
@@ -125,14 +125,14 @@ Outcome: Tatu selects an eligible model route and falls back without losing the 
 - [x] Model Router implemented.
 - [x] Quota/Provider Router implemented separately.
 - [x] At least two eligible routes or one real route plus deterministic development fallback.
-- [ ] BYOK connection and encrypted secret storage implemented.
+- [x] BYOK connection and encrypted secret storage implemented as a replaceable local foundation.
 - [ ] Fallback behavior tested.
 
 Acceptance test:
 
 - When the preferred route is unavailable, the execution continues through another eligible route and records the fallback.
 
-Verification note (September 15, 2026): `@tatu/shared` defines readonly `BriefingModelMetadata`, `BriefingModelRequest`, `ModelRouter`, `ProviderRouteCandidate`, and `QuotaProviderRouter` contracts with a typed capability vocabulary for briefing synthesis, structured JSON, and citation preservation. `OllamaBriefingModel` exposes frozen metadata for its configured model ID, `CapabilityModelRouter` selects the first candidate satisfying every requested capability, and `QuotaProviderRouter` selects the first provider-bound candidate whose model is suitable and whose observed provider state is healthy with nonzero-or-unknown quota and rate limits. The existing worker acceptance covers the first real `local-ollama` model route and the explicit `deterministic-rss` route when no model is configured; ADR-0010 records this as the development-fallback outcome. These selectors do not invoke models during selection, mutate candidates, call providers during routing, persist state, retry, or perform automatic failure fallback. The full `npm run ci` suite passed with 53 tests, including focused provider-router coverage. Automatic fallback after a model failure, multiple live providers, BYOK, and worker route orchestration remain unchecked.
+Verification note (September 15, 2026): `@tatu/shared` defines readonly `BriefingModelMetadata`, `BriefingModelRequest`, `ModelRouter`, `ProviderRouteCandidate`, `QuotaProviderRouter`, `ByokConnectionManager`, and encrypted-record backing contracts. `OllamaBriefingModel` exposes frozen metadata for its configured model ID, `CapabilityModelRouter` selects the first candidate satisfying every requested capability, and `QuotaProviderRouter` selects the first provider-bound candidate whose model is suitable and whose observed provider state is healthy with nonzero-or-unknown quota and rate limits. The existing worker acceptance covers the first real `local-ollama` model route and the explicit `deterministic-rss` route when no model is configured; ADR-0010 records this as the development-fallback outcome. ADR-0011 records the local BYOK foundation: `ByokConnectionService` encrypts secrets with AES-256-GCM under a caller-supplied 32-byte key, stores only authenticated encrypted envelopes through a replaceable port, returns metadata-only owner-scoped listings, and rejects tampering, altered authenticated data, wrong keys, malformed records, and unsupported algorithms. The full `npm run ci` suite passed with 59 tests. Provider authentication/OAuth, key management and rotation, durable production persistence, worker route integration, multiple live providers, and automatic fallback after a model failure remain unchecked.
 
 ## Stage 7 — Delivery, observability, and 30-day trial
 

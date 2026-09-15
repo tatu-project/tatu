@@ -4,7 +4,7 @@
 > Project name: Tatu (decided)
 > License: MIT (decided)
 > Project start: August 26, 2026
-> Last updated: September 2, 2026
+> Last updated: September 15, 2026
 
 ## 1. Executive summary
 
@@ -259,6 +259,8 @@ The routers are conceptually separate: model suitability is not the same decisio
 Users may connect their own provider accounts, API keys, subscriptions, or compatible endpoints. Potential categories include hosted providers, routers, and local models.
 
 Secrets must be encrypted at rest, redacted from logs, scoped to the owning user, and never exposed to the model unless a tool invocation strictly requires a derived credential mechanism.
+
+ADR-0011 provides the first local BYOK connection and encrypted-envelope foundation. The service uses AES-256-GCM before handing records to a replaceable backing port and enforces owner-scoped, metadata-only listing. Provider authentication/OAuth, key ownership and rotation, durable production persistence, and the production database decision remain open; the process-local adapter is not a production key-management system.
 
 ## 13. Universal capability and tool layer
 

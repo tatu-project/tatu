@@ -110,3 +110,10 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
 - Accepted ADR-0010: the existing local Ollama-compatible model route plus the explicit deterministic RSS route satisfy the one-real-route-plus-development-fallback outcome.
 - Verified the worker tests cover both route paths and preserve explicit `local-ollama` or `deterministic-rss` metadata. This does not claim automatic fallback after a model failure.
 - Automatic failure fallback, multiple live providers, BYOK, and worker route orchestration remain unchecked.
+
+## 2026-09-15 - Stage 6 local BYOK encrypted-storage foundation
+
+- Accepted ADR-0011: a replaceable shared BYOK connection/encrypted-record contract and a process-local storage adapter.
+- `ByokConnectionService` uses AES-256-GCM with a caller-supplied 32-byte key, random IVs, authenticated owner/provider data, metadata-only listings, and owner-scoped reveal/disconnect.
+- Tests cover encrypted-only backing, round trips, scope enforcement, size and input bounds, tampering, altered authenticated data, wrong keys, unsupported algorithms, and a replaceable backing store. The full suite passes with 59 tests.
+- Provider authentication/OAuth, key ownership/rotation, durable production persistence, worker route integration, automatic failure fallback, and production database choice remain open.

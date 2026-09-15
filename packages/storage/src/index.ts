@@ -4,3 +4,13 @@
  */
 export { SqliteTaskStore } from './sqlite-task-store.js';
 export { LocalScheduler } from './sqlite-scheduler.js';
+export {
+  BYOK_ENCRYPTION_ALGORITHM,
+  BYOK_MAX_SECRET_BYTES,
+  ByokConnectionError,
+  ByokConnectionService,
+  ByokConnectionStore,
+  EncryptedByokConnectionStore,
+  InMemoryEncryptedSecretRecordStore,
+} from './byok-connections.js';
+export type { ByokConnectionErrorCode } from './byok-connections.js';
