@@ -25,7 +25,7 @@ Tatu must execute this automatically on the following day, use an available free
 
 ## Current status
 
-Stage 4 is complete: the local worker durably schedules and executes idempotent occurrences, recovers recent missed work after restart, and records queryable execution events. SQLite is only the local v0.1 storage adapter; the production database decision remains open. See:
+Stage 4 is complete: the local worker durably schedules and executes idempotent occurrences, recovers recent missed work after restart, and records queryable execution events. The first deployment is one local/self-hosted installation per user using the SQLite v0.1 adapter; any remote/shared database decision remains future work. See:
 
 - [`PROJECT.md`](PROJECT.md) for the product source of truth.
 - [`ROADMAP.md`](ROADMAP.md) for stages and current progress.

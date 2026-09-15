@@ -37,7 +37,7 @@ Priority order:
 
 If a reliable setup requires seven free steps instead of three paid steps, the project chooses the free path and then improves the onboarding.
 
-The project must not create infrastructure costs that grow proportionally with public adoption. Default deployment should use the user's machine, homelab, account, or free infrastructure allocation. A future sponsored or hosted option may exist, but the open-source product cannot depend on it.
+The first deployment is one individual local/self-hosted installation per user, with data and execution in that user's environment. The project must not create infrastructure costs that grow proportionally with public adoption. A future sponsored, shared, or hosted option may exist, but the open-source product cannot depend on it.
 
 The creator's ChatGPT/Codex subscription is a personal development expense and is not considered an operating dependency of the product.
 
@@ -351,11 +351,7 @@ Native/mobile executors can be added later if required for device capabilities.
 
 ## 20. Deployment and onboarding
 
-Initial deployment methods should include:
-
-1. Docker Compose for self-hosters.
-2. A guided local setup.
-3. At least one documented zero-cost deployment path using the user's own account.
+The initial deployment method is a guided local/self-hosted setup for one user and one installation. It must run without a remote database or hosted service. Docker Compose, remote self-hosting, and account-based free compute remain follow-up options once a concrete need exists.
 
 Long-term onboarding may detect available free options and guide the user through account creation, authorization, deployment, provider setup, and health verification.
 
@@ -462,8 +458,8 @@ The agent executes it the following day without user intervention, uses a free a
 - Basic model/provider selection and fallback.
 - One free notification/delivery channel.
 - Execution traces, retries, and visible errors.
-- Docker Compose and guided local installation.
-- Basic authentication appropriate to chosen deployment mode.
+- Guided local installation for one personal agent and one local data store.
+- No remote authentication requirement for the initial individual deployment.
 - Cost indicator with a zero-cost target.
 
 ### 26.3 Explicitly excluded from MVP
@@ -581,16 +577,16 @@ Before implementation, decide and record ADRs for:
 8. First delivery/notification channel.
 9. Authentication for local and remote deployment.
 10. Secret encryption and key ownership.
-11. Initial zero-cost deployment target.
+11. Remote/shared deployment target, only when individual local deployment no longer fits the product need.
 
 Current recommendation to validate, not yet a final decision:
 
 - TypeScript end to end.
 - Monorepo with web app, API/worker, and shared packages.
 - Responsive PWA.
-- SQLite for the first single-user/local installation, with a clean repository layer and a planned PostgreSQL path for hosted/multi-user deployments.
+- SQLite as the implemented local adapter for the first single-user/local installation; a PostgreSQL adapter remains conditional on a future remote/shared deployment decision.
 - Durable database-backed jobs without requiring Redis for v0.1.
-- Docker Compose as the reference runtime.
+- Guided local/self-hosted runtime as the initial reference; Docker Compose remains a later packaging option.
 - Provider, search, delivery, and tool adapters defined as interfaces from day one.
 
 ## 28. First acceptance test

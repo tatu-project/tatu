@@ -3,14 +3,14 @@ title: Open Questions
 tags:
   - tatu
   - open-questions
-updated: 2026-09-08
+updated: 2026-09-15
 ---
 
 # Open Questions
 
 ## Future architecture
 
-- Which production database adapter should follow the local SQLite adapter: self-hosted PostgreSQL or a compatible hosted option?
+- What future evidence would require remote/shared deployment, and which PostgreSQL adapter should serve it then?
 - Which zero-cost research route can satisfy the cited-briefing requirements in Stage 5?
 - What encrypted-secret storage approach best supports future BYOK connections across the supported deployment paths?
 

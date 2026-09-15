@@ -51,3 +51,8 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
 - Isolated SQLite as the local `@tatu/storage` adapter behind database-independent persistence ports; PostgreSQL production selection remains open.
 - Added durable occurrence idempotency keys, leases, retry/cooperative timeout behavior, restart recovery, DST policy, immutable execution events, and bounded SQLite contention retries.
 - Verified 17 automated tests, including execution-event API history, idempotency-key propagation, and a real SQLite write-lock contention scenario.
+
+## 2026-09-15 — Individual local deployment decision
+
+- Accepted ADR-0004: the first continuous deployment is one local/self-hosted installation per user, with no remote database or hosted service.
+- Deferred PostgreSQL and remote/shared deployment until an explicit future product need exists.
