@@ -6,6 +6,7 @@ Use sequential files named `NNNN-short-title.md`, beginning with `0001`. Each re
 
 ## Accepted records
 
+- [ADR-0006: Model capability metadata](ADR-0006-model-capability-metadata.md) — accepted September 15, 2026.
 - [ADR-0005: Initial default research source](ADR-0005-default-research-source.md) — accepted September 15, 2026.
 
 - [ADR-0001: Initial technical foundation](ADR-0001-initial-stack.md) — accepted September 2, 2026.

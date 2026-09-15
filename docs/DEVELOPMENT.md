@@ -159,4 +159,4 @@ git switch main
 git pull --ff-only
 ```
 
-Stage 5 is complete for the deterministic cited-briefing acceptance: the default TechCrunch Artificial Intelligence feed produced three distinct cited stories in a temporary scheduled run, the result persisted, and the trace was `queued -> claimed -> succeeded`. The next gated task is Stage 6's provider/model routing and fallback work. The live run is an operational smoke check, not a network test required in CI.
+Stage 5 is complete for the deterministic cited-briefing acceptance: the default TechCrunch Artificial Intelligence feed produced three distinct cited stories in a temporary scheduled run, the result persisted, and the trace was `queued -> claimed -> succeeded`. Stage 6 has started with shared model capability metadata; provider routing, fallback, and BYOK remain future work. The live run is an operational smoke check, not a network test required in CI.

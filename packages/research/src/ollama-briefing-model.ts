@@ -1,4 +1,5 @@
 import type {
+  BriefingModelMetadata,
   BriefingResult,
   CitedStory,
   LocalBriefingModel,
@@ -12,11 +13,22 @@ export class ModelError extends Error {
   }
 }
 export class OllamaBriefingModel implements LocalBriefingModel {
+  readonly metadata: BriefingModelMetadata;
+
   constructor(
     private readonly model: string,
     private readonly endpoint = 'http://127.0.0.1:11434',
     private readonly request: typeof fetch = fetch,
-  ) {}
+  ) {
+    this.metadata = Object.freeze({
+      id: model,
+      capabilities: Object.freeze([
+        'briefing-synthesis',
+        'structured-json',
+        'citation-preservation',
+      ] as const),
+    });
+  }
   async synthesize(
     input: BriefingResult,
     signal: AbortSignal,

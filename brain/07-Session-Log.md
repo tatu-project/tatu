@@ -79,3 +79,9 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
 - Added standalone `AI` aliasing for the Portuguese and English artificial-intelligence topics without matching unrelated substrings such as `Mail`.
 - Verified a network-enabled temporary daily execution with the default feed: status `succeeded`, three distinct HTTPS stories, three source-backed facts, persisted briefing equal to the execution result, and immutable trace `queued` -> `claimed` -> `succeeded`.
 - The final local suite passed with 34 tests. Stage 5 is complete; Stage 6 provider/model routing and fallback is next.
+
+## 2026-09-15 — Stage 6 capability metadata
+
+- Accepted ADR-0006: model suitability is represented by readonly shared metadata, separate from provider health, quota, rate limits, credentials, and routing.
+- Added `BriefingModelCapability` values for `briefing-synthesis`, `structured-json`, and `citation-preservation`; `OllamaBriefingModel` exposes frozen metadata for its configured model ID.
+- Updated injected model fixtures and assertions. The full suite remains green with 34 tests; provider routing, fallback orchestration, and BYOK remain unchecked.

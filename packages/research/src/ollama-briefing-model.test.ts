@@ -28,18 +28,27 @@ const model = (response: string, ok = true) =>
     async () =>
       new Response(JSON.stringify({ response }), { status: ok ? 200 : 503 }),
   );
-test('accepts exact selected citations only', async () =>
+test('accepts exact selected citations only', async () => {
+  const adapter = model(JSON.stringify(facts));
   assert.deepEqual(
-    await model(JSON.stringify(facts)).synthesize(
-      facts,
-      new AbortController().signal,
-    ),
+    await adapter.synthesize(facts, new AbortController().signal),
     {
       ...facts,
       route: 'local-ollama',
       model: { id: 'local', route: 'local-ollama' },
     },
-  ));
+  );
+  assert.deepEqual(adapter.metadata, {
+    id: 'local',
+    capabilities: [
+      'briefing-synthesis',
+      'structured-json',
+      'citation-preservation',
+    ],
+  });
+  assert.equal(Object.isFrozen(adapter.metadata), true);
+  assert.equal(Object.isFrozen(adapter.metadata.capabilities), true);
+});
 test('rejects malformed and invented model outputs', async () => {
   await assert.rejects(
     model('{bad').synthesize(facts, new AbortController().signal),

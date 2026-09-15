@@ -96,7 +96,19 @@ export interface BriefingSynthesizer {
     signal: AbortSignal,
   ): Promise<BriefingResult>;
 }
+
+/** Suitability facts enforced by the briefing model adapter itself. */
+export type BriefingModelCapability =
+  'briefing-synthesis' | 'structured-json' | 'citation-preservation';
+
+/** Stable model identity and supported behavior, independent of provider state. */
+export interface BriefingModelMetadata {
+  readonly id: string;
+  readonly capabilities: readonly BriefingModelCapability[];
+}
+
 export interface LocalBriefingModel {
+  readonly metadata: BriefingModelMetadata;
   synthesize(
     input: BriefingResult,
     signal: AbortSignal,

@@ -1,6 +1,6 @@
 # Tatu Roadmap
 
-> Current status: Stages 4 and 5 are complete; Stage 6 is the next unchecked product outcome.
+> Current status: Stages 4 and 5 are complete; Stage 6 has started with its capability-metadata contract.
 > Rule: check an item only after its acceptance criterion has been verified.
 > Compact session context: [`brain/04-Current-State.md`](brain/04-Current-State.md).
 
@@ -120,7 +120,7 @@ Verification note (September 15, 2026): the database-independent research ports,
 
 Outcome: Tatu selects an eligible model route and falls back without losing the task.
 
-- [ ] Model capability metadata implemented.
+- [x] Model capability metadata implemented.
 - [ ] Provider health, quota, and rate-limit state implemented.
 - [ ] Model Router implemented.
 - [ ] Quota/Provider Router implemented separately.
@@ -131,6 +131,8 @@ Outcome: Tatu selects an eligible model route and falls back without losing the 
 Acceptance test:
 
 - When the preferred route is unavailable, the execution continues through another eligible route and records the fallback.
+
+Verification note (September 15, 2026): `@tatu/shared` now defines readonly `BriefingModelMetadata` and a typed capability vocabulary for briefing synthesis, structured JSON, and citation preservation. `LocalBriefingModel` requires this suitability metadata, and `OllamaBriefingModel` exposes frozen metadata for its configured model ID. Provider health, quota, rate limits, routing, BYOK, and fallback orchestration remain unchecked; the deterministic RSS result remains a non-model fallback. The full `npm run ci` suite passed with 34 tests.
 
 ## Stage 7 — Delivery, observability, and 30-day trial
 

@@ -130,6 +130,14 @@ test('keeps the deterministic route explicit when no local model is configured',
 test('wires a configured local model after research and persists route metadata', async () => {
   let received: BriefingResult | undefined;
   const model: LocalBriefingModel = {
+    metadata: {
+      id: 'local',
+      capabilities: [
+        'briefing-synthesis',
+        'structured-json',
+        'citation-preservation',
+      ],
+    },
     async synthesize(input) {
       received = input;
       return {
@@ -159,4 +167,12 @@ test('wires a configured local model after research and persists route metadata'
   assert.equal(received?.stories[0].url, 'https://source.test/story');
   assert.equal(output.route, 'local-ollama');
   assert.equal(output.model?.id, 'local');
+  assert.deepEqual(model.metadata, {
+    id: 'local',
+    capabilities: [
+      'briefing-synthesis',
+      'structured-json',
+      'citation-preservation',
+    ],
+  });
 });
