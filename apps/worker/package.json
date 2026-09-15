@@ -5,6 +5,7 @@
   "type": "module",
   "dependencies": {
     "@tatu/shared": "*",
+    "@tatu/research": "*",
     "@tatu/storage": "*"
   }
 }

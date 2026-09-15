@@ -37,6 +37,14 @@ Open `http://localhost:3000` for the responsive Tatu Health page. Its machine-re
 
 The current default is one local SQLite file at `data/tatu.sqlite`, configurable through `TATU_DATABASE_PATH`. The approved first deployment is an individual local/self-hosted installation using this adapter. A future PostgreSQL adapter may support a remote/shared deployment only after a new product decision; no Supabase, Firebase, VPS, or remote database is configured now.
 
+The worker's first research route is configurable and credential-free. Set one or more public HTTPS RSS feeds before running a real research occurrence:
+
+```bash
+TATU_RSS_FEEDS=https://example.org/news.xml,https://example.net/feed.xml npm run dev
+```
+
+The route validates article links, removes duplicates, ranks topical stories before recency, and persists only source-backed facts. If the variable is empty or the feeds cannot produce enough valid stories, the occurrence records a safe `research_failed` event instead of a successful placeholder. A saved result is available at `GET /api/executions/:id/briefing`. Model synthesis, provider selection, delivery, and a default source remain future Stage 5/6 work.
+
 Run the complete local quality suite with:
 
 ```bash
@@ -141,4 +149,4 @@ git switch main
 git pull --ff-only
 ```
 
-Stage 4 is complete: the current setup includes a durable local scheduler and execution events. The next gated Codex task is Stage 5; do not begin it until explicitly directed.
+Stage 4 is complete and Stage 5 research foundations are in progress. The next gated task is to select and verify a free/model route for a live three-story daily briefing; do not claim Stage 5 acceptance before that evidence exists.

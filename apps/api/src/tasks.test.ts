@@ -82,7 +82,28 @@ test('exposes persisted execution events through the API', async () => {
   await fetch(`${base}/api/briefing-drafts/${draftId}/confirm`, {
     method: 'POST',
   });
-  const scheduler = new LocalScheduler(db, 'api-test');
+  const scheduler = new LocalScheduler(db, 'api-test', async () =>
+    JSON.stringify({
+      topic: 'inteligência artificial',
+      stories: [
+        {
+          title: 'AI story',
+          url: 'https://source.test/story',
+          publishedAt: '2026-09-15T00:00:00.000Z',
+          source: 'source.test',
+        },
+      ],
+      facts: [
+        {
+          title: 'AI story',
+          url: 'https://source.test/story',
+          publishedAt: '2026-09-15T00:00:00.000Z',
+          source: 'source.test',
+        },
+      ],
+      inference: [],
+    }),
+  );
   await scheduler.poll(new Date(Date.now() + 24 * 60 * 60 * 1000));
   scheduler.close();
   const executions = (await fetch(`${base}/api/executions`).then((response) =>
@@ -95,6 +116,14 @@ test('exposes persisted execution events through the API', async () => {
   assert.deepEqual(
     events.map((event) => event.type),
     ['queued', 'claimed', 'succeeded'],
+  );
+  const savedBriefing = await fetch(
+    `${base}/api/executions/${executions[0].id}/briefing`,
+  );
+  assert.equal(savedBriefing.status, 200);
+  assert.equal(
+    (await savedBriefing.json()).stories[0].url,
+    'https://source.test/story',
   );
   await new Promise<void>((resolve) => server.close(() => resolve()));
   rmSync(dir, { recursive: true, force: true });

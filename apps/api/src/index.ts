@@ -65,6 +65,18 @@ export function createTatuServer(
       json(response, 200, repository.events(executionEvents[1]));
       return;
     }
+    const briefing = request.url?.match(
+      /^\/api\/executions\/([^/]+)\/briefing$/,
+    );
+    if (request.method === 'GET' && briefing) {
+      const result = repository.briefing(briefing[1]);
+      if (!result) {
+        json(response, 404, { error: 'Briefing não encontrado.' });
+        return;
+      }
+      json(response, 200, result);
+      return;
+    }
 
     if (request.method === 'POST' && request.url === '/api/briefing-drafts') {
       readJson(request)

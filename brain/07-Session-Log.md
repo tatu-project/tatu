@@ -3,7 +3,7 @@ title: Session Log
 tags:
   - tatu
   - session-log
-updated: 2026-09-08
+updated: 2026-09-15
 ---
 
 # Session Log
@@ -56,3 +56,11 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
 
 - Accepted ADR-0004: the first continuous deployment is one local/self-hosted installation per user, with no remote database or hosted service.
 - Deferred PostgreSQL and remote/shared deployment until an explicit future product need exists.
+
+## 2026-09-15 — Stage 5 research foundation
+
+- Added replaceable research contracts and a public HTTPS RSS adapter without credentials or provider lock-in.
+- Validated source URLs, propagated cooperative cancellation, ranked topical stories before recency, canonicalized/deduplicated links and titles, and persisted source-backed facts with no inferred claims.
+- Missing feeds and provider/quality failures remain visible as safe `research_failed` events; no placeholder success is recorded for the worker research path.
+- Added API result retrieval and worker/API/research coverage. `npm run ci` passed with 25 tests.
+- Stage 5 acceptance remains open: no default feed, free/model synthesis route, delivery, or live three-story daily run has been verified.

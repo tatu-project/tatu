@@ -1,9 +1,12 @@
 import { getHealthStatus } from '@tatu/shared';
 import { LocalScheduler } from '@tatu/storage';
+import { createResearchExecutor } from './research-executor.js';
 
 const status = getHealthStatus();
 const scheduler = new LocalScheduler(
   process.env.TATU_DATABASE_PATH ?? 'data/tatu.sqlite',
+  undefined,
+  createResearchExecutor(process.env.TATU_RSS_FEEDS),
 );
 let polling = false;
 const poll = async () => {

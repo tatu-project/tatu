@@ -75,7 +75,7 @@ export class LocalScheduler {
     private readonly execute: (
       context: ExecutionContext,
       signal: AbortSignal,
-    ) => void | Promise<void> = () => undefined,
+    ) => string | void | Promise<string | void> = () => undefined,
   ) {
     this.workerId = workerId;
     mkdirSync(dirname(path), { recursive: true });
@@ -266,15 +266,21 @@ INSERT OR IGNORE INTO schema_migrations VALUES (1);`);
       );
       const occurrence = this.db
         .prepare(
-          'SELECT occurrence_key as occurrenceKey FROM executions WHERE id=?',
+          'SELECT executions.occurrence_key as occurrenceKey,tasks.topic as topic,tasks.quantity as quantity FROM executions JOIN tasks ON tasks.id=executions.task_id WHERE executions.id=?',
         )
-        .get(candidate) as { occurrenceKey: string };
-      await Promise.race([
+        .get(candidate) as {
+        occurrenceKey: string;
+        topic: string;
+        quantity: number;
+      };
+      const result = await Promise.race([
         Promise.resolve().then(() =>
           this.execute(
             {
               executionId: candidate,
               idempotencyKey: occurrence.occurrenceKey,
+              topic: occurrence.topic,
+              quantity: occurrence.quantity,
             },
             signal,
           ),
@@ -284,17 +290,33 @@ INSERT OR IGNORE INTO schema_migrations VALUES (1);`);
       await this.atomicWithBusyRetry(() => {
         const done = this.db
           .prepare(
-            "UPDATE executions SET status='succeeded',result='stage4_placeholder',lease_expires_at=NULL,updated_at=? WHERE id=? AND status='running' AND claimed_by=?",
+            "UPDATE executions SET status='succeeded',result=?,lease_expires_at=NULL,updated_at=? WHERE id=? AND status='running' AND claimed_by=?",
           )
-          .run(stamp, candidate, this.workerId);
+          .run(result ?? 'stage4_placeholder', stamp, candidate, this.workerId);
         if (done.changes)
-          this.event(candidate, 'succeeded', stamp, 'stage4_placeholder');
+          this.event(candidate, 'succeeded', stamp, 'persisted_result');
       });
     } catch (error) {
+      const researchFailure =
+        error instanceof Error &&
+        [
+          'rss_unavailable',
+          'rss_not_configured',
+          'insufficient_cited_stories',
+          'invalid_rss_url',
+          'unsafe_rss_url',
+          'rss_too_large',
+          'rss_redirect_limit',
+          'invalid_quantity',
+          'invalid_research_context',
+          'research_timeout',
+        ].includes(error.message);
       const failure =
         error instanceof ExecutionTimeoutError
           ? 'execution_timeout'
-          : 'placeholder_failure';
+          : researchFailure
+            ? 'research_failure'
+            : 'placeholder_failure';
       await this.atomicWithBusyRetry(() => {
         const row = this.db
           .prepare(
@@ -321,6 +343,13 @@ INSERT OR IGNORE INTO schema_migrations VALUES (1);`);
           );
         if (failure === 'execution_timeout')
           this.event(candidate, 'timed_out', stamp, failure);
+        if (failure === 'research_failure')
+          this.event(
+            candidate,
+            'research_failed',
+            stamp,
+            error instanceof Error ? `research:${error.message}` : failure,
+          );
         this.event(
           candidate,
           terminal ? 'failed' : 'retry_scheduled',

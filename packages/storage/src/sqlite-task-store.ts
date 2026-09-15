@@ -3,11 +3,43 @@ import { dirname } from 'node:path';
 import Database from 'better-sqlite3';
 import type {
   BriefingDraft,
+  BriefingResult,
   BriefingTask,
   ExecutionEvent,
   ExecutionRecord,
   TatuStore,
 } from '@tatu/shared';
+
+const isCitedStory = (
+  value: unknown,
+): value is BriefingResult['stories'][number] => {
+  if (!value || typeof value !== 'object') return false;
+  const story = value as BriefingResult['stories'][number];
+  try {
+    return (
+      typeof story.title === 'string' &&
+      typeof story.source === 'string' &&
+      typeof story.publishedAt === 'string' &&
+      !Number.isNaN(Date.parse(story.publishedAt)) &&
+      new URL(story.url).protocol === 'https:'
+    );
+  } catch {
+    return false;
+  }
+};
+const isBriefingResult = (value: unknown): value is BriefingResult => {
+  if (!value || typeof value !== 'object') return false;
+  const result = value as Partial<BriefingResult>;
+  return (
+    typeof result.topic === 'string' &&
+    Array.isArray(result.stories) &&
+    Array.isArray(result.facts) &&
+    Array.isArray(result.inference) &&
+    result.stories.every(isCitedStory) &&
+    result.facts.every(isCitedStory) &&
+    result.inference.every((item) => typeof item === 'string')
+  );
+};
 
 /** SQLite is the local v0.1 adapter, not a production database decision. */
 export class SqliteTaskStore implements TatuStore {
@@ -50,6 +82,18 @@ export class SqliteTaskStore implements TatuStore {
         'SELECT id,task_id as taskId,occurrence_key as occurrenceKey,scheduled_for as scheduledFor,status,attempt,max_attempts as maxAttempts,available_at as availableAt,lease_expires_at as leaseExpiresAt,claimed_by as claimedBy,result,failure,created_at as createdAt,updated_at as updatedAt FROM executions ORDER BY created_at',
       )
       .all() as ExecutionRecord[];
+  }
+  briefing(executionId: string) {
+    const row = this.database
+      .prepare('SELECT result FROM executions WHERE id=?')
+      .get(executionId) as { result: string | null } | undefined;
+    if (!row?.result) return undefined;
+    try {
+      const result: unknown = JSON.parse(row.result);
+      return isBriefingResult(result) ? result : undefined;
+    } catch {
+      return undefined;
+    }
   }
   events(executionId: string): ExecutionEvent[] {
     return this.database

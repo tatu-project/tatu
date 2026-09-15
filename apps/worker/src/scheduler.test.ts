@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import Database from 'better-sqlite3';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -219,6 +219,87 @@ test('times out a cooperative executor and schedules a retry', async () => {
     ['queued', 'claimed', 'timed_out', 'retry_scheduled'],
   );
   scheduler.close();
+  rmSync(dir, { recursive: true, force: true });
+});
+
+test('persists a cited research result once and records safe research failure', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'tatu-research-'));
+  const path = join(dir, 'nested', 'tatu.sqlite');
+  mkdirSync(join(dir, 'nested'));
+  const seed = new Database(path);
+  seed.exec(
+    'CREATE TABLE tasks (id TEXT PRIMARY KEY, cadence TEXT, time TEXT, quantity INTEGER, topic TEXT, delivery_requested INTEGER, timezone TEXT, enabled INTEGER, created_at TEXT)',
+  );
+  seed
+    .prepare('INSERT INTO tasks VALUES (?,?,?,?,?,?,?,?,?)')
+    .run(
+      'research',
+      'daily',
+      '08:00',
+      3,
+      'ai',
+      1,
+      'America/Sao_Paulo',
+      1,
+      '2026-01-01T00:00:00Z',
+    );
+  seed.close();
+  const now = new Date('2026-01-01T12:00:00Z');
+  const good = new LocalScheduler(path, 'good', async () =>
+    JSON.stringify({
+      topic: 'ai',
+      stories: [
+        {
+          title: 'AI',
+          url: 'https://source.test/a',
+          publishedAt: '2026-01-01T00:00:00Z',
+          source: 'source.test',
+        },
+      ],
+      facts: [
+        {
+          title: 'AI',
+          url: 'https://source.test/a',
+          publishedAt: '2026-01-01T00:00:00Z',
+          source: 'source.test',
+        },
+      ],
+      inference: [],
+    }),
+  );
+  await good.poll(now);
+  const execution = good.list()[0];
+  assert.match(execution.result ?? '', /source.test/);
+  await good.poll(now);
+  assert.equal(good.list().length, 1);
+  good.close();
+  const bad = new LocalScheduler(path, 'bad', async () => {
+    throw new Error('rss_unavailable');
+  });
+  const second = new Database(path);
+  second
+    .prepare('INSERT INTO tasks VALUES (?,?,?,?,?,?,?,?,?)')
+    .run(
+      'failure',
+      'daily',
+      '08:00',
+      3,
+      'ai',
+      1,
+      'America/Sao_Paulo',
+      1,
+      '2026-01-01T00:00:00Z',
+    );
+  second.close();
+  await bad.poll(now);
+  const failed = bad.list().find((item) => item.taskId === 'failure');
+  assert.equal(failed?.result, null);
+  assert.equal(failed?.failure, 'research_failure');
+  assert.equal(
+    bad.events(failed!.id).some((event) => event.type === 'research_failed'),
+    true,
+  );
+  bad.close();
   rmSync(dir, { recursive: true, force: true });
 });
 

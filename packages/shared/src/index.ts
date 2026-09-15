@@ -49,7 +49,8 @@ export type ExecutionEventType =
   | 'timed_out'
   | 'retry_scheduled'
   | 'failed'
-  | 'skipped_dst_gap';
+  | 'skipped_dst_gap'
+  | 'research_failed';
 
 export interface ExecutionEvent {
   id: string;
@@ -62,6 +63,35 @@ export interface ExecutionEvent {
 export interface ExecutionContext {
   executionId: string;
   idempotencyKey: string;
+  topic?: string;
+  quantity?: number;
+}
+
+export interface CitedStory {
+  title: string;
+  url: string;
+  publishedAt: string;
+  source: string;
+}
+
+export interface BriefingResult {
+  topic: string;
+  stories: CitedStory[];
+  /** Every claim is source-backed; model inference is intentionally empty in this route. */
+  facts: CitedStory[];
+  inference: string[];
+}
+
+export interface ResearchFeed {
+  url: string;
+}
+export interface BriefingSynthesizer {
+  create(
+    topic: string,
+    quantity: number,
+    feeds: ResearchFeed[],
+    signal: AbortSignal,
+  ): Promise<BriefingResult>;
 }
 
 export type { ExecutionStore, TaskStore, TatuStore } from './persistence.js';

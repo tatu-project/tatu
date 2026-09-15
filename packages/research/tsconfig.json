@@ -10,10 +10,6 @@
     "target": "ES2024",
     "types": ["node"]
   },
-  "references": [
-    { "path": "../../packages/shared" },
-    { "path": "../../packages/storage" },
-    { "path": "../../packages/research" }
-  ],
+  "references": [{ "path": "../shared" }],
   "include": ["src/**/*.ts"]
 }
