@@ -2,7 +2,7 @@
 
 > A free and open-source personal AI agent that works for you 24/7.
 
-**Status:** early development. Stage 4 is complete and Stage 5 has a tested, configurable RSS research foundation; Tatu is not ready for production use yet.
+**Status:** early development. Stage 4 is complete and Stage 5 has tested RSS research plus an optional loopback Ollama route; Tatu is not ready for production use yet.
 
 Tatu aims to let anyone describe what they want in natural language while the system handles scheduling, research, tools, memory, model selection, free-provider fallback, permissions, and execution traces.
 
@@ -25,7 +25,7 @@ Tatu must execute this automatically on the following day, use an available free
 
 ## Current status
 
-Stage 4 is complete. Stage 5 can fetch and persist cited stories from public HTTPS RSS feeds configured through `TATU_RSS_FEEDS`, but no default feed or model synthesis provider has been selected. The first deployment is one local/self-hosted installation per user using the SQLite v0.1 adapter; any remote/shared database decision remains future work. See:
+Stage 4 is complete. Stage 5 can fetch and persist cited stories from public HTTPS RSS feeds configured through `TATU_RSS_FEEDS`, and can optionally synthesize them through a local Ollama-compatible endpoint configured with `TATU_OLLAMA_MODEL`. No default feed or live daily acceptance run has been selected. The first deployment is one local/self-hosted installation per user using the SQLite v0.1 adapter; any remote/shared database decision remains future work. See:
 
 - [`PROJECT.md`](PROJECT.md) for the product source of truth.
 - [`ROADMAP.md`](ROADMAP.md) for stages and current progress.

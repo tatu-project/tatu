@@ -63,4 +63,12 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
 - Validated source URLs, propagated cooperative cancellation, ranked topical stories before recency, canonicalized/deduplicated links and titles, and persisted source-backed facts with no inferred claims.
 - Missing feeds and provider/quality failures remain visible as safe `research_failed` events; no placeholder success is recorded for the worker research path.
 - Added API result retrieval and worker/API/research coverage. `npm run ci` passed with 25 tests.
-- Stage 5 acceptance remains open: no default feed, free/model synthesis route, delivery, or live three-story daily run has been verified.
+- Stage 5 acceptance remains open: no default feed, delivery, or live three-story daily run has been verified.
+
+## 2026-09-15 — Stage 5 local model route
+
+- Added the replaceable local model contract and optional loopback-only Ollama adapter using native `fetch` and strict JSON output.
+- Model output must preserve the selected topic and exact cited story set; invalid, unavailable, or timed-out output is discarded and traced as `model_failed`.
+- With no `TATU_OLLAMA_MODEL`, the deterministic RSS result is explicitly marked as the fallback route. No API key, remote endpoint, or secret persistence was introduced.
+- Worker wiring, scheduler event separation, model fixtures, and integration coverage passed in `npm run ci` with 31 tests.
+- Stage 5 acceptance remains open until a default source and a live three-story daily run (with or without local Ollama) are verified.

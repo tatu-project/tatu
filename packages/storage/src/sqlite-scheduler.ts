@@ -311,12 +311,19 @@ INSERT OR IGNORE INTO schema_migrations VALUES (1);`);
           'invalid_research_context',
           'research_timeout',
         ].includes(error.message);
+      const modelFailure =
+        error instanceof Error &&
+        ['model_unavailable', 'model_invalid_output', 'model_timeout'].includes(
+          error.message,
+        );
       const failure =
         error instanceof ExecutionTimeoutError
           ? 'execution_timeout'
-          : researchFailure
-            ? 'research_failure'
-            : 'placeholder_failure';
+          : modelFailure
+            ? 'model_failure'
+            : researchFailure
+              ? 'research_failure'
+              : 'placeholder_failure';
       await this.atomicWithBusyRetry(() => {
         const row = this.db
           .prepare(
@@ -349,6 +356,13 @@ INSERT OR IGNORE INTO schema_migrations VALUES (1);`);
             'research_failed',
             stamp,
             error instanceof Error ? `research:${error.message}` : failure,
+          );
+        if (failure === 'model_failure')
+          this.event(
+            candidate,
+            'model_failed',
+            stamp,
+            error instanceof Error ? `model:${error.message}` : failure,
           );
         this.event(
           candidate,

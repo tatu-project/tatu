@@ -6,7 +6,11 @@ const status = getHealthStatus();
 const scheduler = new LocalScheduler(
   process.env.TATU_DATABASE_PATH ?? 'data/tatu.sqlite',
   undefined,
-  createResearchExecutor(process.env.TATU_RSS_FEEDS),
+  createResearchExecutor(
+    process.env.TATU_RSS_FEEDS,
+    process.env.TATU_OLLAMA_MODEL,
+    process.env.TATU_OLLAMA_BASE_URL ?? process.env.TATU_OLLAMA_ENDPOINT,
+  ),
 );
 let polling = false;
 const poll = async () => {

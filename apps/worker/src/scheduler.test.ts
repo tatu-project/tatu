@@ -303,6 +303,44 @@ test('persists a cited research result once and records safe research failure', 
   rmSync(dir, { recursive: true, force: true });
 });
 
+test('records model failures separately from research failures', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'tatu-model-failure-'));
+  const path = join(dir, 'tatu.sqlite');
+  const scheduler = new LocalScheduler(path, 'model-failure', async () => {
+    throw new Error('model_invalid_output');
+  });
+  const db = new Database(path);
+  db.prepare('INSERT INTO tasks VALUES (?,?,?,?,?,?,?,?,?)').run(
+    'model-failure',
+    'daily',
+    '08:00',
+    1,
+    'ai',
+    1,
+    'America/Sao_Paulo',
+    1,
+    '2026-01-01T00:00:00Z',
+  );
+  db.close();
+  await scheduler.poll(new Date('2026-01-01T12:00:00Z'));
+  const execution = scheduler.list()[0];
+  assert.equal(execution.failure, 'model_failure');
+  assert.equal(
+    scheduler
+      .events(execution.id)
+      .some((event) => event.type === 'model_failed'),
+    true,
+  );
+  assert.equal(
+    scheduler
+      .events(execution.id)
+      .some((event) => event.type === 'research_failed'),
+    false,
+  );
+  scheduler.close();
+  rmSync(dir, { recursive: true, force: true });
+});
+
 test('does not create a duplicate or failure while SQLite is busy', async () => {
   const dir = mkdtempSync(join(tmpdir(), 'tatu-busy-'));
   const path = join(dir, 'tatu.sqlite');

@@ -358,7 +358,13 @@ export async function researchBriefing(
       allFailed ? 'rss_unavailable' : 'insufficient_cited_stories',
     );
   }
-  return { topic, stories, facts: stories, inference: [] };
+  return {
+    topic,
+    stories,
+    facts: stories,
+    inference: [],
+    route: 'deterministic-rss',
+  };
 }
 
 export class RssBriefingSynthesizer implements BriefingSynthesizer {
@@ -378,3 +384,4 @@ export class RssBriefingSynthesizer implements BriefingSynthesizer {
     );
   }
 }
+export { OllamaBriefingModel, ModelError } from './ollama-briefing-model.js';

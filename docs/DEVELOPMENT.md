@@ -43,7 +43,15 @@ The worker's first research route is configurable and credential-free. Set one o
 TATU_RSS_FEEDS=https://example.org/news.xml,https://example.net/feed.xml npm run dev
 ```
 
-The route validates article links, removes duplicates, ranks topical stories before recency, and persists only source-backed facts. If the variable is empty or the feeds cannot produce enough valid stories, the occurrence records a safe `research_failed` event instead of a successful placeholder. A saved result is available at `GET /api/executions/:id/briefing`. Model synthesis, provider selection, delivery, and a default source remain future Stage 5/6 work.
+The route validates article links, removes duplicates, ranks topical stories before recency, and persists only source-backed facts. If the variable is empty or the feeds cannot produce enough valid stories, the occurrence records a safe `research_failed` event instead of a successful placeholder. A saved result is available at `GET /api/executions/:id/briefing`.
+
+For optional local synthesis, install and run Ollama locally, choose a model, and set only its model name. The endpoint defaults to loopback and remote endpoints are rejected:
+
+```bash
+TATU_OLLAMA_MODEL=llama3.2 TATU_OLLAMA_BASE_URL=http://127.0.0.1:11434 npm run dev
+```
+
+The worker sends only the selected cited stories, requests strict JSON, validates every returned citation against those stories, and records `model_failed` on unavailable, timed-out, or invalid output. If `TATU_OLLAMA_MODEL` is empty, the deterministic source-backed RSS result remains the explicit fallback. Provider routing, quotas, BYOK, delivery, and a default source remain future work.
 
 Run the complete local quality suite with:
 
@@ -149,4 +157,4 @@ git switch main
 git pull --ff-only
 ```
 
-Stage 4 is complete and Stage 5 research foundations are in progress. The next gated task is to select and verify a free/model route for a live three-story daily briefing; do not claim Stage 5 acceptance before that evidence exists.
+Stage 4 is complete and the Stage 5 research/model foundations are in progress. The next gated task is to select a default public source and verify a live three-story daily briefing; do not claim Stage 5 acceptance before that evidence exists.

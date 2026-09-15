@@ -105,8 +105,8 @@ Outcome: an execution researches live sources and generates a useful cited brief
 - [x] First zero-cost search route implemented.
 - [x] Fetch/read pipeline implemented.
 - [x] Ranking and deduplication implemented.
-- [ ] Model adapter contract defined.
-- [ ] First free or user-supplied model route implemented.
+- [x] Model adapter contract defined.
+- [x] First free or user-supplied model route implemented.
 - [x] Briefing includes source links and separates facts from inference.
 - [x] Research failures are visible in the trace.
 
@@ -114,7 +114,7 @@ Acceptance test:
 
 - The daily AI task produces three current, non-duplicated, cited stories.
 
-Verification note (September 15, 2026): the database-independent research ports, configurable public HTTPS RSS route, XML read/validation, relevance-first ranking, canonical URL/title deduplication, cancellation propagation, bounded public fetching, private-destination rejection, structured source-backed facts with an empty inference list, persisted briefing retrieval, and safe `research_failed` trace events are covered by 25 passing tests. Missing `TATU_RSS_FEEDS` now fails safely instead of recording a fabricated success. The Stage 5 acceptance remains unchecked because no default source or free/model synthesis route has been selected, and a live three-story daily run has not yet been verified.
+Verification note (September 15, 2026): the database-independent research ports, configurable public HTTPS RSS route, XML read/validation, relevance-first ranking, canonical URL/title deduplication, cancellation propagation, bounded public fetching, private-destination rejection, structured source-backed facts with an empty inference list, persisted briefing retrieval, optional loopback-only Ollama JSON synthesis with strict citation validation, and separate `research_failed`/`model_failed` trace events are covered by 31 passing tests. Missing `TATU_RSS_FEEDS` fails safely instead of recording a fabricated success; missing `TATU_OLLAMA_MODEL` uses the explicit deterministic RSS route. The Stage 5 acceptance remains unchecked because no default source has been selected, Ollama has not been run live in this environment, and the daily three-story end-to-end run has not yet been verified.
 
 ## Stage 6 — Free routing, fallback, and BYOK
 
@@ -155,13 +155,13 @@ Acceptance test:
 
 This horizon organizes confirmed needs without replacing or renumbering the verified stages above.
 
-| Need                                | Status                                                                                                                                                                   | Planned verification                                                                                                        |
-| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
-| Persistence and deployment decision | Individual local/self-hosted deployment and the local SQLite adapter are decided; remote/shared PostgreSQL remains conditional future work.                              | Record a remote deployment need and a PostgreSQL adapter ADR before any remote migration.                                   |
-| Daily briefing end to end           | Scheduling, configurable RSS research, saved cited results, and failure traces are implemented; default source, model synthesis, and live acceptance run remain pending. | Stage 5 creates and executes a real three-story briefing, including provider failure and missed-schedule recovery.          |
-| Task monitoring and “Test now”      | Execution records/events exist; task-level monitoring, real result preview, and manual-run controls are not implemented.                                                 | Manual runs are separate from scheduled occurrences and are safe under repeated requests.                                   |
-| Free limits and provider fallback   | Not implemented.                                                                                                                                                         | Stage 6 distinguishes availability, rate limit, auth, temporary failure, capability compatibility, and authorized fallback. |
-| Editable personal memory            | Not implemented; development `brain/` is not product memory.                                                                                                             | Structured user memories are editable, selectable per task, and deletable without storing secrets or full transcripts.      |
+| Need                                | Status                                                                                                                                                                                         | Planned verification                                                                                                        |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Persistence and deployment decision | Individual local/self-hosted deployment and the local SQLite adapter are decided; remote/shared PostgreSQL remains conditional future work.                                                    | Record a remote deployment need and a PostgreSQL adapter ADR before any remote migration.                                   |
+| Daily briefing end to end           | Scheduling, configurable RSS research, saved cited results, deterministic fallback, and optional local model synthesis are implemented; default source and live acceptance run remain pending. | Stage 5 creates and executes a real three-story briefing, including provider failure and missed-schedule recovery.          |
+| Task monitoring and “Test now”      | Execution records/events exist; task-level monitoring, real result preview, and manual-run controls are not implemented.                                                                       | Manual runs are separate from scheduled occurrences and are safe under repeated requests.                                   |
+| Free limits and provider fallback   | Not implemented.                                                                                                                                                                               | Stage 6 distinguishes availability, rate limit, auth, temporary failure, capability compatibility, and authorized fallback. |
+| Editable personal memory            | Not implemented; development `brain/` is not product memory.                                                                                                                                   | Structured user memories are editable, selectable per task, and deletable without storing secrets or full transcripts.      |
 
 - OAuth and first connected account.
 - Conditional/event automations.

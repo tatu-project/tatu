@@ -50,7 +50,8 @@ export type ExecutionEventType =
   | 'retry_scheduled'
   | 'failed'
   | 'skipped_dst_gap'
-  | 'research_failed';
+  | 'research_failed'
+  | 'model_failed';
 
 export interface ExecutionEvent {
   id: string;
@@ -80,6 +81,8 @@ export interface BriefingResult {
   /** Every claim is source-backed; model inference is intentionally empty in this route. */
   facts: CitedStory[];
   inference: string[];
+  route?: 'deterministic-rss' | 'local-ollama';
+  model?: { id: string; route: 'local-ollama' };
 }
 
 export interface ResearchFeed {
@@ -90,6 +93,12 @@ export interface BriefingSynthesizer {
     topic: string,
     quantity: number,
     feeds: ResearchFeed[],
+    signal: AbortSignal,
+  ): Promise<BriefingResult>;
+}
+export interface LocalBriefingModel {
+  synthesize(
+    input: BriefingResult,
     signal: AbortSignal,
   ): Promise<BriefingResult>;
 }

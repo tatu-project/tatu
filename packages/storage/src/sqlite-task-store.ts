@@ -35,6 +35,12 @@ const isBriefingResult = (value: unknown): value is BriefingResult => {
     Array.isArray(result.stories) &&
     Array.isArray(result.facts) &&
     Array.isArray(result.inference) &&
+    (result.route === undefined ||
+      result.route === 'deterministic-rss' ||
+      result.route === 'local-ollama') &&
+    (result.model === undefined ||
+      (typeof result.model.id === 'string' &&
+        result.model.route === 'local-ollama')) &&
     result.stories.every(isCitedStory) &&
     result.facts.every(isCitedStory) &&
     result.inference.every((item) => typeof item === 'string')
