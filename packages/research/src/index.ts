@@ -404,3 +404,4 @@ export {
   InMemoryProviderStateStore,
   ProviderStateError,
 } from './provider-state.js';
+export { CapabilityModelRouter } from './model-router.js';

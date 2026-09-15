@@ -1,6 +1,6 @@
 # Tatu Roadmap
 
-> Current status: Stages 4 and 5 are complete; Stage 6 has capability-metadata and provider-state foundations.
+> Current status: Stages 4 and 5 are complete; Stage 6 has capability-metadata, provider-state, and model-router foundations.
 > Rule: check an item only after its acceptance criterion has been verified.
 > Compact session context: [`brain/04-Current-State.md`](brain/04-Current-State.md).
 
@@ -122,7 +122,7 @@ Outcome: Tatu selects an eligible model route and falls back without losing the 
 
 - [x] Model capability metadata implemented.
 - [x] Provider health, quota, and rate-limit state implemented.
-- [ ] Model Router implemented.
+- [x] Model Router implemented.
 - [ ] Quota/Provider Router implemented separately.
 - [ ] At least two eligible routes or one real route plus deterministic development fallback.
 - [ ] BYOK connection and encrypted secret storage implemented.
@@ -132,7 +132,7 @@ Acceptance test:
 
 - When the preferred route is unavailable, the execution continues through another eligible route and records the fallback.
 
-Verification note (September 15, 2026): `@tatu/shared` defines readonly `BriefingModelMetadata` and a typed capability vocabulary for briefing synthesis, structured JSON, and citation preservation. `LocalBriefingModel` requires this suitability metadata, and `OllamaBriefingModel` exposes frozen metadata for its configured model ID. `ProviderStateStore` and the process-local `InMemoryProviderStateStore` separately validate and track provider health, quota, rate limits, latency, and typed failures with defensive frozen snapshots. The provider-state implementation makes no provider calls, stores no credentials, performs no routing, and is not durable yet. The full `npm run ci` suite passed with 40 tests. Model Router, Quota/Provider Router, eligible-route selection, BYOK, and fallback orchestration remain unchecked; the deterministic RSS result remains a non-model fallback.
+Verification note (September 15, 2026): `@tatu/shared` defines readonly `BriefingModelMetadata`, `BriefingModelRequest`, and `ModelRouter` contracts with a typed capability vocabulary for briefing synthesis, structured JSON, and citation preservation. `OllamaBriefingModel` exposes frozen metadata for its configured model ID, and `CapabilityModelRouter` selects the first candidate satisfying every requested capability without invoking models or mutating candidates. `ProviderStateStore` and the process-local `InMemoryProviderStateStore` separately validate and track provider health, quota, rate limits, latency, and typed failures with defensive frozen snapshots. Neither foundation makes provider calls, stores credentials, performs quota/provider routing, or persists state. The full `npm run ci` suite passed with 46 tests. Quota/Provider Router, eligible-route selection, BYOK, and fallback orchestration remain unchecked; the deterministic RSS result remains a non-model fallback.
 
 ## Stage 7 — Delivery, observability, and 30-day trial
 

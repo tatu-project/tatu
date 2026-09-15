@@ -172,6 +172,19 @@ export interface LocalBriefingModel {
   ): Promise<BriefingResult>;
 }
 
+/** Suitability requirements for selecting a local briefing model. */
+export interface BriefingModelRequest {
+  readonly requiredCapabilities: readonly BriefingModelCapability[];
+}
+
+/** Selects a model by suitability only; provider availability is separate state. */
+export interface ModelRouter {
+  select(
+    request: BriefingModelRequest,
+    candidates: readonly LocalBriefingModel[],
+  ): LocalBriefingModel | undefined;
+}
+
 export type { ExecutionStore, TaskStore, TatuStore } from './persistence.js';
 
 const normalize = (value: string) =>

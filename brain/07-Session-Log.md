@@ -92,3 +92,9 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
 - Added `ProviderStateStore` in `@tatu/shared` and a validated, process-local `InMemoryProviderStateStore` in `@tatu/research` for health, quota, rate-limit, latency, and typed failure observations.
 - Defensive frozen snapshots, bounded diagnostics, runtime discriminant validation, and provider isolation are covered by the full 40-test suite. No provider calls, credentials, persistence, routing, BYOK, or fallback orchestration were introduced.
 - The next unchecked Stage 6 item is Model Router work; provider-state durability and production database choice remain open decisions.
+
+## 2026-09-15 - Stage 6 capability-only model router
+
+- Accepted ADR-0008: model suitability selection is a deterministic capability-only contract, separate from provider availability and quota routing.
+- Added `BriefingModelRequest`, `ModelRouter`, and `CapabilityModelRouter`; the router selects the first compatible candidate, returns `undefined` on no match, and never invokes or mutates candidates.
+- Ollama metadata qualification, empty/no-candidate behavior, first-match ordering, missing capabilities, non-invocation, and immutability are covered by the full 46-test suite. Quota/provider routing, fallback, BYOK, and worker integration remain unchecked.
