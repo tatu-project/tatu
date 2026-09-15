@@ -2,7 +2,7 @@
 
 > A free and open-source personal AI agent that works for you 24/7.
 
-**Status:** early development. Stage 3 can persist confirmed daily briefing tasks locally; Tatu is not ready for production use yet.
+**Status:** early development. Stage 4 provides durable local scheduled occurrences and execution traces; Tatu is not ready for production use yet.
 
 Tatu aims to let anyone describe what they want in natural language while the system handles scheduling, research, tools, memory, model selection, free-provider fallback, permissions, and execution traces.
 
@@ -25,7 +25,7 @@ Tatu must execute this automatically on the following day, use an available free
 
 ## Current status
 
-Stage 3 is complete: a daily briefing request can be parsed, confirmed, persisted locally, listed, and recovered after an API restart. Stage 4 execution is not started. See:
+Stage 4 is complete: the local worker durably schedules and executes idempotent occurrences, recovers recent missed work after restart, and records queryable execution events. SQLite is only the local v0.1 storage adapter; the production database decision remains open. See:
 
 - [`PROJECT.md`](PROJECT.md) for the product source of truth.
 - [`ROADMAP.md`](ROADMAP.md) for stages and current progress.

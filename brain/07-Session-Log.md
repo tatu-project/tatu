@@ -3,7 +3,7 @@ title: Session Log
 tags:
   - tatu
   - session-log
-updated: 2026-09-02
+updated: 2026-09-08
 ---
 
 # Session Log
@@ -45,3 +45,9 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
 
 - Added deterministic Portuguese drafting, confirmation, local SQLite persistence, Tasks UI, and restart recovery verification.
 - Stage 4 execution and scheduling have not started.
+
+## 2026-09-08 — Stage 4 durable execution engine
+
+- Isolated SQLite as the local `@tatu/storage` adapter behind database-independent persistence ports; PostgreSQL production selection remains open.
+- Added durable occurrence idempotency keys, leases, retry/cooperative timeout behavior, restart recovery, DST policy, immutable execution events, and bounded SQLite contention retries.
+- Verified 17 automated tests, including execution-event API history, idempotency-key propagation, and a real SQLite write-lock contention scenario.

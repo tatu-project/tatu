@@ -35,6 +35,8 @@ npm run dev
 
 Open `http://localhost:3000` for the responsive Tatu Health page. Its machine-readable health contract is available at `http://localhost:3000/api/health`.
 
+The current default is one local SQLite file at `data/tatu.sqlite`, configurable through `TATU_DATABASE_PATH`. It is the v0.1 adapter for an individual installation, not a selected production database or hosted service. A future PostgreSQL adapter may support self-hosted or compatible managed deployment after a product deployment decision; no Supabase, Firebase, VPS, or remote database is configured now.
+
 Run the complete local quality suite with:
 
 ```bash
@@ -139,4 +141,4 @@ git switch main
 git pull --ff-only
 ```
 
-Stage 3 is complete: the current setup includes local persisted briefing tasks. The next gated Codex task is Stage 4; do not begin it until explicitly directed.
+Stage 4 is complete: the current setup includes a durable local scheduler and execution events. The next gated Codex task is Stage 5; do not begin it until explicitly directed.

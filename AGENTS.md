@@ -64,6 +64,8 @@ For every meaningful implementation task, the orchestrator must:
 
 For read-only investigations, spawn `recon`; also spawn `reviewer` when the conclusion involves architectural, security, privacy, or other consequential judgment. The orchestrator synthesizes and communicates the result.
 
+Small, evident, low-risk corrections may be performed directly by the orchestrator when their scope and verification are clear. Meaningful implementation, architectural decisions, security-sensitive work, or changes spanning application boundaries still require the Recon, Executor, and Reviewer flow above. The orchestrator uses the model and reasoning effort selected for its current session; project configuration must preserve the existing Recon, Executor, and Reviewer definitions without selecting the orchestrator model.
+
 Every orchestrator-to-sub-agent prompt must be written in English and include:
 
 - Objective.
@@ -84,6 +86,9 @@ Never delegate vague prompts such as “investigate this” or “fix everything
 - Never mark a stage complete merely because code was generated.
 - A stage is complete only when every acceptance criterion is satisfied and the required verification passes.
 - If blocked, leave the item unchecked and record the blocker and exact next action in `ROADMAP.md`.
+- Continue authorized refactors and fixes autonomously. Size, duration, or implementation complexity alone is not a blocker.
+- Ask the user only for an unresolved product choice, an ambiguous conflict, or an action requiring authority not already granted. State the precise decision or authority needed.
+- Keep roadmap and brain notes compact and evidence-backed; they must link to authoritative decisions and code rather than duplicate their full specifications.
 
 ## Verification
 

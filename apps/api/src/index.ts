@@ -4,7 +4,8 @@ import { pathToFileURL } from 'node:url';
 import { getHealthStatus } from '@tatu/shared';
 import { parseBriefing, type BriefingDraft } from '@tatu/shared';
 import { renderHealthPage } from '@tatu/web';
-import { TaskRepository } from './task-repository.js';
+import { SqliteTaskStore } from '@tatu/storage';
+import type { TatuStore } from '@tatu/shared';
 
 const drafts = new Map<string, BriefingDraft>();
 const json = (
@@ -38,8 +39,8 @@ const readJson = async (request: import('node:http').IncomingMessage) => {
 };
 export function createTatuServer(
   databasePath = process.env.TATU_DATABASE_PATH ?? 'data/tatu.sqlite',
+  repository: TatuStore = new SqliteTaskStore(databasePath),
 ): Server {
-  const repository = new TaskRepository(databasePath);
   return createServer((request, response) => {
     if (request.method === 'GET' && request.url === '/api/health') {
       response.writeHead(200, {
@@ -51,6 +52,17 @@ export function createTatuServer(
 
     if (request.method === 'GET' && request.url === '/api/tasks') {
       json(response, 200, repository.list());
+      return;
+    }
+    if (request.method === 'GET' && request.url === '/api/executions') {
+      json(response, 200, repository.listExecutions());
+      return;
+    }
+    const executionEvents = request.url?.match(
+      /^\/api\/executions\/([^/]+)\/events$/,
+    );
+    if (request.method === 'GET' && executionEvents) {
+      json(response, 200, repository.events(executionEvents[1]));
       return;
     }
 

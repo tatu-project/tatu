@@ -1,6 +1,6 @@
 # Tatu Roadmap
 
-> Current status: Stage 3 — persisted briefing task complete; Stage 4 is gated and not started
+> Current status: Stage 4 is complete; Stage 5 is gated pending explicit direction.
 > Rule: check an item only after its acceptance criterion has been verified.
 > Compact session context: [`brain/04-Current-State.md`](brain/04-Current-State.md).
 
@@ -82,18 +82,20 @@ Verification note (September 2, 2026): the deterministic parser, API, SQLite rep
 
 ## Stage 4 — Durable execution engine
 
-Outcome: a persisted task executes exactly once at the configured time, including after restart.
+Outcome: a persisted task has one durable occurrence and idempotency key, executes once within Tatu at the configured time, and recovers safely after restart.
 
-- [ ] Database-backed scheduler implemented without paid infrastructure.
-- [ ] Worker claims jobs safely.
-- [ ] Duplicate execution prevention implemented.
-- [ ] Retry, timeout, and failure state implemented.
-- [ ] Execution history persisted.
-- [ ] Restart recovery tested.
+- [x] Database-backed scheduler implemented without paid infrastructure.
+- [x] Worker claims jobs safely.
+- [x] Duplicate execution prevention implemented.
+- [x] Retry, timeout, and failure state implemented.
+- [x] Execution history persisted.
+- [x] Restart recovery tested.
 
 Acceptance test:
 
-- A scheduled job survives restart and executes once, with a trace and final status.
+- A scheduled job survives restart and has one persisted occurrence, idempotency key, trace, and final status.
+
+Verification note (September 8, 2026): the SQLite local adapter is isolated in `@tatu/storage` behind database-independent persistence ports; no production database is selected. The scheduler uses durable occurrence keys, short transactional leases, WAL, bounded `SQLITE_BUSY` retries, cooperative timeout/retry/failure handling, DST gap/overlap policy, and immutable events exposed by `GET /api/executions/:id/events`. The full `npm run ci` suite passed with 17 tests, including restart recovery, timeout, API event history, idempotency-key propagation, and a real SQLite write-lock contention test. Future PostgreSQL (self-hosted or hosted) must implement the same ports; no Supabase, Firebase, or VPS is introduced here.
 
 ## Stage 5 — Web research and cited briefing
 
@@ -146,6 +148,18 @@ Acceptance test:
 - Tatu delivers the briefing automatically on the following day and exposes a complete, safe trace.
 
 ## Later roadmap
+
+## Planning horizon
+
+This horizon organizes confirmed needs without replacing or renumbering the verified stages above.
+
+| Need                                | Status                                                                                                                   | Planned verification                                                                                                        |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| Persistence and deployment decision | Local SQLite adapter and database ports exist; shared remote deployment and production PostgreSQL decision remain open.  | Record deployment mode and a PostgreSQL adapter ADR before any remote migration.                                            |
+| Daily briefing end to end           | Task scheduling exists; real search, provider summary, saved briefing result, and source citations are not implemented.  | Stage 5 creates and executes a real three-story briefing, including provider failure and missed-schedule recovery.          |
+| Task monitoring and “Test now”      | Execution records/events exist; task-level monitoring, real result preview, and manual-run controls are not implemented. | Manual runs are separate from scheduled occurrences and are safe under repeated requests.                                   |
+| Free limits and provider fallback   | Not implemented.                                                                                                         | Stage 6 distinguishes availability, rate limit, auth, temporary failure, capability compatibility, and authorized fallback. |
+| Editable personal memory            | Not implemented; development `brain/` is not product memory.                                                             | Structured user memories are editable, selectable per task, and deletable without storing secrets or full transcripts.      |
 
 - OAuth and first connected account.
 - Conditional/event automations.

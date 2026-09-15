@@ -3,7 +3,7 @@ title: Current State
 tags:
   - tatu
   - current-state
-updated: 2026-09-02
+updated: 2026-09-08
 ---
 
 # Current State
@@ -15,7 +15,7 @@ updated: 2026-09-02
 - The npm-workspaces TypeScript foundation uses Node.js `>=24.11.0 <25` and npm `>=11.6.0 <12`. ADR-0001's dependency-free Stage 2 runtime is superseded narrowly by ADR-0002: `better-sqlite3` is the sole approved production runtime dependency for local task persistence.
 - Founder 2 attested that organization access is active, the repository was cloned at `C:\Users\vitti\OneDrive\Desktop\tatu` and opened in VS Code, and `git push --dry-run origin main` returned `Everything up-to-date`. Node.js `v24.13.0` and npm `11.6.2` were reported; commit `844ed99` by Vittor Augusto Gomes is on `origin/main`.
 - `npm ci` and `npm run ci` were verified on Node.js `v24.11.1` and npm `11.6.4`; the dev smoke test returned `200` from both `/` and `/api/health`.
-- Stage 3 is complete: daily briefing tasks can be drafted, confirmed, persisted locally, listed, and recovered after API restart. Stage 4 has not started.
+- Stage 4 is complete: SQLite is isolated as the local `@tatu/storage` adapter behind persistence ports, while the future production PostgreSQL decision remains open. Durable occurrence keys are propagated as future adapter idempotency keys; local execution has a single final state, leases, retry/cooperative timeout, DST policy, restart recovery, immutable events, and `SQLITE_BUSY` contention handling. `npm run ci` passed with 17 tests, including API event, idempotency-key, and SQLite lock coverage.
 
 Exact progress and next action: [`ROADMAP.md`](../ROADMAP.md).
 

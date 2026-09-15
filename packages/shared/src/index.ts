@@ -25,6 +25,47 @@ export interface BriefingTask extends BriefingDraft {
   createdAt: string;
 }
 
+export interface ExecutionRecord {
+  id: string;
+  taskId: string;
+  occurrenceKey: string;
+  scheduledFor: string;
+  status: 'pending' | 'running' | 'succeeded' | 'failed' | 'skipped';
+  attempt: number;
+  maxAttempts: number;
+  availableAt: string;
+  leaseExpiresAt: string | null;
+  claimedBy: string | null;
+  result: string | null;
+  failure: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type ExecutionEventType =
+  | 'queued'
+  | 'claimed'
+  | 'succeeded'
+  | 'timed_out'
+  | 'retry_scheduled'
+  | 'failed'
+  | 'skipped_dst_gap';
+
+export interface ExecutionEvent {
+  id: string;
+  type: ExecutionEventType;
+  at: string;
+  detail: string | null;
+}
+
+/** Must be propagated to every future external delivery or provider call. */
+export interface ExecutionContext {
+  executionId: string;
+  idempotencyKey: string;
+}
+
+export type { ExecutionStore, TaskStore, TatuStore } from './persistence.js';
+
 const normalize = (value: string) =>
   value
     .normalize('NFD')

@@ -3,6 +3,7 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
+import { LocalScheduler } from '@tatu/storage';
 import { createTatuServer } from './index.js';
 const phrase =
   'Todos os dias às 8h, encontre as três notícias mais importantes sobre inteligência artificial e me envie.';
@@ -59,6 +60,41 @@ test('rejects an oversized draft body without persisting a task', async () => {
   assert.deepEqual(
     await fetch(`${base}/api/tasks`).then((item) => item.json()),
     [],
+  );
+  await new Promise<void>((resolve) => server.close(() => resolve()));
+  rmSync(dir, { recursive: true, force: true });
+});
+
+test('exposes persisted execution events through the API', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'tatu-events-'));
+  const db = join(dir, 'tatu.sqlite');
+  const server = createTatuServer(db);
+  await new Promise<void>((resolve) => server.listen(0, resolve));
+  const address = server.address();
+  assert.ok(address && typeof address !== 'string');
+  const base = `http://127.0.0.1:${address.port}`;
+  const draft = await fetch(`${base}/api/briefing-drafts`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ message: phrase, timezone: 'America/Sao_Paulo' }),
+  });
+  const { draftId } = (await draft.json()) as { draftId: string };
+  await fetch(`${base}/api/briefing-drafts/${draftId}/confirm`, {
+    method: 'POST',
+  });
+  const scheduler = new LocalScheduler(db, 'api-test');
+  await scheduler.poll(new Date(Date.now() + 24 * 60 * 60 * 1000));
+  scheduler.close();
+  const executions = (await fetch(`${base}/api/executions`).then((response) =>
+    response.json(),
+  )) as Array<{ id: string }>;
+  assert.equal(executions.length, 1);
+  const events = (await fetch(
+    `${base}/api/executions/${executions[0].id}/events`,
+  ).then((response) => response.json())) as Array<{ type: string }>;
+  assert.deepEqual(
+    events.map((event) => event.type),
+    ['queued', 'claimed', 'succeeded'],
   );
   await new Promise<void>((resolve) => server.close(() => resolve()));
   rmSync(dir, { recursive: true, force: true });

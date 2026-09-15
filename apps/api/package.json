@@ -6,6 +6,6 @@
   "dependencies": {
     "@tatu/shared": "*",
     "@tatu/web": "*",
-    "better-sqlite3": "13.0.3"
+    "@tatu/storage": "*"
   }
 }
