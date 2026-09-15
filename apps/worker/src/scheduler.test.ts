@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import Database from 'better-sqlite3';
 import { mkdirSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
-import { LocalScheduler } from '@tatu/storage';
+import { LocalScheduler, SqliteTaskStore } from '@tatu/storage';
 
 test('claims a due occurrence exactly once across restart and schedulers', async () => {
   const dir = mkdtempSync(join(tmpdir(), 'tatu-scheduler-'));
@@ -455,6 +456,103 @@ test('passes the durable occurrence key to the executor as idempotencyKey', asyn
   db.close();
   await scheduler.poll(new Date('2026-01-01T12:00:00Z'));
   assert.equal(received, scheduler.list()[0].occurrenceKey);
+  scheduler.close();
+  rmSync(dir, { recursive: true, force: true });
+});
+
+test('persists a strict delivery receipt and emits delivered before succeeded', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'tatu-delivery-event-'));
+  const path = join(dir, 'tatu.sqlite');
+  const scheduler = new LocalScheduler(
+    path,
+    'delivery-event',
+    async (context) => {
+      const artifactId = `${createHash('sha256')
+        .update(context.idempotencyKey)
+        .digest('hex')}.md`;
+      return JSON.stringify({
+        topic: 'ai',
+        stories: [
+          {
+            title: 'AI',
+            url: 'https://source.test/a',
+            publishedAt: '2026-01-01T00:00:00Z',
+            source: 'source.test',
+          },
+        ],
+        facts: [
+          {
+            title: 'AI',
+            url: 'https://source.test/a',
+            publishedAt: '2026-01-01T00:00:00Z',
+            source: 'source.test',
+          },
+        ],
+        inference: [],
+        route: 'deterministic-rss',
+        delivery: {
+          channel: 'file-outbox',
+          idempotencyKey: context.idempotencyKey,
+          artifactId,
+          contentSha256: 'b'.repeat(64),
+        },
+      });
+    },
+  );
+  const db = new Database(path);
+  db.prepare('INSERT INTO tasks VALUES (?,?,?,?,?,?,?,?,?)').run(
+    'delivery-event',
+    'daily',
+    '08:00',
+    1,
+    'ai',
+    1,
+    'America/Sao_Paulo',
+    1,
+    '2026-01-01T00:00:00Z',
+  );
+  db.close();
+  await scheduler.poll(new Date('2026-01-01T12:00:00Z'));
+  const execution = scheduler.list()[0];
+  assert.equal(execution.status, 'succeeded');
+  assert.deepEqual(
+    scheduler.events(execution.id).map((event) => event.type),
+    ['queued', 'claimed', 'delivered', 'succeeded'],
+  );
+  scheduler.close();
+  const store = new SqliteTaskStore(path);
+  assert.equal(store.briefing(execution.id)?.delivery?.channel, 'file-outbox');
+  store.close();
+  rmSync(dir, { recursive: true, force: true });
+});
+
+test('keeps a delivery failure retryable and never reports success', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'tatu-delivery-failure-'));
+  const path = join(dir, 'tatu.sqlite');
+  const scheduler = new LocalScheduler(path, 'delivery-failure', async () => {
+    throw new Error('delivery_conflict');
+  });
+  const db = new Database(path);
+  db.prepare('INSERT INTO tasks VALUES (?,?,?,?,?,?,?,?,?)').run(
+    'delivery-failure',
+    'daily',
+    '08:00',
+    1,
+    'ai',
+    1,
+    'America/Sao_Paulo',
+    1,
+    '2026-01-01T00:00:00Z',
+  );
+  db.close();
+  await scheduler.poll(new Date('2026-01-01T12:00:00Z'));
+  const execution = scheduler.list()[0];
+  assert.equal(execution.status, 'pending');
+  assert.equal(execution.failure, 'delivery_failure');
+  assert.deepEqual(
+    scheduler.events(execution.id).map((event) => event.type),
+    ['queued', 'claimed', 'delivery_failed', 'retry_scheduled'],
+  );
   scheduler.close();
   rmSync(dir, { recursive: true, force: true });
 });

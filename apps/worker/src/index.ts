@@ -1,5 +1,5 @@
 import { getHealthStatus } from '@tatu/shared';
-import { LocalScheduler } from '@tatu/storage';
+import { FileBriefingDelivery, LocalScheduler } from '@tatu/storage';
 import { createResearchExecutor } from './research-executor.js';
 
 const status = getHealthStatus();
@@ -10,6 +10,11 @@ const scheduler = new LocalScheduler(
     process.env.TATU_RSS_FEEDS,
     process.env.TATU_OLLAMA_MODEL,
     process.env.TATU_OLLAMA_BASE_URL ?? process.env.TATU_OLLAMA_ENDPOINT,
+    undefined,
+    undefined,
+    new FileBriefingDelivery(
+      process.env.TATU_DELIVERY_DIR ?? 'data/deliveries',
+    ),
   ),
 );
 let polling = false;

@@ -3,6 +3,7 @@ import { dirname } from 'node:path';
 import Database from 'better-sqlite3';
 import type {
   BriefingFallback,
+  BriefingDeliveryReceipt,
   BriefingDraft,
   BriefingResult,
   BriefingTask,
@@ -10,6 +11,23 @@ import type {
   ExecutionRecord,
   TatuStore,
 } from '@tatu/shared';
+
+const isBriefingDeliveryReceipt = (
+  value: unknown,
+): value is BriefingDeliveryReceipt => {
+  if (!value || typeof value !== 'object') return false;
+  const receipt = value as Partial<BriefingDeliveryReceipt>;
+  return (
+    Object.keys(value).length === 4 &&
+    receipt.channel === 'file-outbox' &&
+    typeof receipt.idempotencyKey === 'string' &&
+    receipt.idempotencyKey.length > 0 &&
+    typeof receipt.artifactId === 'string' &&
+    /^[a-f0-9]{64}\.md$/.test(receipt.artifactId) &&
+    typeof receipt.contentSha256 === 'string' &&
+    /^[a-f0-9]{64}$/.test(receipt.contentSha256)
+  );
+};
 
 const isBriefingFallback = (value: unknown): value is BriefingFallback => {
   if (!value || typeof value !== 'object') return false;
@@ -57,6 +75,8 @@ const isBriefingResult = (value: unknown): value is BriefingResult => {
     (result.fallback === undefined ||
       (result.route === 'deterministic-rss' &&
         isBriefingFallback(result.fallback))) &&
+    (result.delivery === undefined ||
+      isBriefingDeliveryReceipt(result.delivery)) &&
     result.stories.every(isCitedStory) &&
     result.facts.every(isCitedStory) &&
     result.inference.every((item) => typeof item === 'string')

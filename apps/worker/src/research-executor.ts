@@ -1,4 +1,5 @@
 import type {
+  BriefingDelivery,
   BriefingResult,
   BriefingSynthesizer,
   ExecutionContext,
@@ -22,6 +23,7 @@ export const createResearchExecutor =
     endpoint?: string,
     model?: LocalBriefingModel,
     research: BriefingSynthesizer = synthesizer,
+    delivery?: BriefingDelivery,
   ) =>
   async (context: ExecutionContext, signal: AbortSignal) => {
     const feeds = (feedsValue === undefined ? DEFAULT_RSS_FEED : feedsValue)
@@ -37,21 +39,28 @@ export const createResearchExecutor =
       feeds.map((url) => ({ url })),
       signal,
     );
-    if (!modelName) return JSON.stringify(facts);
+    let briefing = facts;
+    if (!modelName) {
+      if (!delivery) return JSON.stringify(briefing);
+      const receipt = await delivery.deliver(context, briefing, signal);
+      return JSON.stringify({ ...briefing, delivery: receipt });
+    }
     try {
-      return JSON.stringify(
-        await (
-          model ?? new OllamaBriefingModel(modelName, endpoint)
-        ).synthesize(facts, signal),
-      );
+      briefing = await (
+        model ?? new OllamaBriefingModel(modelName, endpoint)
+      ).synthesize(facts, signal);
     } catch (error) {
       if (error instanceof ModelError && !signal.aborted) {
-        return JSON.stringify({
+        briefing = {
           ...facts,
           route: 'deterministic-rss',
           fallback: { from: 'local-ollama', reason: error.code },
-        });
+        };
+      } else {
+        throw error;
       }
-      throw error;
     }
+    if (!delivery) return JSON.stringify(briefing);
+    const receipt = await delivery.deliver(context, briefing, signal);
+    return JSON.stringify({ ...briefing, delivery: receipt });
   };

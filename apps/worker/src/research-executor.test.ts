@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { ModelError, ResearchError } from '@tatu/research';
 import type {
+  BriefingDelivery,
+  BriefingDeliveryReceipt,
   BriefingResult,
   BriefingSynthesizer,
   LocalBriefingModel,
@@ -230,6 +232,73 @@ test('falls back to the validated RSS result for typed model failures', async ()
     assert.equal(researchCalls, 1);
     assert.equal(modelCalls, 1);
   }
+});
+
+test('delivers exactly the final fallback briefing once with the occurrence key', async () => {
+  let researchCalls = 0;
+  let modelCalls = 0;
+  let deliveryCalls = 0;
+  let delivered: { key: string; briefing: BriefingResult } | undefined;
+  const model: LocalBriefingModel = {
+    metadata: {
+      id: 'preferred',
+      capabilities: [
+        'briefing-synthesis',
+        'structured-json',
+        'citation-preservation',
+      ],
+    },
+    async synthesize() {
+      modelCalls += 1;
+      throw new ModelError('model_invalid_output');
+    },
+  };
+  const adapter: BriefingSynthesizer = {
+    async create() {
+      researchCalls += 1;
+      return sourceResult;
+    },
+  };
+  const receipt: BriefingDeliveryReceipt = {
+    channel: 'file-outbox',
+    idempotencyKey: 'occurrence/final',
+    artifactId: 'a'.repeat(64) + '.md',
+    contentSha256: 'b'.repeat(64),
+  };
+  const delivery: BriefingDelivery = {
+    async deliver(context, briefing) {
+      deliveryCalls += 1;
+      delivered = { key: context.idempotencyKey, briefing };
+      return receipt;
+    },
+  };
+  const output = JSON.parse(
+    await createResearchExecutor(
+      'https://source.test/rss',
+      'preferred',
+      undefined,
+      model,
+      adapter,
+      delivery,
+    )(
+      {
+        executionId: 'execution',
+        idempotencyKey: 'occurrence/final',
+        topic: 'AI',
+        quantity: 1,
+      },
+      new AbortController().signal,
+    ),
+  ) as BriefingResult;
+  assert.equal(researchCalls, 1);
+  assert.equal(modelCalls, 1);
+  assert.equal(deliveryCalls, 1);
+  assert.equal(delivered?.key, 'occurrence/final');
+  assert.deepEqual(delivered?.briefing.fallback, {
+    from: 'local-ollama',
+    reason: 'model_invalid_output',
+  });
+  assert.deepEqual(output.delivery, receipt);
 });
 
 test('does not mask research errors or an aborted execution as fallback', async () => {

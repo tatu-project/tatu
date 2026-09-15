@@ -124,3 +124,10 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
 - Added sanitized fallback metadata and the `fallback_used` event. The scheduler persists the result and records `queued` -> `claimed` -> `fallback_used` -> `succeeded` atomically; the API returns the fallback metadata.
 - Tests cover all typed model reasons, one research/model call, research-error and cancellation propagation, unknown model errors, event detail redaction, and persisted API retrieval. The full suite passes with 62 tests.
 - Multiple live providers, provider authentication/OAuth, durable key management, and quota-based multi-provider fallback remain open.
+
+## 2026-09-15 - Stage 7 local filesystem delivery channel
+
+- Accepted ADR-0013: a replaceable `BriefingDelivery` port with a local `FileBriefingDelivery` adapter, enabled by the worker under `data/deliveries` or `TATU_DELIVERY_DIR`.
+- The adapter writes deterministic cited Markdown using a SHA-256 filename derived from the occurrence key, publishes without overwriting a concurrent artifact, treats identical retries as idempotent, rejects content conflicts, and never writes the raw key or provider payload.
+- The executor delivers the final model/fallback result; the scheduler persists the strict receipt and records `delivered` before `succeeded`. Delivery errors produce `delivery_failed` and remain retryable.
+- `npm test` passes with 69 tests, including outbox idempotency/abort/path-safety, credential-bearing URL rejection, executor key propagation, scheduler receipt/event validation, and delivery failure behavior. Push notifications, external channels, complete timeline/metrics, health UI, Docker, guided deployment, and the 30-day trial remain open.

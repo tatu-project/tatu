@@ -4,11 +4,45 @@ import { dirname } from 'node:path';
 import Database from 'better-sqlite3';
 import type {
   BriefingFallback,
+  BriefingDeliveryReceipt,
   BriefingTask,
   ExecutionContext,
   ExecutionEvent,
   ExecutionRecord,
 } from '@tatu/shared';
+
+const deliveryFromResult = (
+  value: string | void,
+  expectedIdempotencyKey: string,
+): BriefingDeliveryReceipt | undefined => {
+  if (typeof value !== 'string') return undefined;
+  try {
+    const parsed: unknown = JSON.parse(value);
+    if (!parsed || typeof parsed !== 'object') return undefined;
+    const result = parsed as { delivery?: unknown };
+    const delivery = result.delivery;
+    if (!delivery || typeof delivery !== 'object') return undefined;
+    const receipt = delivery as Partial<BriefingDeliveryReceipt>;
+    if (
+      Object.keys(delivery).length !== 4 ||
+      receipt.channel !== 'file-outbox' ||
+      receipt.idempotencyKey !== expectedIdempotencyKey ||
+      typeof receipt.artifactId !== 'string' ||
+      !/^[a-f0-9]{64}\.md$/.test(receipt.artifactId) ||
+      typeof receipt.contentSha256 !== 'string' ||
+      !/^[a-f0-9]{64}$/.test(receipt.contentSha256)
+    )
+      return undefined;
+    return {
+      channel: 'file-outbox',
+      idempotencyKey: receipt.idempotencyKey,
+      artifactId: receipt.artifactId,
+      contentSha256: receipt.contentSha256,
+    };
+  } catch {
+    return undefined;
+  }
+};
 
 const fallbackFromResult = (
   value: string | void,
@@ -322,6 +356,7 @@ INSERT OR IGNORE INTO schema_migrations VALUES (1);`);
       ]);
       await this.atomicWithBusyRetry(() => {
         const fallback = fallbackFromResult(result);
+        const delivery = deliveryFromResult(result, occurrence.occurrenceKey);
         const done = this.db
           .prepare(
             "UPDATE executions SET status='succeeded',result=?,lease_expires_at=NULL,updated_at=? WHERE id=? AND status='running' AND claimed_by=?",
@@ -334,6 +369,13 @@ INSERT OR IGNORE INTO schema_migrations VALUES (1);`);
               'fallback_used',
               stamp,
               `fallback:${fallback.from}:${fallback.reason}`,
+            );
+          if (delivery)
+            this.event(
+              candidate,
+              'delivered',
+              stamp,
+              `${delivery.channel}:${delivery.artifactId}`,
             );
           this.event(candidate, 'succeeded', stamp, 'persisted_result');
         }
@@ -358,14 +400,24 @@ INSERT OR IGNORE INTO schema_migrations VALUES (1);`);
         ['model_unavailable', 'model_invalid_output', 'model_timeout'].includes(
           error.message,
         );
+      const deliveryFailure =
+        error instanceof Error &&
+        [
+          'aborted',
+          'invalid_briefing',
+          'delivery_conflict',
+          'delivery_io',
+        ].includes(error.message);
       const failure =
         error instanceof ExecutionTimeoutError
           ? 'execution_timeout'
           : modelFailure
             ? 'model_failure'
-            : researchFailure
-              ? 'research_failure'
-              : 'placeholder_failure';
+            : deliveryFailure
+              ? 'delivery_failure'
+              : researchFailure
+                ? 'research_failure'
+                : 'placeholder_failure';
       await this.atomicWithBusyRetry(() => {
         const row = this.db
           .prepare(
@@ -405,6 +457,21 @@ INSERT OR IGNORE INTO schema_migrations VALUES (1);`);
             'model_failed',
             stamp,
             error instanceof Error ? `model:${error.message}` : failure,
+          );
+        if (failure === 'delivery_failure')
+          this.event(
+            candidate,
+            'delivery_failed',
+            stamp,
+            error instanceof Error &&
+              [
+                'aborted',
+                'invalid_briefing',
+                'delivery_conflict',
+                'delivery_io',
+              ].includes(error.message)
+              ? `delivery:${error.message}`
+              : 'delivery:failed',
           );
         this.event(
           candidate,

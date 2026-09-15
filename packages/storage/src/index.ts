@@ -14,3 +14,9 @@ export {
   InMemoryEncryptedSecretRecordStore,
 } from './byok-connections.js';
 export type { ByokConnectionErrorCode } from './byok-connections.js';
+export {
+  FileBriefingDelivery,
+  FileBriefingDeliveryError,
+  hasFileBriefingDeliveryArtifact,
+} from './file-briefing-delivery.js';
+export type { FileBriefingDeliveryErrorCode } from './file-briefing-delivery.js';

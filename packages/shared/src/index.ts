@@ -52,7 +52,9 @@ export type ExecutionEventType =
   | 'skipped_dst_gap'
   | 'research_failed'
   | 'model_failed'
-  | 'fallback_used';
+  | 'fallback_used'
+  | 'delivered'
+  | 'delivery_failed';
 
 export interface ExecutionEvent {
   id: string;
@@ -94,6 +96,7 @@ export interface BriefingResult {
   route?: 'deterministic-rss' | 'local-ollama';
   model?: { id: string; route: 'local-ollama' };
   fallback?: BriefingFallback;
+  delivery?: import('./delivery.js').BriefingDeliveryReceipt;
 }
 
 export interface ResearchFeed {
@@ -221,6 +224,7 @@ export type {
   EncryptedSecretRecord,
   EncryptedSecretRecordStore,
 } from './byok.js';
+export type { BriefingDelivery, BriefingDeliveryReceipt } from './delivery.js';
 
 const normalize = (value: string) =>
   value
