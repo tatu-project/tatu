@@ -104,3 +104,9 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
 - Accepted ADR-0009: provider-bound route eligibility combines model capabilities with a separate healthy, non-exhausted provider snapshot.
 - Added `ProviderRouteCandidate` and `QuotaProviderRouter`; it selects the first eligible candidate without provider calls, retries, mutations, persistence, or execution fallback.
 - Tests cover capability mismatch, provider statuses, zero limits, null limits, deterministic order, provider identity, no match, and non-invocation. Multiple eligible routes, fallback, BYOK, and worker integration remain unchecked.
+
+## 2026-09-15 - Stage 6 route pair and development fallback
+
+- Accepted ADR-0010: the existing local Ollama-compatible model route plus the explicit deterministic RSS route satisfy the one-real-route-plus-development-fallback outcome.
+- Verified the worker tests cover both route paths and preserve explicit `local-ollama` or `deterministic-rss` metadata. This does not claim automatic fallback after a model failure.
+- Automatic failure fallback, multiple live providers, BYOK, and worker route orchestration remain unchecked.
