@@ -72,3 +72,10 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
 - With no `TATU_OLLAMA_MODEL`, the deterministic RSS result is explicitly marked as the fallback route. No API key, remote endpoint, or secret persistence was introduced.
 - Worker wiring, scheduler event separation, model fixtures, and integration coverage passed in `npm run ci` with 31 tests.
 - Stage 5 acceptance remains open until a default source and a live three-story daily run (with or without local Ollama) are verified.
+
+## 2026-09-15 — Stage 5 default source and acceptance
+
+- Accepted ADR-0005: an absent `TATU_RSS_FEEDS` uses the public TechCrunch Artificial Intelligence RSS feed; a non-empty value overrides it and an explicit empty value disables research safely.
+- Added standalone `AI` aliasing for the Portuguese and English artificial-intelligence topics without matching unrelated substrings such as `Mail`.
+- Verified a network-enabled temporary daily execution with the default feed: status `succeeded`, three distinct HTTPS stories, three source-backed facts, persisted briefing equal to the execution result, and immutable trace `queued` -> `claimed` -> `succeeded`.
+- The final local suite passed with 34 tests. Stage 5 is complete; Stage 6 provider/model routing and fallback is next.

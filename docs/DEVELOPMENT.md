@@ -37,13 +37,15 @@ Open `http://localhost:3000` for the responsive Tatu Health page. Its machine-re
 
 The current default is one local SQLite file at `data/tatu.sqlite`, configurable through `TATU_DATABASE_PATH`. The approved first deployment is an individual local/self-hosted installation using this adapter. A future PostgreSQL adapter may support a remote/shared deployment only after a new product decision; no Supabase, Firebase, VPS, or remote database is configured now.
 
-The worker's first research route is configurable and credential-free. Set one or more public HTTPS RSS feeds before running a real research occurrence:
+The worker's first research route is credential-free. When `TATU_RSS_FEEDS` is unset, it uses the selected public TechCrunch Artificial Intelligence feed by default. Set one or more public HTTPS RSS feeds to override that source:
 
 ```bash
 TATU_RSS_FEEDS=https://example.org/news.xml,https://example.net/feed.xml npm run dev
 ```
 
-The route validates article links, removes duplicates, ranks topical stories before recency, and persists only source-backed facts. If the variable is empty or the feeds cannot produce enough valid stories, the occurrence records a safe `research_failed` event instead of a successful placeholder. A saved result is available at `GET /api/executions/:id/briefing`.
+The route validates article links, removes duplicates, ranks topical stories before recency, and persists only source-backed facts. Set `TATU_RSS_FEEDS=` explicitly to disable research; the occurrence then records a safe `research_failed` event instead of a successful placeholder. A saved result is available at `GET /api/executions/:id/briefing`.
+
+The default source is an operational starting point, not a permanent provider commitment. It can be replaced through `TATU_RSS_FEEDS` without changing the research adapter.
 
 For optional local synthesis, install and run Ollama locally, choose a model, and set only its model name. The endpoint defaults to loopback and remote endpoints are rejected:
 
@@ -51,7 +53,7 @@ For optional local synthesis, install and run Ollama locally, choose a model, an
 TATU_OLLAMA_MODEL=llama3.2 TATU_OLLAMA_BASE_URL=http://127.0.0.1:11434 npm run dev
 ```
 
-The worker sends only the selected cited stories, requests strict JSON, validates every returned citation against those stories, and records `model_failed` on unavailable, timed-out, or invalid output. If `TATU_OLLAMA_MODEL` is empty, the deterministic source-backed RSS result remains the explicit fallback. Provider routing, quotas, BYOK, delivery, and a default source remain future work.
+The worker sends only the selected cited stories, requests strict JSON, validates every returned citation against those stories, and records `model_failed` on unavailable, timed-out, or invalid output. If `TATU_OLLAMA_MODEL` is empty, the deterministic source-backed RSS result remains the explicit fallback. Provider routing, quotas, BYOK, and delivery remain future work.
 
 Run the complete local quality suite with:
 
@@ -157,4 +159,4 @@ git switch main
 git pull --ff-only
 ```
 
-Stage 4 is complete and the Stage 5 research/model foundations are in progress. The next gated task is to select a default public source and verify a live three-story daily briefing; do not claim Stage 5 acceptance before that evidence exists.
+Stage 5 is complete for the deterministic cited-briefing acceptance: the default TechCrunch Artificial Intelligence feed produced three distinct cited stories in a temporary scheduled run, the result persisted, and the trace was `queued -> claimed -> succeeded`. The next gated task is Stage 6's provider/model routing and fallback work. The live run is an operational smoke check, not a network test required in CI.

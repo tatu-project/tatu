@@ -1,8 +1,15 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { ResearchError } from '@tatu/research';
-import type { BriefingResult, LocalBriefingModel } from '@tatu/shared';
-import { createResearchExecutor } from './research-executor.js';
+import type {
+  BriefingResult,
+  BriefingSynthesizer,
+  LocalBriefingModel,
+} from '@tatu/shared';
+import {
+  createResearchExecutor,
+  DEFAULT_RSS_FEED,
+} from './research-executor.js';
 
 const sourceResult: BriefingResult = {
   topic: 'AI',
@@ -41,6 +48,61 @@ test('does not report success when no public RSS source is configured', async ()
     (error: unknown) =>
       error instanceof ResearchError && error.code === 'rss_not_configured',
   );
+});
+
+test('uses the named default RSS feed when configuration is absent', async () => {
+  let receivedFeeds: string[] = [];
+  const adapter: BriefingSynthesizer = {
+    async create(_topic, _quantity, feeds) {
+      receivedFeeds = feeds.map((feed) => feed.url);
+      return sourceResult;
+    },
+  };
+  await createResearchExecutor(
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    adapter,
+  )(
+    {
+      executionId: 'execution',
+      idempotencyKey: 'occurrence',
+      topic: 'AI',
+      quantity: 3,
+    },
+    new AbortController().signal,
+  );
+  assert.deepEqual(receivedFeeds, [DEFAULT_RSS_FEED]);
+});
+
+test('uses an explicit RSS feed override instead of the default', async () => {
+  let receivedFeeds: string[] = [];
+  const adapter: BriefingSynthesizer = {
+    async create(_topic, _quantity, feeds) {
+      receivedFeeds = feeds.map((feed) => feed.url);
+      return sourceResult;
+    },
+  };
+  await createResearchExecutor(
+    'https://custom.test/rss, https://backup.test/feed',
+    undefined,
+    undefined,
+    undefined,
+    adapter,
+  )(
+    {
+      executionId: 'execution',
+      idempotencyKey: 'occurrence',
+      topic: 'AI',
+      quantity: 3,
+    },
+    new AbortController().signal,
+  );
+  assert.deepEqual(receivedFeeds, [
+    'https://custom.test/rss',
+    'https://backup.test/feed',
+  ]);
 });
 
 test('keeps the deterministic route explicit when no local model is configured', async () => {

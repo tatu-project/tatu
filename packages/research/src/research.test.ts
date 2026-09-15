@@ -33,6 +33,46 @@ test('returns cited, non-duplicated RSS stories', async () => {
   assert.deepEqual(result.inference, []);
   assert.equal(result.facts.length, 3);
 });
+
+test('matches AI aliases without treating ai substrings as standalone titles', async () => {
+  const titles = [
+    'AI research breakthrough',
+    'AI agents improve planning',
+    'AI safety standards advance',
+    'Mail automation reaches more teams',
+  ];
+  for (const topic of [
+    'inteligência artificial',
+    'ARTIFICIAL INTELLIGENCE',
+    'IA',
+  ]) {
+    const result = await researchBriefing(
+      topic,
+      3,
+      ['https://source.test/rss'],
+      async () => ({
+        ok: true,
+        text: async () =>
+          feed(
+            titles
+              .map((title, index) =>
+                item(
+                  title,
+                  `https://source.test/story-${index}`,
+                  `0${index + 1} Jan 2026 10:00:00 GMT`,
+                ),
+              )
+              .join(''),
+          ),
+      }),
+    );
+    assert.equal(result.stories.length, 3);
+    assert.equal(
+      result.stories.every((story) => story.title.startsWith('AI ')),
+      true,
+    );
+  }
+});
 test('does not fabricate stories on provider or malformed feed failure', async () => {
   await assert.rejects(
     researchBriefing('AI', 3, ['https://bad.test/rss'], async () => ({

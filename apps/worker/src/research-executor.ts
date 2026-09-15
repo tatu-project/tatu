@@ -11,6 +11,8 @@ import {
 import type { LocalBriefingModel } from '@tatu/shared';
 
 const synthesizer = new RssBriefingSynthesizer();
+export const DEFAULT_RSS_FEED =
+  'https://techcrunch.com/category/artificial-intelligence/feed/';
 
 export const createResearchExecutor =
   (
@@ -21,7 +23,7 @@ export const createResearchExecutor =
     research: BriefingSynthesizer = synthesizer,
   ) =>
   async (context: ExecutionContext, signal: AbortSignal) => {
-    const feeds = (feedsValue ?? '')
+    const feeds = (feedsValue === undefined ? DEFAULT_RSS_FEED : feedsValue)
       .split(',')
       .map((feed) => feed.trim())
       .filter(Boolean);

@@ -279,14 +279,29 @@ export function parseRss(xml: string, source: string): CitedStory[] {
         !Number.isNaN(Date.parse(story.publishedAt)),
     );
 }
-const topicTerms = (topic: string) =>
-  normalize(topic)
-    .split(/\s+/)
-    .filter((term) => term.length >= 3);
+const topicTerms = (topic: string) => {
+  const normalized = normalize(topic);
+  const terms = normalized.split(/\s+/).filter((term) => term.length >= 3);
+  if (
+    ['ia', 'inteligencia artificial', 'artificial intelligence'].includes(
+      normalized,
+    )
+  )
+    terms.push('standalone-ai');
+  return terms;
+};
 const relevance = (story: CitedStory, terms: string[]) => {
   const haystack = normalize(story.title);
   return terms.reduce(
-    (score, term) => score + (haystack.includes(term) ? 1 : 0),
+    (score, term) =>
+      score +
+      (term === 'standalone-ai'
+        ? /(^|[^a-z0-9])ai($|[^a-z0-9])/.test(haystack)
+          ? 1
+          : 0
+        : haystack.includes(term)
+          ? 1
+          : 0),
     0,
   );
 };

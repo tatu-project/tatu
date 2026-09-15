@@ -220,6 +220,8 @@ The agent decides when fresh information is required. Stable facts should not au
 
 Research results should preserve source links and distinguish sourced facts from agent inference.
 
+The first zero-cost route is a replaceable public HTTPS RSS adapter. The initial default for the daily AI briefing is the TechCrunch Artificial Intelligence feed; `TATU_RSS_FEEDS` can override or explicitly disable it. This operational source choice is recorded in ADR-0005 and does not constrain future search or provider adapters.
+
 ## 10. Model Router
 
 The Model Router answers:
@@ -573,7 +575,7 @@ Before implementation, decide and record ADRs for:
 4. Local-first database and migration strategy.
 5. Scheduler/queue implementation that works without paid infrastructure.
 6. First model/provider adapters and development mock.
-7. Web search approach and first free route.
+7. Future search expansion beyond the initial RSS route (the first free route is accepted in ADR-0005).
 8. First delivery/notification channel.
 9. Authentication for local and remote deployment.
 10. Secret encryption and key ownership.
@@ -588,6 +590,7 @@ Current recommendation to validate, not yet a final decision:
 - Durable database-backed jobs without requiring Redis for v0.1.
 - Guided local/self-hosted runtime as the initial reference; Docker Compose remains a later packaging option.
 - Provider, search, delivery, and tool adapters defined as interfaces from day one.
+- Public HTTPS RSS is the accepted first free research route; the initial default is the TechCrunch Artificial Intelligence feed and remains replaceable through configuration.
 
 ## 28. First acceptance test
 
