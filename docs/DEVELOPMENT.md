@@ -53,7 +53,7 @@ For optional local synthesis, install and run Ollama locally, choose a model, an
 TATU_OLLAMA_MODEL=llama3.2 TATU_OLLAMA_BASE_URL=http://127.0.0.1:11434 npm run dev
 ```
 
-The worker sends only the selected cited stories, requests strict JSON, validates every returned citation against those stories, and records `model_failed` on unavailable, timed-out, or invalid output. If `TATU_OLLAMA_MODEL` is empty, the deterministic source-backed RSS result remains the explicit fallback. Provider routing, quotas, BYOK, and delivery remain future work.
+The worker sends only the selected cited stories, requests strict JSON, validates every returned citation against those stories, and records `model_failed` on unavailable, timed-out, or invalid output. If `TATU_OLLAMA_MODEL` is empty, the deterministic source-backed RSS result remains the explicit fallback. The process-local provider-state store now tracks validated health, quota, rate-limit, latency, and failure observations without credentials, provider calls, persistence, or routing. Provider routing, fallback orchestration, quotas across durable deployments, BYOK, and delivery remain future work.
 
 Run the complete local quality suite with:
 
@@ -159,4 +159,4 @@ git switch main
 git pull --ff-only
 ```
 
-Stage 5 is complete for the deterministic cited-briefing acceptance: the default TechCrunch Artificial Intelligence feed produced three distinct cited stories in a temporary scheduled run, the result persisted, and the trace was `queued -> claimed -> succeeded`. Stage 6 has started with shared model capability metadata; provider routing, fallback, and BYOK remain future work. The live run is an operational smoke check, not a network test required in CI.
+Stage 5 is complete for the deterministic cited-briefing acceptance: the default TechCrunch Artificial Intelligence feed produced three distinct cited stories in a temporary scheduled run, the result persisted, and the trace was `queued -> claimed -> succeeded`. Stage 6 now has shared model capability metadata and a process-local provider-state foundation; provider routing, fallback, and BYOK remain future work. The live run is an operational smoke check, not a network test required in CI.

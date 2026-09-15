@@ -107,6 +107,63 @@ export interface BriefingModelMetadata {
   readonly capabilities: readonly BriefingModelCapability[];
 }
 
+/** Current availability facts about a provider, independent of model suitability. */
+export type ProviderStatus =
+  'unknown' | 'healthy' | 'unavailable' | 'rate-limited' | 'quota-exhausted';
+
+/** Failure categories observed while contacting a provider. */
+export type ProviderFailureKind =
+  | 'unavailable'
+  | 'timeout'
+  | 'rate_limited'
+  | 'quota_exhausted'
+  | 'auth'
+  | 'invalid_request';
+
+export interface ProviderLimitSnapshot {
+  readonly remaining: number | null;
+  readonly resetAt: string | null;
+}
+
+/** Immutable provider availability and usage snapshot. No credentials are represented. */
+export interface ProviderStateSnapshot {
+  readonly providerId: string;
+  readonly status: ProviderStatus;
+  readonly lastObservedAt: string | null;
+  readonly lastLatencyMs: number | null;
+  readonly consecutiveFailures: number;
+  readonly lastFailure: ProviderFailureKind | null;
+  readonly lastObservation: string | null;
+  readonly quota: ProviderLimitSnapshot;
+  readonly rateLimit: ProviderLimitSnapshot;
+}
+
+export interface ProviderObservation {
+  readonly providerId: string;
+  readonly observedAt: string;
+  readonly latencyMs?: number;
+  readonly quota?: ProviderLimitSnapshot;
+  readonly rateLimit?: ProviderLimitSnapshot;
+  /** Optional sanitized diagnostic only; never include credentials or raw payloads. */
+  readonly observation?: string | null;
+}
+
+export interface ProviderSuccessObservation extends ProviderObservation {
+  readonly kind: 'success';
+}
+
+export interface ProviderFailureObservation extends ProviderObservation {
+  readonly kind: 'failure';
+  readonly failure: ProviderFailureKind;
+}
+
+/** Process-local state port; persistence and provider calls remain outside this contract. */
+export interface ProviderStateStore {
+  get(providerId: string): ProviderStateSnapshot;
+  recordSuccess(observation: ProviderSuccessObservation): ProviderStateSnapshot;
+  recordFailure(observation: ProviderFailureObservation): ProviderStateSnapshot;
+}
+
 export interface LocalBriefingModel {
   readonly metadata: BriefingModelMetadata;
   synthesize(

@@ -242,7 +242,7 @@ Inputs may include:
 
 Simple tasks should not consume the strongest route unnecessarily. Programming, vision, long-context, and difficult reasoning may use specialized or stronger models.
 
-The first shared suitability contract records only the capabilities a model adapter proves. Provider health, quota, rate limits, credentials, and fallback eligibility remain separate routing state; ADR-0006 records this boundary.
+The first shared suitability contract records only the capabilities a model adapter proves. Provider health, quota, rate limits, credentials, and fallback eligibility remain separate routing state; ADR-0006 records this boundary. ADR-0007 adds a process-local, observation-only provider-state port and implementation; it does not yet persist state or select routes.
 
 ## 11. Quota and Provider Router
 

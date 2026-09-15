@@ -400,3 +400,7 @@ export class RssBriefingSynthesizer implements BriefingSynthesizer {
   }
 }
 export { OllamaBriefingModel, ModelError } from './ollama-briefing-model.js';
+export {
+  InMemoryProviderStateStore,
+  ProviderStateError,
+} from './provider-state.js';

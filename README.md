@@ -2,7 +2,7 @@
 
 > A free and open-source personal AI agent that works for you 24/7.
 
-**Status:** early development. Stages 4 and 5 are complete for the deterministic cited-briefing acceptance; Stage 6 has started with model capability metadata. Tatu is not ready for production use yet.
+**Status:** early development. Stages 4 and 5 are complete for the deterministic cited-briefing acceptance; Stage 6 has model capability metadata and provider-state foundations. Tatu is not ready for production use yet.
 
 Tatu aims to let anyone describe what they want in natural language while the system handles scheduling, research, tools, memory, model selection, free-provider fallback, permissions, and execution traces.
 

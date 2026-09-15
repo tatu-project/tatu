@@ -85,3 +85,10 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
 - Accepted ADR-0006: model suitability is represented by readonly shared metadata, separate from provider health, quota, rate limits, credentials, and routing.
 - Added `BriefingModelCapability` values for `briefing-synthesis`, `structured-json`, and `citation-preservation`; `OllamaBriefingModel` exposes frozen metadata for its configured model ID.
 - Updated injected model fixtures and assertions. The full suite remains green with 34 tests; provider routing, fallback orchestration, and BYOK remain unchecked.
+
+## 2026-09-15 - Stage 6 provider availability state
+
+- Accepted ADR-0007: provider availability is a separate typed contract from model suitability metadata.
+- Added `ProviderStateStore` in `@tatu/shared` and a validated, process-local `InMemoryProviderStateStore` in `@tatu/research` for health, quota, rate-limit, latency, and typed failure observations.
+- Defensive frozen snapshots, bounded diagnostics, runtime discriminant validation, and provider isolation are covered by the full 40-test suite. No provider calls, credentials, persistence, routing, BYOK, or fallback orchestration were introduced.
+- The next unchecked Stage 6 item is Model Router work; provider-state durability and production database choice remain open decisions.
