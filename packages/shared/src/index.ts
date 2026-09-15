@@ -185,6 +185,21 @@ export interface ModelRouter {
   ): LocalBriefingModel | undefined;
 }
 
+/** A model candidate bound to the provider that can execute it. */
+export interface ProviderRouteCandidate {
+  readonly providerId: string;
+  readonly model: LocalBriefingModel;
+}
+
+/** Selects the first suitable model route whose provider is currently eligible. */
+export interface QuotaProviderRouter {
+  select(
+    request: BriefingModelRequest,
+    candidates: readonly ProviderRouteCandidate[],
+    stateStore: ProviderStateStore,
+  ): ProviderRouteCandidate | undefined;
+}
+
 export type { ExecutionStore, TaskStore, TatuStore } from './persistence.js';
 
 const normalize = (value: string) =>

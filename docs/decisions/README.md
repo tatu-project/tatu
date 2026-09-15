@@ -6,6 +6,7 @@ Use sequential files named `NNNN-short-title.md`, beginning with `0001`. Each re
 
 ## Accepted records
 
+- [ADR-0009: Quota and provider eligibility router](ADR-0009-quota-provider-router.md) - accepted September 15, 2026.
 - [ADR-0008: Capability-only model router](ADR-0008-model-router.md) - accepted September 15, 2026.
 - [ADR-0007: Provider availability state](ADR-0007-provider-state.md) - accepted September 15, 2026.
 - [ADR-0006: Model capability metadata](ADR-0006-model-capability-metadata.md) — accepted September 15, 2026.

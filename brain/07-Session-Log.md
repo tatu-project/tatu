@@ -97,4 +97,10 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
 
 - Accepted ADR-0008: model suitability selection is a deterministic capability-only contract, separate from provider availability and quota routing.
 - Added `BriefingModelRequest`, `ModelRouter`, and `CapabilityModelRouter`; the router selects the first compatible candidate, returns `undefined` on no match, and never invokes or mutates candidates.
-- Ollama metadata qualification, empty/no-candidate behavior, first-match ordering, missing capabilities, non-invocation, and immutability are covered by the full 46-test suite. Quota/provider routing, fallback, BYOK, and worker integration remain unchecked.
+- Ollama metadata qualification, empty/no-candidate behavior, first-match ordering, missing capabilities, non-invocation, and immutability are covered by the full 53-test suite. Quota/provider routing, fallback, BYOK, and worker integration remain unchecked.
+
+## 2026-09-15 - Stage 6 quota and provider eligibility router
+
+- Accepted ADR-0009: provider-bound route eligibility combines model capabilities with a separate healthy, non-exhausted provider snapshot.
+- Added `ProviderRouteCandidate` and `QuotaProviderRouter`; it selects the first eligible candidate without provider calls, retries, mutations, persistence, or execution fallback.
+- Tests cover capability mismatch, provider statuses, zero limits, null limits, deterministic order, provider identity, no match, and non-invocation. Multiple eligible routes, fallback, BYOK, and worker integration remain unchecked.

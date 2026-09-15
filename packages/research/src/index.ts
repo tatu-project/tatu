@@ -405,3 +405,4 @@ export {
   ProviderStateError,
 } from './provider-state.js';
 export { CapabilityModelRouter } from './model-router.js';
+export { QuotaProviderRouter } from './provider-router.js';

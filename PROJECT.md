@@ -250,7 +250,7 @@ The Quota/Provider Router answers:
 
 > Which eligible route can execute now, preferably at zero cost?
 
-It tracks availability, quotas, rate limits, health, latency, failures, and provider/model compatibility. It performs automatic fallback without losing the execution context.
+It tracks availability, quotas, rate limits, health, latency, failures, and provider/model compatibility. ADR-0009 now provides a deterministic, process-local eligibility selector that combines model capabilities with a healthy provider snapshot and non-exhausted limits. Automatic fallback without losing the execution context remains a later execution outcome.
 
 The routers are conceptually separate: model suitability is not the same decision as provider availability.
 
