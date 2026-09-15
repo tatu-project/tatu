@@ -117,3 +117,10 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
 - `ByokConnectionService` uses AES-256-GCM with a caller-supplied 32-byte key, random IVs, authenticated owner/provider data, metadata-only listings, and owner-scoped reveal/disconnect.
 - Tests cover encrypted-only backing, round trips, scope enforcement, size and input bounds, tampering, altered authenticated data, wrong keys, unsupported algorithms, and a replaceable backing store. The full suite passes with 59 tests.
 - Provider authentication/OAuth, key ownership/rotation, durable production persistence, worker route integration, automatic failure fallback, and production database choice remain open.
+
+## 2026-09-15 - Stage 6 automatic model fallback
+
+- Accepted ADR-0012: after successful RSS research, typed local-model failures (`model_unavailable`, `model_invalid_output`, or `model_timeout`) reuse the validated deterministic RSS result instead of retrying research.
+- Added sanitized fallback metadata and the `fallback_used` event. The scheduler persists the result and records `queued` -> `claimed` -> `fallback_used` -> `succeeded` atomically; the API returns the fallback metadata.
+- Tests cover all typed model reasons, one research/model call, research-error and cancellation propagation, unknown model errors, event detail redaction, and persisted API retrieval. The full suite passes with 62 tests.
+- Multiple live providers, provider authentication/OAuth, durable key management, and quota-based multi-provider fallback remain open.

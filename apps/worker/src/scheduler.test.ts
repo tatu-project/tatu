@@ -341,6 +341,70 @@ test('records model failures separately from research failures', async () => {
   rmSync(dir, { recursive: true, force: true });
 });
 
+test('persists a model fallback and records it before success', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'tatu-model-fallback-'));
+  const path = join(dir, 'tatu.sqlite');
+  const scheduler = new LocalScheduler(path, 'model-fallback', async () =>
+    JSON.stringify({
+      topic: 'ai',
+      stories: [
+        {
+          title: 'AI',
+          url: 'https://source.test/a',
+          publishedAt: '2026-01-01T00:00:00Z',
+          source: 'source.test',
+        },
+      ],
+      facts: [
+        {
+          title: 'AI',
+          url: 'https://source.test/a',
+          publishedAt: '2026-01-01T00:00:00Z',
+          source: 'source.test',
+        },
+      ],
+      inference: [],
+      route: 'deterministic-rss',
+      fallback: {
+        from: 'local-ollama',
+        reason: 'model_invalid_output',
+      },
+    }),
+  );
+  const db = new Database(path);
+  db.prepare('INSERT INTO tasks VALUES (?,?,?,?,?,?,?,?,?)').run(
+    'model-fallback',
+    'daily',
+    '08:00',
+    1,
+    'ai',
+    1,
+    'America/Sao_Paulo',
+    1,
+    '2026-01-01T00:00:00Z',
+  );
+  db.close();
+  await scheduler.poll(new Date('2026-01-01T12:00:00Z'));
+  const execution = scheduler.list()[0];
+  assert.equal(execution.status, 'succeeded');
+  assert.equal(execution.failure, null);
+  assert.match(execution.result ?? '', /model_invalid_output/);
+  assert.deepEqual(
+    scheduler.events(execution.id).map((event) => event.type),
+    ['queued', 'claimed', 'fallback_used', 'succeeded'],
+  );
+  const fallbackEvent = scheduler
+    .events(execution.id)
+    .find((event) => event.type === 'fallback_used');
+  assert.equal(
+    fallbackEvent?.detail,
+    'fallback:local-ollama:model_invalid_output',
+  );
+  assert.doesNotMatch(fallbackEvent?.detail ?? '', /secret|payload|response/i);
+  scheduler.close();
+  rmSync(dir, { recursive: true, force: true });
+});
+
 test('does not create a duplicate or failure while SQLite is busy', async () => {
   const dir = mkdtempSync(join(tmpdir(), 'tatu-busy-'));
   const path = join(dir, 'tatu.sqlite');

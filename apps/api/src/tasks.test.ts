@@ -102,6 +102,11 @@ test('exposes persisted execution events through the API', async () => {
         },
       ],
       inference: [],
+      route: 'deterministic-rss',
+      fallback: {
+        from: 'local-ollama',
+        reason: 'model_unavailable',
+      },
     }),
   );
   await scheduler.poll(new Date(Date.now() + 24 * 60 * 60 * 1000));
@@ -115,7 +120,7 @@ test('exposes persisted execution events through the API', async () => {
   ).then((response) => response.json())) as Array<{ type: string }>;
   assert.deepEqual(
     events.map((event) => event.type),
-    ['queued', 'claimed', 'succeeded'],
+    ['queued', 'claimed', 'fallback_used', 'succeeded'],
   );
   const savedBriefing = await fetch(
     `${base}/api/executions/${executions[0].id}/briefing`,
@@ -124,6 +129,17 @@ test('exposes persisted execution events through the API', async () => {
   assert.equal(
     (await savedBriefing.json()).stories[0].url,
     'https://source.test/story',
+  );
+  assert.deepEqual(
+    (
+      await fetch(`${base}/api/executions/${executions[0].id}/briefing`).then(
+        (response) => response.json(),
+      )
+    ).fallback,
+    {
+      from: 'local-ollama',
+      reason: 'model_unavailable',
+    },
   );
   await new Promise<void>((resolve) => server.close(() => resolve()));
   rmSync(dir, { recursive: true, force: true });

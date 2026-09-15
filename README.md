@@ -2,7 +2,7 @@
 
 > A free and open-source personal AI agent that works for you 24/7.
 
-**Status:** early development. Stages 4 and 5 are complete for the deterministic cited-briefing acceptance; Stage 6 has model capability metadata, provider-state, model-router, quota/provider-router, an explicit deterministic development fallback, and a local BYOK encrypted-storage foundation. Provider authentication/OAuth, durable key persistence, and automatic fallback after a model failure are not implemented yet. Tatu is not ready for production use yet.
+**Status:** early development. Stages 4 and 5 are complete for the deterministic cited-briefing acceptance; Stage 6 is complete for the proven local route pair, typed automatic fallback to deterministic RSS, and local BYOK encrypted-storage foundation. Provider authentication/OAuth, durable key persistence, multiple live providers, and quota-based multi-provider fallback are not implemented yet. Tatu is not ready for production use yet.
 
 Tatu aims to let anyone describe what they want in natural language while the system handles scheduling, research, tools, memory, model selection, free-provider fallback, permissions, and execution traces.
 

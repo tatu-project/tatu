@@ -2,6 +2,7 @@ import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import Database from 'better-sqlite3';
 import type {
+  BriefingFallback,
   BriefingDraft,
   BriefingResult,
   BriefingTask,
@@ -9,6 +10,18 @@ import type {
   ExecutionRecord,
   TatuStore,
 } from '@tatu/shared';
+
+const isBriefingFallback = (value: unknown): value is BriefingFallback => {
+  if (!value || typeof value !== 'object') return false;
+  const fallback = value as Partial<BriefingFallback>;
+  return (
+    Object.keys(value).length === 2 &&
+    fallback.from === 'local-ollama' &&
+    (fallback.reason === 'model_unavailable' ||
+      fallback.reason === 'model_invalid_output' ||
+      fallback.reason === 'model_timeout')
+  );
+};
 
 const isCitedStory = (
   value: unknown,
@@ -41,6 +54,9 @@ const isBriefingResult = (value: unknown): value is BriefingResult => {
     (result.model === undefined ||
       (typeof result.model.id === 'string' &&
         result.model.route === 'local-ollama')) &&
+    (result.fallback === undefined ||
+      (result.route === 'deterministic-rss' &&
+        isBriefingFallback(result.fallback))) &&
     result.stories.every(isCitedStory) &&
     result.facts.every(isCitedStory) &&
     result.inference.every((item) => typeof item === 'string')

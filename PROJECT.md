@@ -250,7 +250,7 @@ The Quota/Provider Router answers:
 
 > Which eligible route can execute now, preferably at zero cost?
 
-It tracks availability, quotas, rate limits, health, latency, failures, and provider/model compatibility. ADR-0009 now provides a deterministic, process-local eligibility selector that combines model capabilities with a healthy provider snapshot and non-exhausted limits. ADR-0010 accepts the existing local Ollama route plus deterministic RSS development path; automatic fallback without losing the execution context remains a later execution outcome.
+It tracks availability, quotas, rate limits, health, latency, failures, and provider/model compatibility. ADR-0009 provides a deterministic, process-local eligibility selector that combines model capabilities with a healthy provider snapshot and non-exhausted limits. ADR-0010 accepts the existing local Ollama route plus deterministic RSS development path; ADR-0012 adds the bounded automatic fallback from a typed local-model failure to the already validated deterministic RSS result. General quota-based multi-provider fallback remains future work.
 
 The routers are conceptually separate: model suitability is not the same decision as provider availability.
 
@@ -494,7 +494,7 @@ The repository must contain a living execution checklist, initially in `ROADMAP.
 [ ] Stage 3 — User can create a scheduled briefing
 [ ] Stage 4 — Worker executes the task after a restart
 [ ] Stage 5 — Research and cited briefing work end to end
-[ ] Stage 6 — Free routing and fallback work
+[x] Stage 6 — Free routing and fallback work
 [ ] Stage 7 — Delivery, trace, and zero-cost health are visible
 ```
 

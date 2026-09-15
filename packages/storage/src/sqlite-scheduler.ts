@@ -3,11 +3,44 @@ import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import Database from 'better-sqlite3';
 import type {
+  BriefingFallback,
   BriefingTask,
   ExecutionContext,
   ExecutionEvent,
   ExecutionRecord,
 } from '@tatu/shared';
+
+const fallbackFromResult = (
+  value: string | void,
+): BriefingFallback | undefined => {
+  if (typeof value !== 'string') return undefined;
+  try {
+    const parsed: unknown = JSON.parse(value);
+    if (!parsed || typeof parsed !== 'object') return undefined;
+    const result = parsed as {
+      route?: unknown;
+      fallback?: unknown;
+    };
+    const fallback = result.fallback;
+    if (!fallback || typeof fallback !== 'object') return undefined;
+    const metadata = fallback as Partial<BriefingFallback>;
+    if (
+      result.route !== 'deterministic-rss' ||
+      Object.keys(fallback).length !== 2 ||
+      metadata.from !== 'local-ollama' ||
+      (metadata.reason !== 'model_unavailable' &&
+        metadata.reason !== 'model_invalid_output' &&
+        metadata.reason !== 'model_timeout')
+    )
+      return undefined;
+    return {
+      from: 'local-ollama',
+      reason: metadata.reason,
+    };
+  } catch {
+    return undefined;
+  }
+};
 
 type LocalParts = Record<'year' | 'month' | 'day' | 'hour' | 'minute', string>;
 const recoveryWindowMs = 36 * 60 * 60 * 1000;
@@ -288,13 +321,22 @@ INSERT OR IGNORE INTO schema_migrations VALUES (1);`);
         rejectWhenAborted(signal),
       ]);
       await this.atomicWithBusyRetry(() => {
+        const fallback = fallbackFromResult(result);
         const done = this.db
           .prepare(
             "UPDATE executions SET status='succeeded',result=?,lease_expires_at=NULL,updated_at=? WHERE id=? AND status='running' AND claimed_by=?",
           )
           .run(result ?? 'stage4_placeholder', stamp, candidate, this.workerId);
-        if (done.changes)
+        if (done.changes) {
+          if (fallback)
+            this.event(
+              candidate,
+              'fallback_used',
+              stamp,
+              `fallback:${fallback.from}:${fallback.reason}`,
+            );
           this.event(candidate, 'succeeded', stamp, 'persisted_result');
+        }
       });
     } catch (error) {
       const researchFailure =

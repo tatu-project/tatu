@@ -4,6 +4,7 @@ import type {
   ExecutionContext,
 } from '@tatu/shared';
 import {
+  ModelError,
   OllamaBriefingModel,
   ResearchError,
   RssBriefingSynthesizer,
@@ -36,11 +37,21 @@ export const createResearchExecutor =
       feeds.map((url) => ({ url })),
       signal,
     );
-    const selected = modelName
-      ? (model ?? new OllamaBriefingModel(modelName, endpoint)).synthesize(
-          facts,
-          signal,
-        )
-      : Promise.resolve(facts);
-    return JSON.stringify(await selected);
+    if (!modelName) return JSON.stringify(facts);
+    try {
+      return JSON.stringify(
+        await (
+          model ?? new OllamaBriefingModel(modelName, endpoint)
+        ).synthesize(facts, signal),
+      );
+    } catch (error) {
+      if (error instanceof ModelError && !signal.aborted) {
+        return JSON.stringify({
+          ...facts,
+          route: 'deterministic-rss',
+          fallback: { from: 'local-ollama', reason: error.code },
+        });
+      }
+      throw error;
+    }
   };

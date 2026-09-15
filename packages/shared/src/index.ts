@@ -51,7 +51,8 @@ export type ExecutionEventType =
   | 'failed'
   | 'skipped_dst_gap'
   | 'research_failed'
-  | 'model_failed';
+  | 'model_failed'
+  | 'fallback_used';
 
 export interface ExecutionEvent {
   id: string;
@@ -75,6 +76,15 @@ export interface CitedStory {
   source: string;
 }
 
+export type BriefingFallbackReason =
+  'model_unavailable' | 'model_invalid_output' | 'model_timeout';
+
+/** Sanitized metadata for returning to the source-backed RSS route. */
+export interface BriefingFallback {
+  readonly from: 'local-ollama';
+  readonly reason: BriefingFallbackReason;
+}
+
 export interface BriefingResult {
   topic: string;
   stories: CitedStory[];
@@ -83,6 +93,7 @@ export interface BriefingResult {
   inference: string[];
   route?: 'deterministic-rss' | 'local-ollama';
   model?: { id: string; route: 'local-ollama' };
+  fallback?: BriefingFallback;
 }
 
 export interface ResearchFeed {

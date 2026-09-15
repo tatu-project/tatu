@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { ResearchError } from '@tatu/research';
+import { ModelError, ResearchError } from '@tatu/research';
 import type {
   BriefingResult,
   BriefingSynthesizer,
@@ -175,4 +175,142 @@ test('wires a configured local model after research and persists route metadata'
       'citation-preservation',
     ],
   });
+});
+
+test('falls back to the validated RSS result for typed model failures', async () => {
+  for (const reason of [
+    'model_unavailable',
+    'model_invalid_output',
+    'model_timeout',
+  ] as const) {
+    let researchCalls = 0;
+    let modelCalls = 0;
+    const model: LocalBriefingModel = {
+      metadata: {
+        id: 'preferred',
+        capabilities: [
+          'briefing-synthesis',
+          'structured-json',
+          'citation-preservation',
+        ],
+      },
+      async synthesize() {
+        modelCalls += 1;
+        throw new ModelError(reason);
+      },
+    };
+    const adapter: BriefingSynthesizer = {
+      async create() {
+        researchCalls += 1;
+        return sourceResult;
+      },
+    };
+    const output = JSON.parse(
+      await createResearchExecutor(
+        'https://source.test/rss',
+        'preferred',
+        undefined,
+        model,
+        adapter,
+      )(
+        {
+          executionId: 'execution',
+          idempotencyKey: 'occurrence',
+          topic: 'AI',
+          quantity: 1,
+        },
+        new AbortController().signal,
+      ),
+    ) as BriefingResult;
+    assert.equal(output.route, 'deterministic-rss');
+    assert.deepEqual(output.fallback, {
+      from: 'local-ollama',
+      reason,
+    });
+    assert.equal(researchCalls, 1);
+    assert.equal(modelCalls, 1);
+  }
+});
+
+test('does not mask research errors or an aborted execution as fallback', async () => {
+  const controller = new AbortController();
+  controller.abort();
+  const model: LocalBriefingModel = {
+    metadata: {
+      id: 'preferred',
+      capabilities: [
+        'briefing-synthesis',
+        'structured-json',
+        'citation-preservation',
+      ],
+    },
+    async synthesize() {
+      throw new ModelError('model_timeout');
+    },
+  };
+  await assert.rejects(
+    createResearchExecutor(
+      'https://source.test/rss',
+      'preferred',
+      undefined,
+      model,
+      {
+        async create() {
+          throw new ResearchError('rss_unavailable');
+        },
+      },
+    )(
+      {
+        executionId: 'execution',
+        idempotencyKey: 'occurrence',
+        topic: 'AI',
+        quantity: 1,
+      },
+      new AbortController().signal,
+    ),
+    (error: unknown) =>
+      error instanceof ResearchError && error.code === 'rss_unavailable',
+  );
+  await assert.rejects(
+    createResearchExecutor(
+      'https://source.test/rss',
+      'preferred',
+      undefined,
+      model,
+      research,
+    )(
+      {
+        executionId: 'execution',
+        idempotencyKey: 'occurrence',
+        topic: 'AI',
+        quantity: 1,
+      },
+      controller.signal,
+    ),
+    (error: unknown) => error instanceof ModelError,
+  );
+  await assert.rejects(
+    createResearchExecutor(
+      'https://source.test/rss',
+      'preferred',
+      undefined,
+      {
+        ...model,
+        async synthesize() {
+          throw new Error('unexpected_model_bug');
+        },
+      },
+      research,
+    )(
+      {
+        executionId: 'execution',
+        idempotencyKey: 'occurrence',
+        topic: 'AI',
+        quantity: 1,
+      },
+      new AbortController().signal,
+    ),
+    (error: unknown) =>
+      error instanceof Error && error.message === 'unexpected_model_bug',
+  );
 });

@@ -6,6 +6,7 @@ Use sequential files named `NNNN-short-title.md`, beginning with `0001`. Each re
 
 ## Accepted records
 
+- [ADR-0012: Automatic fallback from local model to deterministic RSS](ADR-0012-automatic-model-fallback.md) - accepted September 15, 2026.
 - [ADR-0011: Local BYOK encrypted storage foundation](ADR-0011-byok-encrypted-storage.md) - accepted September 15, 2026.
 - [ADR-0010: Single real route with deterministic development fallback](ADR-0010-single-route-development-fallback.md) - accepted September 15, 2026.
 - [ADR-0009: Quota and provider eligibility router](ADR-0009-quota-provider-router.md) - accepted September 15, 2026.
