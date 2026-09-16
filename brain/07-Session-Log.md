@@ -158,3 +158,8 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
 - Added a multi-stage `Dockerfile`, `.dockerignore`, and `compose.yaml` for separate API and worker services sharing `/app/data`, with API healthcheck and persistent local volume.
 - `docker compose config` passes. A full image build was attempted but the workstation Docker client could not evaluate the Windows context symlinks before Dockerfile execution; the roadmap acceptance remains unchecked until a clean build/startup smoke test is verified.
 - No remote database, Supabase, Firebase, VPS, provider credential, or production deployment decision was introduced.
+
+## 2026-09-16 - Stage 7 guided zero-cost deployment
+
+- Accepted ADR-0018 and added `docs/DEPLOYMENT.md` with the clean-clone `npm ci`/`npm run ci`/`npm run dev` path, Setup Health verification, default credential-free RSS route, optional local Ollama, local backup guidance, and security/troubleshooting limits.
+- The guide keeps Docker optional and does not introduce Supabase, Firebase, VPS hosting, remote/shared PostgreSQL, provider credentials, or a production deployment claim.

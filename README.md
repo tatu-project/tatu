@@ -56,6 +56,8 @@ Open `http://localhost:3000` for the responsive Tatu Health page, or `http://loc
 
 For the local container reference, run `docker compose config` to validate the graph and `docker compose up --build` to start the API and worker with a shared local data volume. Docker Compose is packaging only; the production database decision remains open.
 
+For the beginner-friendly zero-cost path, follow [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md). It starts the local API and worker with `npm run dev`, verifies Setup Health, and keeps persistence and delivery on the local machine.
+
 Run the full local quality suite with:
 
 ```sh

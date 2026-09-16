@@ -37,6 +37,8 @@ Open `http://localhost:3000` for the responsive Tatu Health page. Its machine-re
 
 The repository also includes a local Docker Compose reference. Validate its service graph with `docker compose config`, then start the API and worker with `docker compose up --build`. The Compose volume stores the local SQLite database and filesystem outbox under `/app/data`; it does not configure Supabase, Firebase, a VPS, PostgreSQL, or provider credentials. The optional `TATU_RSS_FEEDS`, `TATU_OLLAMA_MODEL`, and `TATU_OLLAMA_BASE_URL` values are passed through from the host environment when set. A clean image build and startup smoke test remain required before this roadmap item is accepted.
 
+The complete guided zero-cost path is documented in [`docs/DEPLOYMENT.md`](DEPLOYMENT.md). It uses the local Node/npm workflow and does not require Docker, Ollama, a hosted provider, or remote infrastructure.
+
 The current default is one local SQLite file at `data/tatu.sqlite`, configurable through `TATU_DATABASE_PATH`. The approved first deployment is an individual local/self-hosted installation using this adapter. A future PostgreSQL adapter may support a remote/shared deployment only after a new product decision; no Supabase, Firebase, VPS, or remote database is configured now.
 
 The worker's first research route is credential-free. When `TATU_RSS_FEEDS` is unset, it uses the selected public TechCrunch Artificial Intelligence feed by default. Set one or more public HTTPS RSS feeds to override that source:

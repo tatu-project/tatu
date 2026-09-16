@@ -6,6 +6,7 @@ Use sequential files named `NNNN-short-title.md`, beginning with `0001`. Each re
 
 ## Accepted records
 
+- [ADR-0018: Guided zero-cost local deployment](ADR-0018-guided-zero-cost-deployment.md) - accepted September 16, 2026.
 - [ADR-0017: Docker Compose reference packaging](ADR-0017-docker-compose-reference.md) - accepted September 16, 2026; build acceptance remains open.
 - [ADR-0016: Bounded Setup Health surface](ADR-0016-setup-health.md) - accepted September 16, 2026.
 - [ADR-0015: Public execution redaction boundary](ADR-0015-public-execution-redaction.md) - accepted September 16, 2026.
