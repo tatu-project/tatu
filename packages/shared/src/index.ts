@@ -10,6 +10,33 @@ export function getHealthStatus(): HealthStatus {
   return healthStatus;
 }
 
+export type SetupHealthState =
+  | 'healthy'
+  | 'configured'
+  | 'disabled'
+  | 'unknown'
+  | 'not_implemented'
+  | 'unavailable';
+
+export type SetupHealthCheckId =
+  'agent' | 'storage' | 'ai-route' | 'research' | 'memory' | 'scheduler';
+
+export interface SetupHealthCheck {
+  readonly id: SetupHealthCheckId;
+  readonly label: string;
+  readonly state: SetupHealthState;
+  readonly detail: string;
+}
+
+export interface SetupHealthStatus {
+  readonly checks: readonly SetupHealthCheck[];
+  readonly estimatedCost: { readonly status: 'unknown' };
+  readonly nextTask: {
+    readonly time: string;
+    readonly timezone: string;
+  } | null;
+}
+
 export interface BriefingDraft {
   cadence: 'daily';
   time: string;

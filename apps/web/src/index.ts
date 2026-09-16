@@ -25,6 +25,14 @@ export function renderHealthPage(): string {
       .event-at { color: #dfc8b5; font-size: .85rem; margin-left: .4rem; }
       .event-detail { color: #dfc8b5; display: block; font-size: .85rem; margin-top: .15rem; }
       .muted { color: #dfc8b5; }
+      .health-list { display: grid; gap: .6rem; list-style: none; padding: 0; }
+      .health-item { background: #2d211b; border: 1px solid #604a3b; border-radius: .6rem; padding: .65rem .8rem; }
+      .health-label { font-weight: 700; }
+      .health-state { float: right; font-size: .85rem; text-transform: uppercase; }
+      .health-state-ready, .health-state-configured { color: #8de0a7; }
+      .health-state-disabled, .health-state-unknown, .health-state-not-implemented { color: #f0c674; }
+      .health-state-unavailable { color: #f08d8d; }
+      .health-detail { color: #dfc8b5; display: block; font-size: .85rem; margin-top: .2rem; }
     </style>
   </head>
   <body>
@@ -33,6 +41,7 @@ export function renderHealthPage(): string {
       <h1>Tatu Health</h1>
       <p>The technical foundation is running.</p>
       <p>Machine-readable status: <code>/api/health</code></p>
+      <section aria-labelledby="setup-health-title"><h2 id="setup-health-title">Setup Health</h2><p id="setup-health-status" class="muted" aria-live="polite">Loading setup health…</p><ul id="setup-health" class="health-list" aria-label="Setup health checks"></ul><p id="setup-next" class="muted"></p></section>
       <section aria-labelledby="chat-title"><h2 id="chat-title">Chat</h2><label for="message">Pedido diário</label><textarea id="message">Todos os dias às 8h, encontre as três notícias mais importantes sobre inteligência artificial e me envie.</textarea><button id="draft">Preparar confirmação</button><p id="result" aria-live="polite"></p><button id="confirm" hidden>Confirmar tarefa</button></section>
       <section aria-labelledby="tasks-title"><h2 id="tasks-title">Tasks</h2><p>As tarefas confirmadas permanecem salvas para execução agendada.</p><ul id="tasks"></ul></section>
       <section aria-labelledby="executions-title"><h2 id="executions-title">Execution timeline</h2><p id="executions-status" class="muted" aria-live="polite">Carregando execuções…</p><ul id="executions" aria-label="Execution history"></ul></section>
@@ -44,11 +53,48 @@ export function renderHealthPage(): string {
       const taskList = document.querySelector('#tasks');
       const executionList = document.querySelector('#executions');
       const executionStatus = document.querySelector('#executions-status');
+      const setupHealthList = document.querySelector('#setup-health');
+      const setupHealthStatus = document.querySelector('#setup-health-status');
+      const setupNext = document.querySelector('#setup-next');
 
       function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
       function appendText(parent, tag, value, className) { const child = document.createElement(tag); child.textContent = String(value); if (className) child.className = className; parent.append(child); return child; }
       function safeDate(value) { const date = new Date(value); return Number.isNaN(date.getTime()) ? 'horário indisponível' : date.toLocaleString(); }
       function safeDetail(value) { return typeof value === 'string' ? value.replace(/[\t\r\n]+/g, ' ').slice(0, 160) : ''; }
+
+      const setupLabels = {agent: 'Agent online', storage: 'Storage online', 'ai-route': 'AI route available', research: 'Web research available', memory: 'Memory online', scheduler: 'Scheduler online'};
+      const setupStates = {healthy: 'ready', configured: 'configured', disabled: 'disabled', unknown: 'unknown', not_implemented: 'not implemented', unavailable: 'unavailable'};
+      function safeSetupHealth(value) {
+        if (!value || typeof value !== 'object' || !Array.isArray(value.checks) || !value.estimatedCost || typeof value.estimatedCost !== 'object' || value.estimatedCost.status !== 'unknown') return null;
+        const checks = value.checks.map((check) => {
+          if (!check || typeof check !== 'object' || !Object.hasOwn(setupLabels, check.id) || !Object.hasOwn(setupStates, check.state) || typeof check.detail !== 'string') return null;
+          return {id: check.id, label: setupLabels[check.id], state: setupStates[check.state], detail: safeDetail(check.detail)};
+        }).filter(Boolean);
+        if (checks.length !== Object.keys(setupLabels).length) return null;
+        const nextTask = value.nextTask && typeof value.nextTask === 'object' && /^\\d{2}:\\d{2}$/u.test(value.nextTask.time) && typeof value.nextTask.timezone === 'string' && value.nextTask.timezone.length > 0 && value.nextTask.timezone.length <= 64 ? value.nextTask : null;
+        return {checks, nextTask};
+      }
+
+      async function loadSetupHealth() {
+        setupHealthStatus.textContent = 'Loading setup health…';
+        clear(setupHealthList);
+        try {
+          const response = await fetch('/api/setup-health');
+          if (!response.ok) throw new Error('setup-health');
+          const health = safeSetupHealth(await response.json());
+          if (!health) throw new Error('invalid-setup-health');
+          setupHealthStatus.textContent = '';
+          health.checks.forEach((check) => {
+            const item = document.createElement('li'); item.className = 'health-item';
+            appendText(item, 'span', check.label, 'health-label');
+            appendText(item, 'span', check.state, 'health-state health-state-' + check.state.replace(/ /g, '-'));
+            appendText(item, 'span', check.detail, 'health-detail');
+            setupHealthList.append(item);
+          });
+          appendText(setupHealthList, 'li', 'Estimated cost: unknown', 'health-item');
+          setupNext.textContent = health.nextTask ? 'Next task: ' + health.nextTask.time + ' (' + health.nextTask.timezone + ')' : 'Next task: not configured';
+        } catch { setupHealthStatus.textContent = 'Setup health is unavailable.'; setupNext.textContent = ''; }
+      }
 
       async function tasks() {
         clear(taskList);
@@ -140,6 +186,7 @@ export function renderHealthPage(): string {
 
       document.querySelector('#draft').onclick = async () => { const response = await fetch('/api/briefing-drafts', { method: 'POST', headers: {'content-type':'application/json'}, body: JSON.stringify({message: document.querySelector('#message').value, timezone: Intl.DateTimeFormat().resolvedOptions().timeZone}) }); const body = await response.json(); if (!response.ok) { result.textContent = body.clarification; confirm.hidden = true; return; } draftId = body.draftId; result.textContent = 'Confirme a tarefa diária às ' + body.confirmation.time + '.'; confirm.hidden = false; };
       confirm.onclick = async () => { const response = await fetch('/api/briefing-drafts/' + draftId + '/confirm', {method:'POST'}); if (response.ok) { result.textContent = 'Tarefa confirmada.'; confirm.hidden = true; tasks(); executions(); } };
+      loadSetupHealth();
       tasks();
       executions();
     </script>

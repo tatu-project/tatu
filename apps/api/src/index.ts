@@ -1,7 +1,7 @@
 import { createServer, type Server } from 'node:http';
 import { pathToFileURL } from 'node:url';
 
-import { getHealthStatus } from '@tatu/shared';
+import { getHealthStatus, type SetupHealthStatus } from '@tatu/shared';
 import { parseBriefing, type BriefingDraft } from '@tatu/shared';
 import { renderHealthPage } from '@tatu/web';
 import { SqliteTaskStore } from '@tatu/storage';
@@ -71,6 +71,82 @@ const publicBriefing = (
 };
 
 const drafts = new Map<string, BriefingDraft>();
+export const getSetupHealthStatus = (
+  repository: TatuStore,
+  environment: NodeJS.ProcessEnv = process.env,
+): SetupHealthStatus => {
+  let tasks: ReturnType<TatuStore['list']> = [];
+  let storageState: SetupHealthStatus['checks'][number]['state'] = 'healthy';
+  let storageDetail = 'Task storage is readable.';
+  try {
+    tasks = repository.list();
+  } catch {
+    storageState = 'unavailable';
+    storageDetail = 'Task storage is unavailable.';
+  }
+
+  const modelConfigured = Boolean(environment.TATU_OLLAMA_MODEL?.trim());
+  const feeds = environment.TATU_RSS_FEEDS;
+  const researchDisabled =
+    feeds !== undefined &&
+    feeds.split(',').every((feed) => feed.trim().length === 0);
+  const nextTask = tasks.find(
+    (task) =>
+      task.enabled &&
+      /^\d{2}:\d{2}$/u.test(task.time) &&
+      typeof task.timezone === 'string' &&
+      task.timezone.length > 0,
+  );
+
+  return {
+    checks: [
+      {
+        id: 'agent',
+        label: 'Agent online',
+        state: 'healthy',
+        detail: 'The API process is serving requests.',
+      },
+      {
+        id: 'storage',
+        label: 'Storage online',
+        state: storageState,
+        detail: storageDetail,
+      },
+      {
+        id: 'ai-route',
+        label: 'AI route available',
+        state: 'configured',
+        detail: modelConfigured
+          ? 'A local model route is configured.'
+          : 'The deterministic RSS route is configured.',
+      },
+      {
+        id: 'research',
+        label: 'Web research available',
+        state: researchDisabled ? 'disabled' : 'configured',
+        detail: researchDisabled
+          ? 'Research is disabled by configuration.'
+          : 'A public RSS research route is configured.',
+      },
+      {
+        id: 'memory',
+        label: 'Memory online',
+        state: 'not_implemented',
+        detail: 'Persistent memory is not implemented yet.',
+      },
+      {
+        id: 'scheduler',
+        label: 'Scheduler online',
+        state: 'unknown',
+        detail: 'Worker liveness is not exposed by the API yet.',
+      },
+    ],
+    estimatedCost: { status: 'unknown' },
+    nextTask: nextTask
+      ? { time: nextTask.time, timezone: nextTask.timezone }
+      : null,
+  };
+};
 const json = (
   response: import('node:http').ServerResponse,
   status: number,
@@ -110,6 +186,11 @@ export function createTatuServer(
         'content-type': 'application/json; charset=utf-8',
       });
       response.end(JSON.stringify(getHealthStatus()));
+      return;
+    }
+
+    if (request.method === 'GET' && request.url === '/api/setup-health') {
+      json(response, 200, getSetupHealthStatus(repository));
       return;
     }
 

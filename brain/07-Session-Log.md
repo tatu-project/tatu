@@ -145,3 +145,10 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
 - The worker attaches metadata for deterministic RSS, local Ollama, typed fallback, and file-outbox paths; SQLite/API validation rejects malformed or unbounded metadata, and the web timeline renders only the validated summary with DOM text nodes.
 - The full suite passes with 71 tests, including deterministic/model/fallback metadata, API retrieval, UI smoke markers, malformed delivery metadata, and malformed persisted briefing metadata.
 - Provider-specific pricing, broad network-payload redaction, Setup Health, Docker, guided deployment, external push channels, and the 30-day trial remain open.
+
+## 2026-09-16 - Stage 7 Setup Health
+
+- Accepted ADR-0016 for a separate `/api/setup-health` contract and visible Setup Health section on the local page.
+- The surface reports API/storage/configuration facts without exposing environment values, URLs, paths, credentials, task topics, or provider payloads. Memory is `not_implemented`, scheduler liveness is `unknown` without a heartbeat, and estimated cost remains `unknown`.
+- Tests cover the endpoint, disabled-research/model configuration redaction, page marker, and existing health contract. The full suite passes with 73 tests.
+- Docker Compose, guided deployment, external push channels, and the 30-day trial remain open.

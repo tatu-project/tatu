@@ -6,6 +6,7 @@ Use sequential files named `NNNN-short-title.md`, beginning with `0001`. Each re
 
 ## Accepted records
 
+- [ADR-0016: Bounded Setup Health surface](ADR-0016-setup-health.md) - accepted September 16, 2026.
 - [ADR-0015: Public execution redaction boundary](ADR-0015-public-execution-redaction.md) - accepted September 16, 2026.
 - [ADR-0014: Bounded execution observability metadata](ADR-0014-execution-observability.md) - accepted September 15, 2026.
 - [ADR-0013: Local filesystem delivery channel](ADR-0013-local-file-delivery.md) - accepted September 15, 2026.
