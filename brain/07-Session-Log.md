@@ -152,3 +152,9 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
 - The surface reports API/storage/configuration facts without exposing environment values, URLs, paths, credentials, task topics, or provider payloads. Memory is `not_implemented`, scheduler liveness is `unknown` without a heartbeat, and estimated cost remains `unknown`.
 - Tests cover the endpoint, disabled-research/model configuration redaction, page marker, and existing health contract. The full suite passes with 73 tests.
 - Docker Compose, guided deployment, external push channels, and the 30-day trial remain open.
+
+## 2026-09-16 - Stage 7 Docker Compose reference
+
+- Added a multi-stage `Dockerfile`, `.dockerignore`, and `compose.yaml` for separate API and worker services sharing `/app/data`, with API healthcheck and persistent local volume.
+- `docker compose config` passes. A full image build was attempted but the workstation Docker client could not evaluate the Windows context symlinks before Dockerfile execution; the roadmap acceptance remains unchecked until a clean build/startup smoke test is verified.
+- No remote database, Supabase, Firebase, VPS, provider credential, or production deployment decision was introduced.

@@ -54,6 +54,8 @@ npm run dev
 
 Open `http://localhost:3000` for the responsive Tatu Health page, or `http://localhost:3000/api/health` for its JSON contract. Stop the development processes with `Ctrl+C`.
 
+For the local container reference, run `docker compose config` to validate the graph and `docker compose up --build` to start the API and worker with a shared local data volume. Docker Compose is packaging only; the production database decision remains open.
+
 Run the full local quality suite with:
 
 ```sh

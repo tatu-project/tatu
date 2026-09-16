@@ -1,0 +1,16 @@
+.git
+.gitignore
+.dockerignore
+node_modules
+**/node_modules
+dist
+**/dist
+data
+.env
+.env.*
+!.env.example
+coverage
+tmp
+temp
+brain/.obsidian
+brain/.trash

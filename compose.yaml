@@ -1,0 +1,55 @@
+services:
+  api:
+    build: .
+    command: ['node', 'apps/api/dist/index.js']
+    environment:
+      PORT: '3000'
+      TATU_DATABASE_PATH: /app/data/tatu.sqlite
+      TATU_DELIVERY_DIR: /app/data/deliveries
+      TATU_WORKER_POLL_MS: '10000'
+      TATU_LEASE_SECONDS: '30'
+      TATU_MAX_ATTEMPTS: '3'
+      TATU_EXECUTION_TIMEOUT_MS: '25000'
+      TATU_RSS_FEEDS:
+      TATU_OLLAMA_MODEL:
+      TATU_OLLAMA_BASE_URL:
+    ports:
+      - '3000:3000'
+    volumes:
+      - tatu-data:/app/data
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:3000/api/health').then((response) => { if (!response.ok) process.exit(1); }).catch(() => process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  worker:
+    build: .
+    command: ['node', 'apps/worker/dist/index.js']
+    environment:
+      TATU_DATABASE_PATH: /app/data/tatu.sqlite
+      TATU_DELIVERY_DIR: /app/data/deliveries
+      TATU_WORKER_POLL_MS: '10000'
+      TATU_LEASE_SECONDS: '30'
+      TATU_MAX_ATTEMPTS: '3'
+      TATU_EXECUTION_TIMEOUT_MS: '25000'
+      TATU_RSS_FEEDS:
+      TATU_OLLAMA_MODEL:
+      TATU_OLLAMA_BASE_URL:
+    volumes:
+      - tatu-data:/app/data
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  tatu-data:
