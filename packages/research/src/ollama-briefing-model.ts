@@ -4,7 +4,7 @@ import type {
   CitedStory,
   LocalBriefingModel,
 } from '@tatu/shared';
-import { hasSensitiveUrlQuery } from '@tatu/shared';
+import { hasSensitiveUrlQuery, hasTextSecret } from '@tatu/shared';
 export class ModelError extends Error {
   constructor(
     readonly code:
@@ -34,6 +34,53 @@ export class OllamaBriefingModel implements LocalBriefingModel {
     input: BriefingResult,
     signal: AbortSignal,
   ): Promise<BriefingResult> {
+    if (hasTextSecret(this.model)) throw new ModelError('model_unavailable');
+    const safeInputStory = (story: CitedStory) => {
+      if (
+        hasTextSecret(story.title) ||
+        hasTextSecret(story.source) ||
+        hasTextSecret(story.publishedAt)
+      )
+        return false;
+      try {
+        const url = new URL(story.url);
+        return (
+          !hasTextSecret(story.url) &&
+          !url.username &&
+          !url.password &&
+          !hasSensitiveUrlQuery(url)
+        );
+      } catch {
+        return false;
+      }
+    };
+    if (
+      hasTextSecret(input.topic) ||
+      !input.stories.every(safeInputStory) ||
+      !input.facts.every(safeInputStory) ||
+      input.inference.some(hasTextSecret) ||
+      (input.model !== undefined && hasTextSecret(input.model.id)) ||
+      (input.observability !== undefined &&
+        input.observability.model !== null &&
+        hasTextSecret(input.observability.model))
+    )
+      throw new ModelError('model_invalid_output');
+    const prompt = {
+      topic: input.topic,
+      stories: input.stories.map(({ title, url, publishedAt, source }) => ({
+        title,
+        url,
+        publishedAt,
+        source,
+      })),
+      facts: input.facts.map(({ title, url, publishedAt, source }) => ({
+        title,
+        url,
+        publishedAt,
+        source,
+      })),
+      inference: [...input.inference],
+    };
     let endpoint: URL;
     try {
       endpoint = new URL(this.endpoint);
@@ -56,7 +103,7 @@ export class OllamaBriefingModel implements LocalBriefingModel {
         model: this.model,
         stream: false,
         format: 'json',
-        prompt: JSON.stringify(input),
+        prompt: JSON.stringify(prompt),
       }),
     }).catch(() => {
       throw new ModelError(
@@ -89,15 +136,18 @@ export class OllamaBriefingModel implements LocalBriefingModel {
       const story = value as Partial<CitedStory>;
       return (
         typeof story.title === 'string' &&
+        !hasTextSecret(story.title) &&
         typeof story.url === 'string' &&
         typeof story.publishedAt === 'string' &&
-        typeof story.source === 'string'
+        typeof story.source === 'string' &&
+        !hasTextSecret(story.source)
       );
     };
     if (
       !output ||
       typeof output !== 'object' ||
       output.topic !== input.topic ||
+      hasTextSecret(output.topic) ||
       !Array.isArray(output.stories) ||
       output.stories.length !== input.stories.length ||
       !Array.isArray(output.facts) ||
@@ -105,7 +155,9 @@ export class OllamaBriefingModel implements LocalBriefingModel {
       !Array.isArray(output.inference) ||
       !output.stories.every(isCitedStory) ||
       !output.facts.every(isCitedStory) ||
-      !output.inference.every((item) => typeof item === 'string') ||
+      !output.inference.every(
+        (item) => typeof item === 'string' && !hasTextSecret(item),
+      ) ||
       output.stories.some((story) => !allowed.has(story.url)) ||
       output.facts.some((story) => !allowed.has(story.url)) ||
       output.stories.some((story) => !exactStory(story, input.stories)) ||

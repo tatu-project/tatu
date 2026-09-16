@@ -5,7 +5,7 @@ import type {
   CitedStory,
   ResearchFeed,
 } from '@tatu/shared';
-import { hasSensitiveUrlQuery } from '@tatu/shared';
+import { hasSensitiveUrlQuery, hasTextSecret } from '@tatu/shared';
 
 export interface FetchOptions {
   signal?: AbortSignal;
@@ -280,6 +280,8 @@ export function parseRss(xml: string, source: string): CitedStory[] {
     .filter(
       (story) =>
         story.title &&
+        !hasTextSecret(story.title) &&
+        !hasTextSecret(story.source) &&
         story.url &&
         !Number.isNaN(Date.parse(story.publishedAt)),
     );
@@ -320,6 +322,7 @@ export async function researchBriefing(
 ): Promise<BriefingResult> {
   if (!Number.isInteger(quantity) || quantity < 1)
     throw new ResearchError('invalid_quantity');
+  if (hasTextSecret(topic)) throw new ResearchError('unsafe_text');
   if (signal?.aborted) throw new ResearchError('research_timeout');
   const urls: URL[] = [];
   try {

@@ -1,7 +1,13 @@
 import { createServer, type Server } from 'node:http';
 import { pathToFileURL } from 'node:url';
 
-import { getHealthStatus, type SetupHealthStatus } from '@tatu/shared';
+import {
+  getHealthStatus,
+  hasTextSecret,
+  hasSensitiveUrlQuery,
+  redactTextSecrets,
+  type SetupHealthStatus,
+} from '@tatu/shared';
 import { parseBriefing, type BriefingDraft } from '@tatu/shared';
 import { renderHealthPage } from '@tatu/web';
 import { SqliteTaskStore } from '@tatu/storage';
@@ -18,32 +24,62 @@ const publicExecution = (
   maxAttempts: execution.maxAttempts,
   availableAt: execution.availableAt,
   leaseExpiresAt: execution.leaseExpiresAt,
-  failure: execution.failure,
+  failure:
+    execution.failure === null
+      ? null
+      : ['research_failure', 'model_failure', 'delivery_failure'].includes(
+            execution.failure,
+          )
+        ? execution.failure
+        : 'execution_failed',
   createdAt: execution.createdAt,
   updatedAt: execution.updatedAt,
+});
+const publicTask = (task: Awaited<ReturnType<TatuStore['list']>>[number]) => ({
+  id: task.id,
+  cadence: task.cadence,
+  time: task.time,
+  quantity: task.quantity,
+  topic: redactTextSecrets(task.topic),
+  deliveryRequested: task.deliveryRequested,
+  timezone: task.timezone,
+  enabled: task.enabled,
+  createdAt: task.createdAt,
 });
 const publicEvents = (events: Awaited<ReturnType<TatuStore['events']>>) =>
   (events ?? []).map(({ type, at }) => ({ type, at, detail: null }));
 const publicStory = (
   story: NonNullable<ReturnType<TatuStore['briefing']>>['stories'][number],
 ) => ({
-  title: story.title,
-  url: story.url,
-  publishedAt: story.publishedAt,
-  source: story.source,
+  title: redactTextSecrets(story.title),
+  url: (() => {
+    try {
+      const parsed = new URL(story.url);
+      return parsed.username || parsed.password || hasSensitiveUrlQuery(parsed)
+        ? '[REDACTED_URL]'
+        : redactTextSecrets(story.url);
+    } catch {
+      return redactTextSecrets(story.url);
+    }
+  })(),
+  publishedAt: redactTextSecrets(story.publishedAt),
+  source: redactTextSecrets(story.source),
 });
 const publicBriefing = (
   result: NonNullable<ReturnType<TatuStore['briefing']>>,
 ) => {
   const publicResult: Record<string, unknown> = {
-    topic: result.topic,
+    topic: redactTextSecrets(result.topic),
     stories: result.stories.map(publicStory),
     facts: result.facts.map(publicStory),
-    inference: result.inference,
+    inference: result.inference.map(redactTextSecrets),
   };
   if (result.route !== undefined) publicResult.route = result.route;
   if (result.model !== undefined) {
-    publicResult.model = { id: result.model.id, route: result.model.route };
+    publicResult.model = {
+      id: redactTextSecrets(result.model.id),
+      route: result.model.route,
+    };
   }
   if (result.fallback !== undefined) {
     publicResult.fallback = {
@@ -54,7 +90,10 @@ const publicBriefing = (
   if (result.observability !== undefined) {
     publicResult.observability = {
       provider: result.observability.provider,
-      model: result.observability.model,
+      model:
+        result.observability.model === null
+          ? null
+          : redactTextSecrets(result.observability.model),
       tools: [...result.observability.tools],
       latencyMs: result.observability.latencyMs,
       estimatedCost: { status: 'unknown' },
@@ -195,7 +234,7 @@ export function createTatuServer(
     }
 
     if (request.method === 'GET' && request.url === '/api/tasks') {
-      json(response, 200, repository.list());
+      json(response, 200, repository.list().map(publicTask));
       return;
     }
     if (request.method === 'GET' && request.url === '/api/executions') {
@@ -234,6 +273,13 @@ export function createTatuServer(
           const parsed = parseBriefing(message, timezone);
           if (!parsed.ok) {
             json(response, 422, parsed);
+            return;
+          }
+          if (hasTextSecret(parsed.draft.topic)) {
+            json(response, 422, {
+              clarification:
+                'O tema parece conter uma credencial; informe apenas o tema.',
+            });
             return;
           }
           const draftId = crypto.randomUUID();

@@ -169,3 +169,10 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
 - Accepted ADR-0019 and added a shared sensitive-query URL policy used by RSS fetch/redirect validation, SQLite briefing validation, file delivery, and loopback model endpoint validation. Ordinary query parameters remain allowed; credential-like names and token-shaped values are rejected before network or artifact boundaries.
 - Scheduler event details now use fixed safe codes, and worker poll diagnostics no longer include thrown error objects or messages. Tests cover query variants, delivery artifacts, persisted briefings/events, and fake bearer/token errors.
 - `npm run ci` passes with 81 tests. The Stage 7 redaction checkbox remains open for arbitrary sensitive text/PII, unrestricted future network payloads/adapters, and other pending Stage 7 work.
+
+## 2026-09-16 - Stage 7 bounded text-secret validation
+
+- Accepted ADR-0020 and added a shared high-confidence detector/redactor for credential-shaped assignments, bearer/basic/token schemes, JWT-like values, URL userinfo, and well-known key prefixes.
+- Parser, RSS, Ollama, worker, SQLite, file delivery, and API projection boundaries now reject or redact recognized text credentials; URL query handling remains covered by ADR-0019.
+- Tests cover normal-language negatives, parser/API rejection, model output/configuration, worker pre-delivery rejection, persisted briefings, and artifact safety. Arbitrary sensitive text/PII and unrestricted future payloads/adapters remain outside this bounded policy.
+- The complete `npm run ci` suite passes with 96 tests.

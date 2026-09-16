@@ -401,6 +401,7 @@ INSERT OR IGNORE INTO schema_migrations VALUES (1);`);
           'rss_redirect_limit',
           'invalid_quantity',
           'invalid_research_context',
+          'unsafe_text',
           'research_timeout',
         ].includes(error.message);
       const modelFailure =

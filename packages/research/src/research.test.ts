@@ -152,6 +152,19 @@ test('rejects credential-bearing article links and oversized feeds', async () =>
     ),
     [],
   );
+  assert.deepEqual(
+    parseRss(
+      feed(
+        item(
+          'Authorization: Bearer abcdefghijkl',
+          'https://source.test/story',
+          'Mon, 01 Jan 2026 10:00:00 GMT',
+        ),
+      ),
+      'source.test',
+    ),
+    [],
+  );
   await assert.rejects(
     researchBriefing('AI', 1, ['https://feed.test/rss'], async () => ({
       ok: true,
@@ -172,6 +185,19 @@ test('rejects credential-bearing article links and oversized feeds', async () =>
     ),
     (error: unknown) =>
       error instanceof ResearchError && error.code === 'unsafe_rss_url',
+  );
+  await assert.rejects(
+    researchBriefing(
+      'password=abcdEFGH1234',
+      1,
+      ['https://feed.test/rss'],
+      async () => ({
+        ok: true,
+        text: async () => '',
+      }),
+    ),
+    (error: unknown) =>
+      error instanceof ResearchError && error.code === 'unsafe_text',
   );
   const safeQuery = await researchBriefing(
     'AI',

@@ -406,3 +406,67 @@ test('does not mask research errors or an aborted execution as fallback', async 
       error instanceof Error && error.message === 'unexpected_model_bug',
   );
 });
+
+test('rejects credential patterns in a research result before serialization', async () => {
+  const unsafe: BriefingResult = {
+    ...sourceResult,
+    inference: ['authorization: Bearer abcdefghijkl'],
+  };
+  await assert.rejects(
+    createResearchExecutor(
+      'https://source.test/rss',
+      undefined,
+      undefined,
+      undefined,
+      { create: async () => unsafe },
+    )(
+      {
+        executionId: 'execution',
+        idempotencyKey: 'occurrence',
+        topic: 'AI',
+        quantity: 1,
+      },
+      new AbortController().signal,
+    ),
+    (error: unknown) =>
+      error instanceof ResearchError && error.code === 'unsafe_text',
+  );
+});
+
+test('rejects a credential-bearing model name before model invocation', async () => {
+  let called = false;
+  const model: LocalBriefingModel = {
+    metadata: {
+      id: 'safe-model',
+      capabilities: [
+        'briefing-synthesis',
+        'structured-json',
+        'citation-preservation',
+      ],
+    },
+    async synthesize(input) {
+      called = true;
+      return input;
+    },
+  };
+  await assert.rejects(
+    createResearchExecutor(
+      'https://source.test/rss',
+      'api_key=abcdEFGH1234',
+      undefined,
+      model,
+      research,
+    )(
+      {
+        executionId: 'execution',
+        idempotencyKey: 'occurrence',
+        topic: 'AI',
+        quantity: 1,
+      },
+      new AbortController().signal,
+    ),
+    (error: unknown) =>
+      error instanceof ResearchError && error.code === 'unsafe_text',
+  );
+  assert.equal(called, false);
+});

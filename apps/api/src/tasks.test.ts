@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
 import { LocalScheduler } from '@tatu/storage';
+import type { BriefingResult, TatuStore } from '@tatu/shared';
 import { createTatuServer } from './index.js';
 const phrase =
   'Todos os dias às 8h, encontre as três notícias mais importantes sobre inteligência artificial e me envie.';
@@ -63,6 +64,148 @@ test('rejects an oversized draft body without persisting a task', async () => {
   );
   await new Promise<void>((resolve) => server.close(() => resolve()));
   rmSync(dir, { recursive: true, force: true });
+});
+
+test('rejects a credential-bearing topic before task persistence', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'tatu-topic-secret-'));
+  const server = createTatuServer(join(dir, 'tatu.sqlite'));
+  await new Promise<void>((resolve) => server.listen(0, resolve));
+  const address = server.address();
+  assert.ok(address && typeof address !== 'string');
+  const base = `http://127.0.0.1:${address.port}`;
+  const response = await fetch(`${base}/api/briefing-drafts`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      message:
+        'Todos os dias as 8h, encontre as 3 noticias mais importantes sobre api_key=abcdEFGH1234 e me envie.',
+      timezone: 'America/Sao_Paulo',
+    }),
+  });
+  assert.equal(response.status, 422);
+  assert.match((await response.json()).clarification, /credencial/iu);
+  assert.deepEqual(
+    await fetch(`${base}/api/tasks`).then((item) => item.json()),
+    [],
+  );
+  await new Promise<void>((resolve) => server.close(() => resolve()));
+  rmSync(dir, { recursive: true, force: true });
+});
+
+test('redacts credential patterns from legacy task topics in the public API', async () => {
+  const repository = {
+    create: () => {
+      throw new Error('not used');
+    },
+    list: () => [
+      {
+        id: 'legacy-task',
+        cadence: 'daily',
+        time: '08:00',
+        quantity: 3,
+        topic: 'api_key=abcdEFGH1234',
+        deliveryRequested: true,
+        timezone: 'America/Sao_Paulo',
+        enabled: true,
+        createdAt: '2026-09-15T00:00:00.000Z',
+        providerPayload: 'must not cross the public API boundary',
+      },
+    ],
+    listExecutions: () => [],
+    events: () => [],
+    briefing: () => undefined,
+    close: () => undefined,
+  } as unknown as TatuStore;
+  const server = createTatuServer('unused', repository);
+  await new Promise<void>((resolve) => server.listen(0, resolve));
+  try {
+    const address = server.address();
+    assert.ok(address && typeof address !== 'string');
+    const response = await fetch(`http://127.0.0.1:${address.port}/api/tasks`);
+    const body = await response.text();
+    assert.equal(response.status, 200);
+    assert.doesNotMatch(body, /abcdEFGH1234/);
+    assert.match(body, /api_key=\[REDACTED\]/u);
+    assert.doesNotMatch(body, /providerPayload/);
+  } finally {
+    await new Promise<void>((resolve) => server.close(() => resolve()));
+  }
+});
+
+test('redacts credential patterns from a defensive public projection', async () => {
+  const unsafe: BriefingResult = {
+    topic: 'api_key=abcdEFGH1234',
+    stories: [
+      {
+        title: 'Authorization: Bearer abcdefghijkl',
+        url: 'https://source.test/story?token=x',
+        publishedAt: '2026-09-15T00:00:00.000Z',
+        source: 'source.test',
+      },
+    ],
+    facts: [
+      {
+        title: 'AI story',
+        url: 'https://source.test/story',
+        publishedAt: '2026-09-15T00:00:00.000Z',
+        source: 'password=abcdEFGH1234',
+      },
+    ],
+    inference: ['client_secret=abcdEFGH1234'],
+    route: 'local-ollama',
+    model: { id: 'private_key=abcdEFGH1234', route: 'local-ollama' },
+    observability: {
+      provider: 'local-ollama',
+      model: 'token=abcdEFGH1234',
+      tools: ['public-rss', 'local-ollama'],
+      latencyMs: 1,
+      estimatedCost: { status: 'unknown' },
+    },
+  };
+  const repository = {
+    create: () => {
+      throw new Error('not used');
+    },
+    list: () => [],
+    listExecutions: () => [
+      {
+        id: 'execution',
+        taskId: 'task',
+        occurrenceKey: 'internal',
+        scheduledFor: '2026-09-15T00:00:00.000Z',
+        status: 'succeeded',
+        attempt: 1,
+        maxAttempts: 1,
+        availableAt: '2026-09-15T00:00:00.000Z',
+        leaseExpiresAt: null,
+        claimedBy: 'worker',
+        result: JSON.stringify(unsafe),
+        failure: 'authorization=Bearer abcdefghijkl',
+        createdAt: '2026-09-15T00:00:00.000Z',
+        updatedAt: '2026-09-15T00:00:00.000Z',
+      },
+    ],
+    events: () => [],
+    briefing: () => unsafe,
+    close: () => undefined,
+  } as unknown as TatuStore;
+  const server = createTatuServer('unused', repository);
+  await new Promise<void>((resolve) => server.listen(0, resolve));
+  const address = server.address();
+  assert.ok(address && typeof address !== 'string');
+  const base = `http://127.0.0.1:${address.port}`;
+  const briefingResponse = await fetch(
+    `${base}/api/executions/execution/briefing`,
+  );
+  const briefingText = await briefingResponse.text();
+  assert.equal(briefingResponse.status, 200);
+  assert.doesNotMatch(briefingText, /abcdEFGH1234|abcdefghijkl/);
+  assert.match(briefingText, /REDACTED/);
+  const executions = (await fetch(`${base}/api/executions`).then((response) =>
+    response.json(),
+  )) as Array<{ failure: string | null }>;
+  assert.equal(executions[0].failure, 'execution_failed');
+  await new Promise<void>((resolve) => server.close(() => resolve()));
 });
 
 test('exposes persisted execution events through the API', async () => {

@@ -1,3 +1,5 @@
+import { hasTextSecret } from './text-policy.js';
+
 export const healthStatus = {
   service: 'tatu',
   stage: 'technical-foundation',
@@ -275,6 +277,7 @@ export type {
 } from './byok.js';
 export type { BriefingDelivery, BriefingDeliveryReceipt } from './delivery.js';
 export { hasSensitiveUrlQuery } from './url-policy.js';
+export { hasTextSecret, redactTextSecrets } from './text-policy.js';
 
 const normalize = (value: string) =>
   value
@@ -308,6 +311,13 @@ export function parseBriefing(
   const minute = Number(match[2] ?? 0);
   const quantity = match[3] === 'tres' ? 3 : Number(match[3]);
   const normalizedTopic = match[4].replace(/[.!?]+$/, '').trim();
+  if (hasTextSecret(normalizedTopic)) {
+    return {
+      ok: false,
+      clarification:
+        'O tema parece conter uma credencial; informe apenas o tema.',
+    };
+  }
   const topic =
     normalizedTopic === 'inteligencia artificial'
       ? 'inteligência artificial'

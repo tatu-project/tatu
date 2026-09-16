@@ -8,7 +8,7 @@ import type {
   BriefingResult,
   ExecutionContext,
 } from '@tatu/shared';
-import { hasSensitiveUrlQuery } from '@tatu/shared';
+import { hasSensitiveUrlQuery, hasTextSecret } from '@tatu/shared';
 
 export type FileBriefingDeliveryErrorCode =
   'aborted' | 'invalid_briefing' | 'delivery_conflict' | 'delivery_io';
@@ -32,8 +32,10 @@ const isCitedStory = (value: unknown) => {
     return (
       typeof story.title === 'string' &&
       story.title.length > 0 &&
+      !hasTextSecret(story.title) &&
       typeof story.source === 'string' &&
       story.source.length > 0 &&
+      !hasTextSecret(story.source) &&
       typeof story.publishedAt === 'string' &&
       !Number.isNaN(Date.parse(story.publishedAt)) &&
       typeof story.url === 'string' &&
@@ -67,7 +69,8 @@ const isBriefingObservability = (
       (typeof observability.model !== 'string' ||
         observability.model.length === 0 ||
         observability.model.length > 128 ||
-        hasControlCharacter(observability.model))) ||
+        hasControlCharacter(observability.model) ||
+        hasTextSecret(observability.model))) ||
     !Array.isArray(observability.tools) ||
     observability.tools.length < 1 ||
     observability.tools.length > 3 ||
@@ -111,12 +114,15 @@ const isBriefingObservability = (
 const isBriefing = (value: BriefingResult): boolean =>
   typeof value.topic === 'string' &&
   value.topic.length > 0 &&
+  !hasTextSecret(value.topic) &&
   Array.isArray(value.stories) &&
   value.stories.every(isCitedStory) &&
   Array.isArray(value.facts) &&
   value.facts.every(isCitedStory) &&
   Array.isArray(value.inference) &&
-  value.inference.every((item) => typeof item === 'string') &&
+  value.inference.every(
+    (item) => typeof item === 'string' && !hasTextSecret(item),
+  ) &&
   (value.route === undefined ||
     value.route === 'deterministic-rss' ||
     value.route === 'local-ollama') &&
@@ -124,6 +130,7 @@ const isBriefing = (value: BriefingResult): boolean =>
     (typeof value.model === 'object' &&
       value.model !== null &&
       typeof value.model.id === 'string' &&
+      !hasTextSecret(value.model.id) &&
       value.model.route === 'local-ollama')) &&
   (value.fallback === undefined ||
     (typeof value.fallback === 'object' &&

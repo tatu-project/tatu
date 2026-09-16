@@ -188,6 +188,57 @@ test('rejects secret-bearing cited URL queries before writing them', async () =>
   }
 });
 
+test('rejects credential patterns in briefing text before writing them', async () => {
+  const root = await mkdtemp('tatu-delivery-text-secret-');
+  try {
+    const delivery = new FileBriefingDelivery(root);
+    const base = briefing();
+    const variants: BriefingResult[] = [
+      { ...base, topic: 'api_key=abcdEFGH1234' },
+      {
+        ...base,
+        stories: [{ ...base.stories[0], title: 'Bearer abcdefghijkl' }],
+      },
+      {
+        ...base,
+        facts: [{ ...base.facts[0], source: 'password=abcdEFGH1234' }],
+      },
+      { ...base, inference: ['client_secret=abcdEFGH1234'] },
+      {
+        ...base,
+        route: 'local-ollama',
+        model: { id: 'token=abcdEFGH1234', route: 'local-ollama' },
+      },
+      {
+        ...base,
+        route: 'local-ollama',
+        model: { id: 'local', route: 'local-ollama' },
+        observability: {
+          provider: 'local-ollama',
+          model: 'private_key=abcdEFGH1234',
+          tools: ['public-rss', 'local-ollama'],
+          latencyMs: 0,
+          estimatedCost: { status: 'unknown' },
+        },
+      },
+    ];
+    for (const [index, value] of variants.entries())
+      await assert.rejects(
+        delivery.deliver(
+          context(`text-secret-${index}`),
+          value,
+          new AbortController().signal,
+        ),
+        (error: unknown) =>
+          error instanceof FileBriefingDeliveryError &&
+          error.code === 'invalid_briefing',
+      );
+    assert.deepEqual(await readdir(root), []);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
 test('rejects unbounded observability metadata before writing it', async () => {
   const root = await mkdtemp('tatu-delivery-observability-');
   try {

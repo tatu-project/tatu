@@ -24,9 +24,10 @@ Apply one shared URL policy at every current URL boundary:
 - log a fixed redacted worker poll diagnostic rather than the thrown error.
 
 This is a bounded secret boundary, not a general PII or arbitrary sensitive
-text detector. New providers, delivery adapters, network payloads, and user
-content require their own validation before this item can be considered
-complete.
+text detector. ADR-0020 extends the same defense-in-depth approach to
+high-confidence credential-shaped values in current text fields. New
+providers, delivery adapters, network payloads, and user content require their
+own validation before this item can be considered complete.
 
 ## Alternatives considered
 

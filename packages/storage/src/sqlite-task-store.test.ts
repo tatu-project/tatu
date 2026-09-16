@@ -119,3 +119,82 @@ test('does not return a briefing with a sensitive cited URL query', () => {
     rmSync(directory, { recursive: true, force: true });
   }
 });
+
+test('does not return briefings containing credential patterns in text fields', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'tatu-store-text-policy-'));
+  const databasePath = join(directory, 'tatu.sqlite');
+  const stamp = '2026-09-15T00:00:00.000Z';
+  const story = {
+    title: 'AI story',
+    url: 'https://source.test/story',
+    publishedAt: stamp,
+    source: 'source.test',
+  };
+  const result = (variant: Record<string, unknown>) => ({
+    topic: 'AI',
+    stories: [story],
+    facts: [story],
+    inference: [],
+    route: 'deterministic-rss',
+    ...variant,
+  });
+  try {
+    const initial = new SqliteTaskStore(databasePath);
+    initial.close();
+    const database = new Database(databasePath);
+    const insert = database.prepare(
+      'INSERT INTO executions VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+    );
+    const variants = [
+      result({ topic: 'api_key=abcdEFGH1234' }),
+      result({
+        stories: [{ ...story, title: 'Authorization: Bearer abcdefghijkl' }],
+      }),
+      result({
+        facts: [{ ...story, source: 'password=abcdEFGH1234' }],
+      }),
+      result({ inference: ['client_secret=abcdEFGH1234'] }),
+      result({
+        route: 'local-ollama',
+        model: { id: 'token=abcdEFGH1234', route: 'local-ollama' },
+      }),
+      result({
+        route: 'local-ollama',
+        model: { id: 'local', route: 'local-ollama' },
+        observability: {
+          provider: 'local-ollama',
+          model: 'private_key=abcdEFGH1234',
+          tools: ['public-rss', 'local-ollama'],
+          latencyMs: 0,
+          estimatedCost: { status: 'unknown' },
+        },
+      }),
+    ];
+    variants.forEach((value, index) =>
+      insert.run(
+        `execution-${index}`,
+        'task',
+        `occurrence-${index}`,
+        stamp,
+        'succeeded',
+        1,
+        1,
+        stamp,
+        null,
+        null,
+        JSON.stringify(value),
+        null,
+        stamp,
+        stamp,
+      ),
+    );
+    database.close();
+
+    const store = new SqliteTaskStore(databasePath);
+    for (let index = 0; index < variants.length; index += 1)
+      assert.equal(store.briefing(`execution-${index}`), undefined);
+    store.close();
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});

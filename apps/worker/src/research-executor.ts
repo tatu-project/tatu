@@ -6,6 +6,7 @@ import type {
   BriefingSynthesizer,
   ExecutionContext,
 } from '@tatu/shared';
+import { hasSensitiveUrlQuery, hasTextSecret } from '@tatu/shared';
 import { performance } from 'node:perf_hooks';
 import {
   ModelError,
@@ -16,6 +17,27 @@ import {
 import type { LocalBriefingModel } from '@tatu/shared';
 
 const synthesizer = new RssBriefingSynthesizer();
+const containsTextSecret = (briefing: BriefingResult) =>
+  hasTextSecret(briefing.topic) ||
+  briefing.stories.some(
+    (story) =>
+      hasTextSecret(story.title) ||
+      hasTextSecret(story.source) ||
+      hasTextSecret(story.url) ||
+      hasSensitiveUrlQuery(story.url),
+  ) ||
+  briefing.facts.some(
+    (story) =>
+      hasTextSecret(story.title) ||
+      hasTextSecret(story.source) ||
+      hasTextSecret(story.url) ||
+      hasSensitiveUrlQuery(story.url),
+  ) ||
+  briefing.inference.some(hasTextSecret) ||
+  (briefing.model !== undefined && hasTextSecret(briefing.model.id)) ||
+  (briefing.observability !== undefined &&
+    briefing.observability.model !== null &&
+    hasTextSecret(briefing.observability.model));
 export const DEFAULT_RSS_FEED =
   'https://techcrunch.com/category/artificial-intelligence/feed/';
 
@@ -45,6 +67,8 @@ export const createResearchExecutor =
     );
     let briefing = facts;
     const modelAttempted = Boolean(modelName);
+    if (modelName && hasTextSecret(modelName))
+      throw new ResearchError('unsafe_text');
     try {
       if (modelName)
         briefing = await (
@@ -61,6 +85,7 @@ export const createResearchExecutor =
         throw error;
       }
     }
+    if (containsTextSecret(briefing)) throw new ResearchError('unsafe_text');
     const receipt = delivery
       ? await delivery.deliver(context, briefing, signal)
       : undefined;

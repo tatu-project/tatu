@@ -12,7 +12,7 @@ import type {
   ExecutionRecord,
   TatuStore,
 } from '@tatu/shared';
-import { hasSensitiveUrlQuery } from '@tatu/shared';
+import { hasSensitiveUrlQuery, hasTextSecret } from '@tatu/shared';
 
 const isBriefingDeliveryReceipt = (
   value: unknown,
@@ -63,7 +63,8 @@ const isBriefingObservability = (
       (typeof observability.model !== 'string' ||
         observability.model.length === 0 ||
         observability.model.length > 128 ||
-        hasControlCharacter(observability.model))) ||
+        hasControlCharacter(observability.model) ||
+        hasTextSecret(observability.model))) ||
     !Array.isArray(observability.tools) ||
     observability.tools.length < 1 ||
     observability.tools.length > 3 ||
@@ -113,7 +114,9 @@ const isCitedStory = (
     const url = new URL(story.url);
     return (
       typeof story.title === 'string' &&
+      !hasTextSecret(story.title) &&
       typeof story.source === 'string' &&
+      !hasTextSecret(story.source) &&
       typeof story.publishedAt === 'string' &&
       !Number.isNaN(Date.parse(story.publishedAt)) &&
       url.protocol === 'https:' &&
@@ -130,6 +133,7 @@ const isBriefingResult = (value: unknown): value is BriefingResult => {
   const result = value as Partial<BriefingResult>;
   return (
     typeof result.topic === 'string' &&
+    !hasTextSecret(result.topic) &&
     Array.isArray(result.stories) &&
     Array.isArray(result.facts) &&
     Array.isArray(result.inference) &&
@@ -140,6 +144,7 @@ const isBriefingResult = (value: unknown): value is BriefingResult => {
       (typeof result.model === 'object' &&
         result.model !== null &&
         typeof result.model.id === 'string' &&
+        !hasTextSecret(result.model.id) &&
         result.model.route === 'local-ollama')) &&
     (result.fallback === undefined ||
       (result.route === 'deterministic-rss' &&
@@ -150,7 +155,9 @@ const isBriefingResult = (value: unknown): value is BriefingResult => {
       isBriefingObservability(result.observability, result)) &&
     result.stories.every(isCitedStory) &&
     result.facts.every(isCitedStory) &&
-    result.inference.every((item) => typeof item === 'string')
+    result.inference.every(
+      (item) => typeof item === 'string' && !hasTextSecret(item),
+    )
   );
 };
 
@@ -167,6 +174,7 @@ export class SqliteTaskStore implements TatuStore {
     );
   }
   create(draft: BriefingDraft): BriefingTask {
+    if (hasTextSecret(draft.topic)) throw new Error('unsafe_text');
     const task: BriefingTask = {
       ...draft,
       id: crypto.randomUUID(),
