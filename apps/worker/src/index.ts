@@ -1,6 +1,7 @@
 import { getHealthStatus } from '@tatu/shared';
 import { FileBriefingDelivery, LocalScheduler } from '@tatu/storage';
 import { createResearchExecutor } from './research-executor.js';
+import { workerPollFailureMessage } from './safe-log.js';
 
 const status = getHealthStatus();
 const scheduler = new LocalScheduler(
@@ -28,8 +29,8 @@ const poll = async () => {
       Number(process.env.TATU_MAX_ATTEMPTS ?? 3),
       Number(process.env.TATU_EXECUTION_TIMEOUT_MS ?? 25_000),
     );
-  } catch (error) {
-    console.error('Tatu worker poll failed', error);
+  } catch {
+    console.error(workerPollFailureMessage);
   } finally {
     polling = false;
   }

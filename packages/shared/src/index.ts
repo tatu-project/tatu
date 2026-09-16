@@ -274,6 +274,7 @@ export type {
   EncryptedSecretRecordStore,
 } from './byok.js';
 export type { BriefingDelivery, BriefingDeliveryReceipt } from './delivery.js';
+export { hasSensitiveUrlQuery } from './url-policy.js';
 
 const normalize = (value: string) =>
   value

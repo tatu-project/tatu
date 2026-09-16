@@ -8,6 +8,7 @@ import type {
   BriefingResult,
   ExecutionContext,
 } from '@tatu/shared';
+import { hasSensitiveUrlQuery } from '@tatu/shared';
 
 export type FileBriefingDeliveryErrorCode =
   'aborted' | 'invalid_briefing' | 'delivery_conflict' | 'delivery_io';
@@ -26,6 +27,8 @@ const isCitedStory = (value: unknown) => {
   if (!value || typeof value !== 'object') return false;
   const story = value as Partial<BriefingResult['stories'][number]>;
   try {
+    if (typeof story.url !== 'string') return false;
+    const url = new URL(story.url);
     return (
       typeof story.title === 'string' &&
       story.title.length > 0 &&
@@ -34,9 +37,10 @@ const isCitedStory = (value: unknown) => {
       typeof story.publishedAt === 'string' &&
       !Number.isNaN(Date.parse(story.publishedAt)) &&
       typeof story.url === 'string' &&
-      new URL(story.url).protocol === 'https:' &&
-      !new URL(story.url).username &&
-      !new URL(story.url).password
+      url.protocol === 'https:' &&
+      !url.username &&
+      !url.password &&
+      !hasSensitiveUrlQuery(url)
     );
   } catch {
     return false;

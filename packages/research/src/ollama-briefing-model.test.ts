@@ -96,3 +96,15 @@ test('rejects non-loopback endpoints and sends no secret fields', async () => {
   assert.equal(body.includes('apiKey'), false);
   assert.equal(body.includes('password'), false);
 });
+
+test('rejects loopback endpoints with sensitive query parameters', async () => {
+  const endpoint = new OllamaBriefingModel(
+    'local',
+    'http://127.0.0.1:11434/api?token=raw-secret',
+  );
+  await assert.rejects(
+    endpoint.synthesize(facts, new AbortController().signal),
+    (error: unknown) =>
+      error instanceof ModelError && error.code === 'model_unavailable',
+  );
+});

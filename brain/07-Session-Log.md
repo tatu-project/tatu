@@ -163,3 +163,9 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
 
 - Accepted ADR-0018 and added `docs/DEPLOYMENT.md` with the clean-clone `npm ci`/`npm run ci`/`npm run dev` path, Setup Health verification, default credential-free RSS route, optional local Ollama, local backup guidance, and security/troubleshooting limits.
 - The guide keeps Docker optional and does not introduce Supabase, Firebase, VPS hosting, remote/shared PostgreSQL, provider credentials, or a production deployment claim.
+
+## 2026-09-16 - Stage 7 bounded secret boundaries
+
+- Accepted ADR-0019 and added a shared sensitive-query URL policy used by RSS fetch/redirect validation, SQLite briefing validation, file delivery, and loopback model endpoint validation. Ordinary query parameters remain allowed; credential-like names and token-shaped values are rejected before network or artifact boundaries.
+- Scheduler event details now use fixed safe codes, and worker poll diagnostics no longer include thrown error objects or messages. Tests cover query variants, delivery artifacts, persisted briefings/events, and fake bearer/token errors.
+- `npm run ci` passes with 81 tests. The Stage 7 redaction checkbox remains open for arbitrary sensitive text/PII, unrestricted future network payloads/adapters, and other pending Stage 7 work.

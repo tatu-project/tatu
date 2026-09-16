@@ -79,6 +79,19 @@ const fallbackFromResult = (
 type LocalParts = Record<'year' | 'month' | 'day' | 'hour' | 'minute', string>;
 const recoveryWindowMs = 36 * 60 * 60 * 1000;
 const sqliteBusyRetryLimit = 3;
+const eventDetail = {
+  claimed: 'worker_claimed',
+  deliveryFailed: 'delivery_failed',
+  delivered: 'delivery_completed',
+  dstGap: 'dst_gap',
+  failed: 'execution_failed',
+  fallback: 'model_fallback',
+  modelFailed: 'model_failed',
+  persisted: 'persisted_result',
+  researchFailed: 'research_failed',
+  retryScheduled: 'retry_scheduled',
+  timedOut: 'execution_timeout',
+} as const;
 const wait = (milliseconds: number) =>
   new Promise<void>((resolve) => setTimeout(resolve, milliseconds));
 const isSqliteBusy = (error: unknown) =>
@@ -225,12 +238,12 @@ INSERT OR IGNORE INTO schema_migrations VALUES (1);`);
               stamp,
               execution.id,
             );
-          this.event(execution.id, 'timed_out', stamp, 'lease_timeout');
+          this.event(execution.id, 'timed_out', stamp, eventDetail.timedOut);
           this.event(
             execution.id,
             terminal ? 'failed' : 'retry_scheduled',
             stamp,
-            terminal ? 'lease_timeout' : retryAt,
+            terminal ? eventDetail.failed : eventDetail.retryScheduled,
           );
         }
         const tasks = this.db
@@ -268,7 +281,12 @@ INSERT OR IGNORE INTO schema_migrations VALUES (1);`);
                 const row = this.db
                   .prepare('SELECT id FROM executions WHERE occurrence_key=?')
                   .get(key) as { id: string };
-                this.event(row.id, 'skipped_dst_gap', stamp, task.time);
+                this.event(
+                  row.id,
+                  'skipped_dst_gap',
+                  stamp,
+                  eventDetail.dstGap,
+                );
               }
               continue;
             }
@@ -319,7 +337,7 @@ INSERT OR IGNORE INTO schema_migrations VALUES (1);`);
             row.id,
           );
         if (!claimed.changes) return undefined;
-        this.event(row.id, 'claimed', stamp, this.workerId);
+        this.event(row.id, 'claimed', stamp, eventDetail.claimed);
         return row.id;
       });
     } catch (error) {
@@ -364,20 +382,10 @@ INSERT OR IGNORE INTO schema_migrations VALUES (1);`);
           .run(result ?? 'stage4_placeholder', stamp, candidate, this.workerId);
         if (done.changes) {
           if (fallback)
-            this.event(
-              candidate,
-              'fallback_used',
-              stamp,
-              `fallback:${fallback.from}:${fallback.reason}`,
-            );
+            this.event(candidate, 'fallback_used', stamp, eventDetail.fallback);
           if (delivery)
-            this.event(
-              candidate,
-              'delivered',
-              stamp,
-              `${delivery.channel}:${delivery.artifactId}`,
-            );
-          this.event(candidate, 'succeeded', stamp, 'persisted_result');
+            this.event(candidate, 'delivered', stamp, eventDetail.delivered);
+          this.event(candidate, 'succeeded', stamp, eventDetail.persisted);
         }
       });
     } catch (error) {
@@ -443,41 +451,28 @@ INSERT OR IGNORE INTO schema_migrations VALUES (1);`);
             this.workerId,
           );
         if (failure === 'execution_timeout')
-          this.event(candidate, 'timed_out', stamp, failure);
+          this.event(candidate, 'timed_out', stamp, eventDetail.timedOut);
         if (failure === 'research_failure')
           this.event(
             candidate,
             'research_failed',
             stamp,
-            error instanceof Error ? `research:${error.message}` : failure,
+            eventDetail.researchFailed,
           );
         if (failure === 'model_failure')
-          this.event(
-            candidate,
-            'model_failed',
-            stamp,
-            error instanceof Error ? `model:${error.message}` : failure,
-          );
+          this.event(candidate, 'model_failed', stamp, eventDetail.modelFailed);
         if (failure === 'delivery_failure')
           this.event(
             candidate,
             'delivery_failed',
             stamp,
-            error instanceof Error &&
-              [
-                'aborted',
-                'invalid_briefing',
-                'delivery_conflict',
-                'delivery_io',
-              ].includes(error.message)
-              ? `delivery:${error.message}`
-              : 'delivery:failed',
+            eventDetail.deliveryFailed,
           );
         this.event(
           candidate,
           terminal ? 'failed' : 'retry_scheduled',
           stamp,
-          terminal ? failure : retryAt,
+          terminal ? eventDetail.failed : eventDetail.retryScheduled,
         );
       });
     }

@@ -20,4 +20,4 @@ The projection is provider-agnostic and does not change the replaceable `TatuSto
 
 ## Consequences
 
-The local web/API timeline remains useful without exposing internal correlation or raw provider payloads. Storage can retain the data required for idempotency and recovery. This is a bounded redaction boundary, not complete secret or PII detection: query-string tokens, arbitrary sensitive text, unrestricted worker logging, and future adapters require their own validation before the Stage 7 redaction checkbox can be marked complete.
+The local web/API timeline remains useful without exposing internal correlation or raw provider payloads. Storage can retain the data required for idempotency and recovery. ADR-0019 adds tested URL query, delivery, scheduler-detail, and worker-log boundaries. This remains a bounded redaction boundary, not complete secret or PII detection: arbitrary sensitive text, unrestricted future network payloads, and future adapters require their own validation before the Stage 7 redaction checkbox can be marked complete.

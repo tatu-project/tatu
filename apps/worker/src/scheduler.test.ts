@@ -397,11 +397,47 @@ test('persists a model fallback and records it before success', async () => {
   const fallbackEvent = scheduler
     .events(execution.id)
     .find((event) => event.type === 'fallback_used');
-  assert.equal(
-    fallbackEvent?.detail,
-    'fallback:local-ollama:model_invalid_output',
-  );
+  assert.equal(fallbackEvent?.detail, 'model_fallback');
   assert.doesNotMatch(fallbackEvent?.detail ?? '', /secret|payload|response/i);
+  scheduler.close();
+  rmSync(dir, { recursive: true, force: true });
+});
+
+test('persists only fixed event details when an executor throws sensitive text', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'tatu-event-redaction-'));
+  const path = join(dir, 'tatu.sqlite');
+  const scheduler = new LocalScheduler(path, 'worker-secret-id', async () => {
+    throw new Error(
+      'authorization=Bearer super-secret https://user:pass@example.test/?token=raw',
+    );
+  });
+  const db = new Database(path);
+  db.prepare('INSERT INTO tasks VALUES (?,?,?,?,?,?,?,?,?)').run(
+    'event-redaction',
+    'daily',
+    '08:00',
+    1,
+    'ai',
+    1,
+    'America/Sao_Paulo',
+    1,
+    '2026-01-01T00:00:00Z',
+  );
+  db.close();
+  await scheduler.poll(new Date('2026-01-01T12:00:00Z'));
+  const execution = scheduler.list()[0];
+  const details = scheduler
+    .events(execution.id)
+    .map((event) => event.detail ?? '');
+  assert.deepEqual(details, ['', 'worker_claimed', 'retry_scheduled']);
+  assert.equal(
+    details.some((detail) => detail.includes('super-secret')),
+    false,
+  );
+  assert.equal(
+    details.some((detail) => detail.includes('worker-secret-id')),
+    false,
+  );
   scheduler.close();
   rmSync(dir, { recursive: true, force: true });
 });

@@ -12,6 +12,7 @@ import type {
   ExecutionRecord,
   TatuStore,
 } from '@tatu/shared';
+import { hasSensitiveUrlQuery } from '@tatu/shared';
 
 const isBriefingDeliveryReceipt = (
   value: unknown,
@@ -109,14 +110,16 @@ const isCitedStory = (
   if (!value || typeof value !== 'object') return false;
   const story = value as BriefingResult['stories'][number];
   try {
+    const url = new URL(story.url);
     return (
       typeof story.title === 'string' &&
       typeof story.source === 'string' &&
       typeof story.publishedAt === 'string' &&
       !Number.isNaN(Date.parse(story.publishedAt)) &&
-      new URL(story.url).protocol === 'https:' &&
-      new URL(story.url).username === '' &&
-      new URL(story.url).password === ''
+      url.protocol === 'https:' &&
+      url.username === '' &&
+      url.password === '' &&
+      !hasSensitiveUrlQuery(url)
     );
   } catch {
     return false;

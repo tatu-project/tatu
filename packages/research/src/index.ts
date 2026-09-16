@@ -5,6 +5,7 @@ import type {
   CitedStory,
   ResearchFeed,
 } from '@tatu/shared';
+import { hasSensitiveUrlQuery } from '@tatu/shared';
 
 export interface FetchOptions {
   signal?: AbortSignal;
@@ -149,6 +150,7 @@ const assertPublicUrl = async (
     value.protocol !== 'https:' ||
     value.username ||
     value.password ||
+    hasSensitiveUrlQuery(value) ||
     value.hostname === 'localhost' ||
     value.hostname.endsWith('.localhost') ||
     value.hostname.endsWith('.local')
@@ -253,7 +255,10 @@ const canonicalUrl = (value: string) => {
 const safeArticleUrl = (value: string) => {
   try {
     const url = new URL(value);
-    return url.protocol === 'https:' && !url.username && !url.password
+    return url.protocol === 'https:' &&
+      !url.username &&
+      !url.password &&
+      !hasSensitiveUrlQuery(url)
       ? canonicalUrl(value)
       : undefined;
   } catch {
@@ -321,7 +326,7 @@ export async function researchBriefing(
     for (const feed of feeds) {
       const url = new URL(feed);
       if (url.protocol !== 'https:') throw new ResearchError('invalid_rss_url');
-      if (url.username || url.password)
+      if (url.username || url.password || hasSensitiveUrlQuery(url))
         throw new ResearchError('unsafe_rss_url');
       urls.push(url);
     }

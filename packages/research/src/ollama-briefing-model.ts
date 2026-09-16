@@ -4,6 +4,7 @@ import type {
   CitedStory,
   LocalBriefingModel,
 } from '@tatu/shared';
+import { hasSensitiveUrlQuery } from '@tatu/shared';
 export class ModelError extends Error {
   constructor(
     readonly code:
@@ -43,6 +44,7 @@ export class OllamaBriefingModel implements LocalBriefingModel {
       !['http:', 'https:'].includes(endpoint.protocol) ||
       endpoint.username ||
       endpoint.password ||
+      hasSensitiveUrlQuery(endpoint) ||
       (endpoint.hostname !== '127.0.0.1' && endpoint.hostname !== 'localhost')
     )
       throw new ModelError('model_unavailable');

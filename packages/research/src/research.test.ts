@@ -160,6 +160,66 @@ test('rejects credential-bearing article links and oversized feeds', async () =>
     (error: unknown) =>
       error instanceof ResearchError && error.code === 'rss_too_large',
   );
+  await assert.rejects(
+    researchBriefing(
+      'AI',
+      1,
+      ['https://feed.test/rss?api_key=raw-secret'],
+      async () => ({
+        ok: true,
+        text: async () => '',
+      }),
+    ),
+    (error: unknown) =>
+      error instanceof ResearchError && error.code === 'unsafe_rss_url',
+  );
+  const safeQuery = await researchBriefing(
+    'AI',
+    1,
+    ['https://feed.test/rss?page=2'],
+    async () => ({
+      ok: true,
+      text: async () =>
+        feed(
+          item(
+            'AI',
+            'https://source.test/story?page=2',
+            'Mon, 01 Jan 2026 10:00:00 GMT',
+          ),
+        ),
+    }),
+  );
+  assert.equal(safeQuery.stories[0].url, 'https://source.test/story?page=2');
+  assert.deepEqual(
+    parseRss(
+      feed(
+        item(
+          'AI',
+          'https://source.test/story?access_token=raw-secret',
+          'Mon, 01 Jan 2026 10:00:00 GMT',
+        ),
+      ),
+      'source.test',
+    ),
+    [],
+  );
+});
+
+test('rejects sensitive query parameters after public redirects', async () => {
+  await assert.rejects(
+    fetchPublicRss(
+      'https://feed.test/rss',
+      undefined,
+      async () =>
+        new Response('', {
+          status: 302,
+          headers: { location: 'https://feed.test/rss?token=raw-secret' },
+        }),
+      async () => [{ address: '93.184.216.34', family: 4 }],
+    ),
+    (error: unknown) =>
+      error instanceof ResearchError && error.code === 'unsafe_rss_url',
+  );
 });
 
 test('does not follow a public RSS redirect to HTTP', async () => {
