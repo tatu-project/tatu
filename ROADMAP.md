@@ -1,6 +1,6 @@
 # Tatu Roadmap
 
-> Current status: Stages 4, 5, and 6 are complete; Stage 7 has its first local delivery-channel foundation.
+> Current status: Stages 4, 5, and 6 are complete; Stage 7 has local delivery and execution-timeline foundations.
 > Rule: check an item only after its acceptance criterion has been verified.
 > Compact session context: [`brain/04-Current-State.md`](brain/04-Current-State.md).
 
@@ -139,7 +139,7 @@ Verification note (September 15, 2026): `@tatu/shared` defines readonly `Briefin
 Outcome: the creator receives briefings automatically and can understand every run.
 
 - [x] One free delivery channel implemented as a local filesystem inbox.
-- [ ] Execution timeline visible.
+- [x] Execution timeline visible.
 - [ ] Provider, model, tools, latency, fallback, and estimated cost visible.
 - [ ] Secrets and sensitive payloads redacted.
 - [ ] Setup Health page visible.
@@ -151,7 +151,7 @@ Acceptance test:
 
 - Tatu delivers the briefing automatically on the following day and exposes a complete, safe trace.
 
-Verification note (September 15, 2026): `@tatu/shared` defines the replaceable `BriefingDelivery` port and typed receipt; `FileBriefingDelivery` writes deterministic cited Markdown under `data/deliveries` by default or `TATU_DELIVERY_DIR` when overridden. The occurrence idempotency key is SHA-256 hashed into the artifact name, repeated identical deliveries are idempotent, conflicting content is rejected, aborted writes create no artifact, credential-bearing cited URLs are rejected, artifact probes require a valid hash filename, and the body contains no raw key or provider payload. The worker delivers after the final model/fallback result; the scheduler validates and persists the receipt and records `delivered` before `succeeded`, while delivery failures remain retryable and record `delivery_failed`. `npm test` passed with 69 tests, including outbox, executor, scheduler, and API regression coverage. This is a local inbox, not push notification or distributed exactly-once external delivery; timeline, provider/model/latency/cost observability, broader redaction, health UI, Docker, guided deployment, and the 30-day trial remain unchecked.
+Verification note (September 15, 2026): `@tatu/shared` defines the replaceable `BriefingDelivery` port and typed receipt; `FileBriefingDelivery` writes deterministic cited Markdown under `data/deliveries` by default or `TATU_DELIVERY_DIR` when overridden. The occurrence idempotency key is SHA-256 hashed into the artifact name, repeated identical deliveries are idempotent, conflicting content is rejected, aborted writes create no artifact, credential-bearing cited URLs are rejected, artifact probes require a valid hash filename, and the body contains no raw key or provider payload. The worker delivers after the final model/fallback result; the scheduler validates and persists the receipt and records `delivered` before `succeeded`, while delivery failures remain retryable and record `delivery_failed`. The Tatu page now lists persisted executions and renders their ordered events through the existing execution APIs, using DOM text nodes for fetched values and omitting occurrence keys and raw results from the visible timeline. `npm test` passed with 69 tests, including outbox, executor, scheduler, API, and timeline smoke coverage. This is a local inbox, not push notification or distributed exactly-once external delivery; provider/model/latency/cost observability, broader network-payload redaction, health UI, Docker, guided deployment, and the 30-day trial remain unchecked.
 
 ## Later roadmap
 

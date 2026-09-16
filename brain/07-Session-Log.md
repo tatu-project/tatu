@@ -131,3 +131,10 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
 - The adapter writes deterministic cited Markdown using a SHA-256 filename derived from the occurrence key, publishes without overwriting a concurrent artifact, treats identical retries as idempotent, rejects content conflicts, and never writes the raw key or provider payload.
 - The executor delivers the final model/fallback result; the scheduler persists the strict receipt and records `delivered` before `succeeded`. Delivery errors produce `delivery_failed` and remain retryable.
 - `npm test` passes with 69 tests, including outbox idempotency/abort/path-safety, credential-bearing URL rejection, executor key propagation, scheduler receipt/event validation, and delivery failure behavior. Push notifications, external channels, complete timeline/metrics, health UI, Docker, guided deployment, and the 30-day trial remain open.
+
+## 2026-09-15 â€” Stage 7 execution timeline
+
+- Added a visible Execution timeline to the local web page, backed by the existing `/api/executions` and `/api/executions/:id/events` endpoints.
+- The page renders status, schedule, attempts, failures, and ordered event types/timestamps/details using DOM text nodes; occurrence keys and raw briefing results are not displayed.
+- The page refreshes the timeline after task confirmation, and the API health smoke test verifies both event fetch paths. The full suite remains green with 69 tests.
+- Provider/model/latency/cost observability, broader network-payload redaction, health UI, Docker, guided deployment, push channels, and the 30-day trial remain open.

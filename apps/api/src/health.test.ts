@@ -30,5 +30,12 @@ test('serves the Tatu Health page', async (context) => {
   const response = await fetch(`http://127.0.0.1:${address.port}/`);
 
   assert.equal(response.status, 200);
-  assert.match(await response.text(), /Tatu Health/);
+  const page = await response.text();
+  assert.match(page, /Tatu Health/);
+  assert.match(page, /id="executions-title"/);
+  assert.match(page, /fetch\('\/api\/executions'\)/);
+  assert.match(
+    page,
+    /\/api\/executions\/.*encodeURIComponent\(execution\.id\).*\/events/,
+  );
 });
