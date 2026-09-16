@@ -87,6 +87,27 @@ export interface BriefingFallback {
   readonly reason: BriefingFallbackReason;
 }
 
+/** Bounded provider identities exposed by an execution's final result. */
+export type BriefingObservabilityProvider = 'public-rss' | 'local-ollama';
+
+/** Bounded tools that may participate in the first delivery slice. */
+export type BriefingObservabilityTool =
+  'public-rss' | 'local-ollama' | 'file-outbox';
+
+/** Pricing is intentionally not guessed until a real pricing source exists. */
+export interface BriefingEstimatedCost {
+  readonly status: 'unknown';
+}
+
+/** Sanitized, provider-independent execution measurements. */
+export interface BriefingObservability {
+  readonly provider: BriefingObservabilityProvider;
+  readonly model: string | null;
+  readonly tools: readonly BriefingObservabilityTool[];
+  readonly latencyMs: number;
+  readonly estimatedCost: BriefingEstimatedCost;
+}
+
 export interface BriefingResult {
   topic: string;
   stories: CitedStory[];
@@ -97,6 +118,7 @@ export interface BriefingResult {
   model?: { id: string; route: 'local-ollama' };
   fallback?: BriefingFallback;
   delivery?: import('./delivery.js').BriefingDeliveryReceipt;
+  observability?: BriefingObservability;
 }
 
 export interface ResearchFeed {

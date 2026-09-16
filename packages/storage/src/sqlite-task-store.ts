@@ -5,6 +5,7 @@ import type {
   BriefingFallback,
   BriefingDeliveryReceipt,
   BriefingDraft,
+  BriefingObservability,
   BriefingResult,
   BriefingTask,
   ExecutionEvent,
@@ -41,6 +42,67 @@ const isBriefingFallback = (value: unknown): value is BriefingFallback => {
   );
 };
 
+const hasControlCharacter = (value: string) =>
+  [...value].some((character) => {
+    const code = character.codePointAt(0) ?? 0;
+    return code < 0x20 || code === 0x7f;
+  });
+
+const isBriefingObservability = (
+  value: unknown,
+  result: Pick<BriefingResult, 'route' | 'model' | 'fallback' | 'delivery'>,
+): value is BriefingObservability => {
+  if (!value || typeof value !== 'object') return false;
+  const observability = value as Partial<BriefingObservability>;
+  if (
+    Object.keys(value).length !== 5 ||
+    (observability.provider !== 'public-rss' &&
+      observability.provider !== 'local-ollama') ||
+    (observability.model !== null &&
+      (typeof observability.model !== 'string' ||
+        observability.model.length === 0 ||
+        observability.model.length > 128 ||
+        hasControlCharacter(observability.model))) ||
+    !Array.isArray(observability.tools) ||
+    observability.tools.length < 1 ||
+    observability.tools.length > 3 ||
+    new Set(observability.tools).size !== observability.tools.length ||
+    observability.tools.some(
+      (tool) =>
+        tool !== 'public-rss' &&
+        tool !== 'local-ollama' &&
+        tool !== 'file-outbox',
+    ) ||
+    typeof observability.latencyMs !== 'number' ||
+    !Number.isFinite(observability.latencyMs) ||
+    !Number.isInteger(observability.latencyMs) ||
+    observability.latencyMs < 0 ||
+    observability.latencyMs > 86_400_000 ||
+    !observability.estimatedCost ||
+    typeof observability.estimatedCost !== 'object' ||
+    Object.keys(observability.estimatedCost).length !== 1 ||
+    (observability.estimatedCost as { status?: unknown }).status !== 'unknown'
+  )
+    return false;
+  const tools = observability.tools;
+  if (!tools.includes('public-rss')) return false;
+  if (result.route === 'local-ollama') {
+    if (
+      observability.provider !== 'local-ollama' ||
+      observability.model === null ||
+      result.model?.id !== observability.model ||
+      !tools.includes('local-ollama')
+    )
+      return false;
+  } else if (
+    observability.provider !== 'public-rss' ||
+    observability.model !== null ||
+    (result.fallback !== undefined && !tools.includes('local-ollama'))
+  )
+    return false;
+  return result.delivery === undefined || tools.includes('file-outbox');
+};
+
 const isCitedStory = (
   value: unknown,
 ): value is BriefingResult['stories'][number] => {
@@ -70,13 +132,17 @@ const isBriefingResult = (value: unknown): value is BriefingResult => {
       result.route === 'deterministic-rss' ||
       result.route === 'local-ollama') &&
     (result.model === undefined ||
-      (typeof result.model.id === 'string' &&
+      (typeof result.model === 'object' &&
+        result.model !== null &&
+        typeof result.model.id === 'string' &&
         result.model.route === 'local-ollama')) &&
     (result.fallback === undefined ||
       (result.route === 'deterministic-rss' &&
         isBriefingFallback(result.fallback))) &&
     (result.delivery === undefined ||
       isBriefingDeliveryReceipt(result.delivery)) &&
+    (result.observability === undefined ||
+      isBriefingObservability(result.observability, result)) &&
     result.stories.every(isCitedStory) &&
     result.facts.every(isCitedStory) &&
     result.inference.every((item) => typeof item === 'string')

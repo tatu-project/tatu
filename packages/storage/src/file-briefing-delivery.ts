@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import type {
   BriefingDelivery,
   BriefingDeliveryReceipt,
+  BriefingObservability,
   BriefingResult,
   ExecutionContext,
 } from '@tatu/shared';
@@ -42,6 +43,67 @@ const isCitedStory = (value: unknown) => {
   }
 };
 
+const hasControlCharacter = (value: string) =>
+  [...value].some((character) => {
+    const code = character.codePointAt(0) ?? 0;
+    return code < 0x20 || code === 0x7f;
+  });
+
+const isBriefingObservability = (
+  value: unknown,
+  result: Pick<BriefingResult, 'route' | 'model' | 'fallback' | 'delivery'>,
+): value is BriefingObservability => {
+  if (!value || typeof value !== 'object') return false;
+  const observability = value as Partial<BriefingObservability>;
+  if (
+    Object.keys(value).length !== 5 ||
+    (observability.provider !== 'public-rss' &&
+      observability.provider !== 'local-ollama') ||
+    (observability.model !== null &&
+      (typeof observability.model !== 'string' ||
+        observability.model.length === 0 ||
+        observability.model.length > 128 ||
+        hasControlCharacter(observability.model))) ||
+    !Array.isArray(observability.tools) ||
+    observability.tools.length < 1 ||
+    observability.tools.length > 3 ||
+    new Set(observability.tools).size !== observability.tools.length ||
+    observability.tools.some(
+      (tool) =>
+        tool !== 'public-rss' &&
+        tool !== 'local-ollama' &&
+        tool !== 'file-outbox',
+    ) ||
+    typeof observability.latencyMs !== 'number' ||
+    !Number.isFinite(observability.latencyMs) ||
+    !Number.isInteger(observability.latencyMs) ||
+    observability.latencyMs < 0 ||
+    observability.latencyMs > 86_400_000 ||
+    !observability.estimatedCost ||
+    typeof observability.estimatedCost !== 'object' ||
+    Object.keys(observability.estimatedCost).length !== 1 ||
+    (observability.estimatedCost as { status?: unknown }).status !== 'unknown'
+  )
+    return false;
+  const tools = observability.tools;
+  if (!tools.includes('public-rss')) return false;
+  if (result.route === 'local-ollama') {
+    if (
+      observability.provider !== 'local-ollama' ||
+      observability.model === null ||
+      result.model?.id !== observability.model ||
+      !tools.includes('local-ollama')
+    )
+      return false;
+  } else if (
+    observability.provider !== 'public-rss' ||
+    observability.model !== null ||
+    (result.fallback !== undefined && !tools.includes('local-ollama'))
+  )
+    return false;
+  return result.delivery === undefined || tools.includes('file-outbox');
+};
+
 const isBriefing = (value: BriefingResult): boolean =>
   typeof value.topic === 'string' &&
   value.topic.length > 0 &&
@@ -66,7 +128,9 @@ const isBriefing = (value: BriefingResult): boolean =>
       value.fallback.from === 'local-ollama' &&
       (value.fallback.reason === 'model_unavailable' ||
         value.fallback.reason === 'model_invalid_output' ||
-        value.fallback.reason === 'model_timeout')));
+        value.fallback.reason === 'model_timeout'))) &&
+  (value.observability === undefined ||
+    isBriefingObservability(value.observability, value));
 
 const escapeText = (value: string) =>
   value.replace(/[\\`*_{}[\]()#+.!|<>]/g, '\\$&').replace(/\r?\n/g, ' ');

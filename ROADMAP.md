@@ -1,6 +1,6 @@
 # Tatu Roadmap
 
-> Current status: Stages 4, 5, and 6 are complete; Stage 7 has local delivery and execution-timeline foundations.
+> Current status: Stages 4, 5, and 6 are complete; Stage 7 has local delivery, timeline, and bounded observability foundations.
 > Rule: check an item only after its acceptance criterion has been verified.
 > Compact session context: [`brain/04-Current-State.md`](brain/04-Current-State.md).
 
@@ -140,7 +140,7 @@ Outcome: the creator receives briefings automatically and can understand every r
 
 - [x] One free delivery channel implemented as a local filesystem inbox.
 - [x] Execution timeline visible.
-- [ ] Provider, model, tools, latency, fallback, and estimated cost visible.
+- [x] Provider, model, tools, latency, fallback, and estimated cost visible.
 - [ ] Secrets and sensitive payloads redacted.
 - [ ] Setup Health page visible.
 - [ ] Docker Compose reference deployment added when the service boundaries are stable.
@@ -151,7 +151,7 @@ Acceptance test:
 
 - Tatu delivers the briefing automatically on the following day and exposes a complete, safe trace.
 
-Verification note (September 15, 2026): `@tatu/shared` defines the replaceable `BriefingDelivery` port and typed receipt; `FileBriefingDelivery` writes deterministic cited Markdown under `data/deliveries` by default or `TATU_DELIVERY_DIR` when overridden. The occurrence idempotency key is SHA-256 hashed into the artifact name, repeated identical deliveries are idempotent, conflicting content is rejected, aborted writes create no artifact, credential-bearing cited URLs are rejected, artifact probes require a valid hash filename, and the body contains no raw key or provider payload. The worker delivers after the final model/fallback result; the scheduler validates and persists the receipt and records `delivered` before `succeeded`, while delivery failures remain retryable and record `delivery_failed`. The Tatu page now lists persisted executions and renders their ordered events through the existing execution APIs, using DOM text nodes for fetched values and omitting occurrence keys and raw results from the visible timeline. `npm test` passed with 69 tests, including outbox, executor, scheduler, API, and timeline smoke coverage. This is a local inbox, not push notification or distributed exactly-once external delivery; provider/model/latency/cost observability, broader network-payload redaction, health UI, Docker, guided deployment, and the 30-day trial remain unchecked.
+Verification note (September 15, 2026): ADR-0013 defines the replaceable `BriefingDelivery` port and typed receipt; `FileBriefingDelivery` writes deterministic cited Markdown under `data/deliveries` by default or `TATU_DELIVERY_DIR` when overridden. The occurrence idempotency key is SHA-256 hashed into the artifact name, repeated identical deliveries are idempotent, conflicting content is rejected, aborted writes create no artifact, credential-bearing cited URLs are rejected, artifact probes require a valid hash filename, and the body contains no raw key or provider payload. The worker delivers after the final model/fallback result; the scheduler validates and persists the receipt and records `delivered` before `succeeded`, while delivery failures remain retryable and record `delivery_failed`. The Tatu page lists persisted executions and renders their ordered events through the existing execution APIs, using DOM text nodes for fetched values and omitting occurrence keys and raw results from the visible timeline. ADR-0014 adds a bounded `BriefingObservability` summary: allowlisted provider/tool identifiers, optional model ID, monotonic executor latency capped at one day, typed fallback metadata, and explicit `estimatedCost.status = unknown` until a pricing source exists. The briefing API and timeline expose those fields safely. `npm test` passed with 71 tests, including deterministic/model/fallback observability, malformed metadata rejection, outbox, executor, scheduler, API, and timeline coverage. This remains local-first; provider-specific pricing, broad network-payload redaction, health UI, Docker, guided deployment, external push channels, and the 30-day trial remain unchecked.
 
 ## Later roadmap
 

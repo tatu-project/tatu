@@ -68,6 +68,29 @@ export function renderHealthPage(): string {
         return Array.isArray(events) ? events : [];
       }
 
+      async function briefingFor(execution) {
+        const response = await fetch('/api/executions/' + encodeURIComponent(execution.id) + '/briefing');
+        if (!response.ok) throw new Error('briefing');
+        return response.json();
+      }
+
+      function safeObservability(value) {
+        if (!value || typeof value !== 'object') return null;
+        const allowedProviders = ['public-rss', 'local-ollama'];
+        const allowedTools = ['public-rss', 'local-ollama', 'file-outbox'];
+        const provider = value.provider;
+        const model = value.model;
+        const tools = value.tools;
+        const latencyMs = value.latencyMs;
+        const estimatedCost = value.estimatedCost;
+        if (Object.keys(value).length !== 5 || !allowedProviders.includes(provider) || (model !== null && (typeof model !== 'string' || model.length === 0 || model.length > 128 || /[\\u0000-\\u001f\\u007f]/u.test(model))) || !Array.isArray(tools) || tools.length < 1 || tools.length > 3 || new Set(tools).size !== tools.length || !tools.includes('public-rss') || tools.some((tool) => !allowedTools.includes(tool)) || (provider === 'local-ollama' && (model === null || !tools.includes('local-ollama'))) || (provider === 'public-rss' && model !== null) || !Number.isFinite(latencyMs) || latencyMs < 0 || latencyMs > 86400000 || !Number.isInteger(latencyMs) || !estimatedCost || typeof estimatedCost !== 'object' || Object.keys(estimatedCost).length !== 1 || estimatedCost.status !== 'unknown') return null;
+        return {provider, model, tools, latencyMs};
+      }
+
+      function safeFallback(value) {
+        return value && typeof value === 'object' && value.from === 'local-ollama' && ['model_unavailable', 'model_invalid_output', 'model_timeout'].includes(value.reason) ? value.reason : null;
+      }
+
       async function executions() {
         clear(executionList);
         executionStatus.textContent = 'Carregando execuções…';
@@ -95,6 +118,21 @@ export function renderHealthPage(): string {
                 timeline.append(line);
               });
             } catch { appendText(timeline, 'li', 'Timeline indisponível.', 'muted'); }
+            try {
+              const briefing = await briefingFor(execution);
+              const metadata = document.createElement('div'); metadata.className = 'execution-meta';
+              const observability = safeObservability(briefing.observability);
+              if (observability) {
+                appendText(metadata, 'p', 'Provider: ' + observability.provider);
+                appendText(metadata, 'p', 'Model: ' + (observability.model ?? 'none'));
+                appendText(metadata, 'p', 'Tools: ' + observability.tools.join(', '));
+                appendText(metadata, 'p', 'Measured latency: ' + String(observability.latencyMs) + ' ms');
+                appendText(metadata, 'p', 'Estimated cost: unknown');
+              }
+              const fallback = safeFallback(briefing.fallback);
+              if (fallback) appendText(metadata, 'p', 'Fallback: ' + fallback);
+              if (metadata.childNodes.length > 0) details.append(metadata);
+            } catch { appendText(details, 'p', 'Briefing metadata indisponível.', 'muted'); }
             executionList.append(item);
           }
         } catch { executionStatus.textContent = 'Não foi possível carregar as execuções.'; }

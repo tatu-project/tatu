@@ -159,3 +159,33 @@ test('rejects credential-bearing cited URLs before writing them', async () => {
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test('rejects unbounded observability metadata before writing it', async () => {
+  const root = await mkdtemp('tatu-delivery-observability-');
+  try {
+    const delivery = new FileBriefingDelivery(root);
+    const invalid = {
+      ...briefing(),
+      observability: {
+        provider: 'arbitrary-provider',
+        model: null,
+        tools: ['public-rss'],
+        latencyMs: 0,
+        estimatedCost: { status: 'known', amount: 1 },
+      },
+    } as unknown as BriefingResult;
+    await assert.rejects(
+      delivery.deliver(
+        context('invalid-observability'),
+        invalid,
+        new AbortController().signal,
+      ),
+      (error: unknown) =>
+        error instanceof FileBriefingDeliveryError &&
+        error.code === 'invalid_briefing',
+    );
+    assert.deepEqual(await readdir(root), []);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});

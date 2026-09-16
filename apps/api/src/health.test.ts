@@ -38,4 +38,10 @@ test('serves the Tatu Health page', async (context) => {
     page,
     /\/api\/executions\/.*encodeURIComponent\(execution\.id\).*\/events/,
   );
+  assert.match(
+    page,
+    /\/api\/executions\/.*encodeURIComponent\(execution\.id\).*\/briefing/,
+  );
+  assert.match(page, /Estimated cost: unknown/);
+  assert.match(page, /Measured latency:/);
 });

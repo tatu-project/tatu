@@ -138,3 +138,10 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
 - The page renders status, schedule, attempts, failures, and ordered event types/timestamps/details using DOM text nodes; occurrence keys and raw briefing results are not displayed.
 - The page refreshes the timeline after task confirmation, and the API health smoke test verifies both event fetch paths. The full suite remains green with 69 tests.
 - Provider/model/latency/cost observability, broader network-payload redaction, health UI, Docker, guided deployment, push channels, and the 30-day trial remain open.
+
+## 2026-09-15 â€” Stage 7 bounded execution observability
+
+- Accepted ADR-0014 for a provider-independent `BriefingObservability` summary with allowlisted provider/tool IDs, optional model ID, monotonic executor latency capped at one day, and explicit `estimatedCost.status = unknown` until a pricing source exists.
+- The worker attaches metadata for deterministic RSS, local Ollama, typed fallback, and file-outbox paths; SQLite/API validation rejects malformed or unbounded metadata, and the web timeline renders only the validated summary with DOM text nodes.
+- The full suite passes with 71 tests, including deterministic/model/fallback metadata, API retrieval, UI smoke markers, malformed delivery metadata, and malformed persisted briefing metadata.
+- Provider-specific pricing, broad network-payload redaction, Setup Health, Docker, guided deployment, external push channels, and the 30-day trial remain open.

@@ -127,6 +127,11 @@ test('keeps the deterministic route explicit when no local model is configured',
   ) as BriefingResult;
   assert.equal(output.route, 'deterministic-rss');
   assert.equal(output.model, undefined);
+  assert.equal(output.observability?.provider, 'public-rss');
+  assert.equal(output.observability?.model, null);
+  assert.deepEqual(output.observability?.tools, ['public-rss']);
+  assert.equal(output.observability?.estimatedCost.status, 'unknown');
+  assert.ok((output.observability?.latencyMs ?? -1) >= 0);
 });
 
 test('wires a configured local model after research and persists route metadata', async () => {
@@ -169,6 +174,11 @@ test('wires a configured local model after research and persists route metadata'
   assert.equal(received?.stories[0].url, 'https://source.test/story');
   assert.equal(output.route, 'local-ollama');
   assert.equal(output.model?.id, 'local');
+  assert.equal(output.observability?.provider, 'local-ollama');
+  assert.equal(output.observability?.model, 'local');
+  assert.deepEqual(output.observability?.tools, ['public-rss', 'local-ollama']);
+  assert.equal(output.observability?.estimatedCost.status, 'unknown');
+  assert.ok((output.observability?.latencyMs ?? -1) >= 0);
   assert.deepEqual(model.metadata, {
     id: 'local',
     capabilities: [
@@ -229,6 +239,14 @@ test('falls back to the validated RSS result for typed model failures', async ()
       from: 'local-ollama',
       reason,
     });
+    assert.equal(output.observability?.provider, 'public-rss');
+    assert.equal(output.observability?.model, null);
+    assert.deepEqual(output.observability?.tools, [
+      'public-rss',
+      'local-ollama',
+    ]);
+    assert.equal(output.observability?.estimatedCost.status, 'unknown');
+    assert.ok((output.observability?.latencyMs ?? -1) >= 0);
     assert.equal(researchCalls, 1);
     assert.equal(modelCalls, 1);
   }
@@ -299,6 +317,11 @@ test('delivers exactly the final fallback briefing once with the occurrence key'
     reason: 'model_invalid_output',
   });
   assert.deepEqual(output.delivery, receipt);
+  assert.deepEqual(output.observability?.tools, [
+    'public-rss',
+    'local-ollama',
+    'file-outbox',
+  ]);
 });
 
 test('does not mask research errors or an aborted execution as fallback', async () => {

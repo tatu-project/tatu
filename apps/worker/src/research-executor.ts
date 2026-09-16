@@ -1,9 +1,12 @@
 import type {
   BriefingDelivery,
+  BriefingObservability,
+  BriefingObservabilityTool,
   BriefingResult,
   BriefingSynthesizer,
   ExecutionContext,
 } from '@tatu/shared';
+import { performance } from 'node:perf_hooks';
 import {
   ModelError,
   OllamaBriefingModel,
@@ -26,6 +29,7 @@ export const createResearchExecutor =
     delivery?: BriefingDelivery,
   ) =>
   async (context: ExecutionContext, signal: AbortSignal) => {
+    const startedAt = performance.now();
     const feeds = (feedsValue === undefined ? DEFAULT_RSS_FEED : feedsValue)
       .split(',')
       .map((feed) => feed.trim())
@@ -40,15 +44,12 @@ export const createResearchExecutor =
       signal,
     );
     let briefing = facts;
-    if (!modelName) {
-      if (!delivery) return JSON.stringify(briefing);
-      const receipt = await delivery.deliver(context, briefing, signal);
-      return JSON.stringify({ ...briefing, delivery: receipt });
-    }
+    const modelAttempted = Boolean(modelName);
     try {
-      briefing = await (
-        model ?? new OllamaBriefingModel(modelName, endpoint)
-      ).synthesize(facts, signal);
+      if (modelName)
+        briefing = await (
+          model ?? new OllamaBriefingModel(modelName, endpoint)
+        ).synthesize(facts, signal);
     } catch (error) {
       if (error instanceof ModelError && !signal.aborted) {
         briefing = {
@@ -60,7 +61,27 @@ export const createResearchExecutor =
         throw error;
       }
     }
-    if (!delivery) return JSON.stringify(briefing);
-    const receipt = await delivery.deliver(context, briefing, signal);
-    return JSON.stringify({ ...briefing, delivery: receipt });
+    const receipt = delivery
+      ? await delivery.deliver(context, briefing, signal)
+      : undefined;
+    const provider =
+      briefing.route === 'local-ollama' ? 'local-ollama' : 'public-rss';
+    const tools: BriefingObservabilityTool[] = ['public-rss'];
+    if (modelAttempted) tools.push('local-ollama');
+    if (delivery) tools.push('file-outbox');
+    const observability: BriefingObservability = {
+      provider,
+      model:
+        provider === 'local-ollama'
+          ? (briefing.model?.id ?? modelName ?? null)
+          : null,
+      tools,
+      latencyMs: Math.max(0, Math.round(performance.now() - startedAt)),
+      estimatedCost: { status: 'unknown' },
+    };
+    return JSON.stringify({
+      ...briefing,
+      ...(receipt ? { delivery: receipt } : {}),
+      observability,
+    });
   };

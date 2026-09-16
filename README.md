@@ -2,7 +2,7 @@
 
 > A free and open-source personal AI agent that works for you 24/7.
 
-**Status:** early development. Stages 4, 5, and 6 are complete for their verified local foundations; Stage 7 now has a local filesystem inbox delivery channel and a visible execution timeline. Provider authentication/OAuth, durable key persistence, multiple live providers, push notifications, and quota-based multi-provider fallback are not implemented yet. Tatu is not ready for production use yet.
+**Status:** early development. Stages 4, 5, and 6 are complete for their verified local foundations; Stage 7 now has a local filesystem inbox, execution timeline, and bounded route/latency observability. Provider authentication/OAuth, durable key persistence, multiple live providers, push notifications, and quota-based multi-provider fallback are not implemented yet. Tatu is not ready for production use yet.
 
 Tatu aims to let anyone describe what they want in natural language while the system handles scheduling, research, tools, memory, model selection, free-provider fallback, permissions, and execution traces.
 
@@ -25,7 +25,7 @@ Tatu must execute this automatically on the following day, use an available free
 
 ## Current status
 
-Stages 4 and 5 are complete for the deterministic cited-briefing acceptance, and Stage 7 now exposes persisted execution events in the local web timeline. The worker fetches public HTTPS RSS feeds; when `TATU_RSS_FEEDS` is unset, it uses TechCrunch's public Artificial Intelligence feed, while `TATU_RSS_FEEDS=` explicitly disables research safely. Briefings can optionally be synthesized through a local Ollama-compatible endpoint configured with `TATU_OLLAMA_MODEL`. The first deployment is one local/self-hosted installation per user using the SQLite v0.1 adapter; any remote/shared database decision remains future work. See:
+Stages 4 and 5 are complete for the deterministic cited-briefing acceptance, and Stage 7 now exposes persisted execution events plus bounded provider/model/tool/latency metadata in the local web timeline. Estimated cost is explicitly shown as unknown because no pricing source exists. The worker fetches public HTTPS RSS feeds; when `TATU_RSS_FEEDS` is unset, it uses TechCrunch's public Artificial Intelligence feed, while `TATU_RSS_FEEDS=` explicitly disables research safely. Briefings can optionally be synthesized through a local Ollama-compatible endpoint configured with `TATU_OLLAMA_MODEL`. The first deployment is one local/self-hosted installation per user using the SQLite v0.1 adapter; any remote/shared database decision remains future work. See:
 
 - [`PROJECT.md`](PROJECT.md) for the product source of truth.
 - [`ROADMAP.md`](ROADMAP.md) for stages and current progress.

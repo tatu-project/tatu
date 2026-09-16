@@ -107,6 +107,13 @@ test('exposes persisted execution events through the API', async () => {
         from: 'local-ollama',
         reason: 'model_unavailable',
       },
+      observability: {
+        provider: 'public-rss',
+        model: null,
+        tools: ['public-rss', 'local-ollama'],
+        latencyMs: 7,
+        estimatedCost: { status: 'unknown' },
+      },
     }),
   );
   await scheduler.poll(new Date(Date.now() + 24 * 60 * 60 * 1000));
@@ -141,6 +148,24 @@ test('exposes persisted execution events through the API', async () => {
       reason: 'model_unavailable',
     },
   );
+  const observability = (
+    await fetch(`${base}/api/executions/${executions[0].id}/briefing`).then(
+      (response) => response.json(),
+    )
+  ).observability as {
+    provider: string;
+    model: string | null;
+    tools: string[];
+    latencyMs: number;
+    estimatedCost: { status: string };
+  };
+  assert.deepEqual(observability, {
+    provider: 'public-rss',
+    model: null,
+    tools: ['public-rss', 'local-ollama'],
+    latencyMs: 7,
+    estimatedCost: { status: 'unknown' },
+  });
   await new Promise<void>((resolve) => server.close(() => resolve()));
   rmSync(dir, { recursive: true, force: true });
 });
