@@ -9,7 +9,7 @@ Use sequential files named `NNNN-short-title.md`, beginning with `0001`. Each re
 - [ADR-0020: Bounded text-secret validation](ADR-0020-bounded-text-secret-validation.md) - accepted September 16, 2026; arbitrary sensitive text/PII remains open.
 - [ADR-0019: Bounded secret boundaries for URLs and execution diagnostics](ADR-0019-bounded-secret-boundaries.md) - accepted September 16, 2026; broader sensitive-text redaction remains open.
 - [ADR-0018: Guided zero-cost local deployment](ADR-0018-guided-zero-cost-deployment.md) - accepted September 16, 2026.
-- [ADR-0017: Docker Compose reference packaging](ADR-0017-docker-compose-reference.md) - accepted September 16, 2026; build acceptance remains open.
+- [ADR-0017: Docker Compose reference packaging](ADR-0017-docker-compose-reference.md) - accepted September 16, 2026; local/self-hosted build and startup acceptance verified.
 - [ADR-0016: Bounded Setup Health surface](ADR-0016-setup-health.md) - accepted September 16, 2026.
 - [ADR-0015: Public execution redaction boundary](ADR-0015-public-execution-redaction.md) - accepted September 16, 2026.
 - [ADR-0014: Bounded execution observability metadata](ADR-0014-execution-observability.md) - accepted September 15, 2026.

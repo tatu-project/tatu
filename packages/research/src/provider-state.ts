@@ -6,6 +6,7 @@ import type {
   ProviderStateStore,
   ProviderSuccessObservation,
 } from '@tatu/shared';
+import { hasTextSecret } from '@tatu/shared';
 
 const providerIdPattern = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,63}$/;
 const isoTimestampPattern =
@@ -90,6 +91,8 @@ const validateObservation = (value: string | null | undefined) => {
     value !== null &&
     (typeof value !== 'string' || value.length > maxObservationLength)
   )
+    throw new ProviderStateError('invalid_observation');
+  if (typeof value === 'string' && hasTextSecret(value))
     throw new ProviderStateError('invalid_observation');
 };
 

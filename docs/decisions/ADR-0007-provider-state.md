@@ -18,7 +18,8 @@ readonly snapshots. The first implementation is
 
 - `unknown`, `healthy`, `unavailable`, `rate-limited`, and `quota-exhausted`
   status;
-- bounded provider identifiers and sanitized diagnostic text;
+- bounded provider identifiers and sanitized diagnostic text; credential-
+  shaped observations are rejected before they can enter process-local state;
 - quota and rate-limit remaining counts with reset timestamps;
 - observed latency, the last typed failure, and consecutive failures.
 

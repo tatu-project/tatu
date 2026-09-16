@@ -21,6 +21,7 @@ well-known key prefixes. Apply it at the current boundaries:
 - filter unsafe RSS titles/sources and reject unsafe model IDs or model output;
 - reject unsafe briefing values before SQLite persistence or file delivery;
 - reject unsafe final worker results before delivery or serialization; and
+- reject credential-bearing provider observations before process-local state;
 - redact recognized values in the API's defensive public projection.
 
 The policy is not a general PII detector. Short or ambiguous natural-language
@@ -38,8 +39,8 @@ separate URL policy.
 
 ## Consequences
 
-Current parser, research, Ollama, worker, SQLite, file-delivery, and API paths
-have tested coverage for high-confidence text credentials. This remains a
-bounded local policy: unrestricted future network payloads, arbitrary PII,
-additional providers, and new adapters require their own validation before the
-Stage 7 redaction checkbox can be marked complete.
+Current parser, research, Ollama, provider-state, worker, SQLite,
+file-delivery, and API paths have tested coverage for high-confidence text
+credentials. This remains a bounded local policy: unrestricted future network
+payloads, arbitrary PII, additional providers, and new adapters require their
+own validation before the Stage 7 redaction checkbox can be marked complete.

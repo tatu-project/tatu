@@ -190,3 +190,9 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
 - `docker compose up -d` started a healthy API and running worker. `GET /api/health` returned `200` with the typed healthy contract, and `GET /api/setup-health` returned `200` with secret-free setup checks.
 - The build installs only temporary native compilation tools needed by `better-sqlite3`, ignores TypeScript incremental artifacts, and forces fresh TypeScript emission; the runtime image remains slim. `docker compose down` stopped the smoke-test stack while preserving the named data volume.
 - The Docker Compose checkbox is now proven for the local/self-hosted reference. No Supabase, Firebase, VPS, remote database, provider credential, production hardening, or external delivery guarantee was introduced.
+
+## 2026-09-16 - Stage 7 provider-state secret boundary
+
+- Provider availability observations now reuse the shared high-confidence text-secret policy and reject credential-shaped diagnostics before process-local state mutation.
+- Tests cover assignments, Bearer/Basic schemes, JWT-like values, URL userinfo, known key prefixes, both success/failure transitions, unchanged snapshots after rejection, and ordinary diagnostic text.
+- The full redaction checkbox remains bounded: arbitrary sensitive text/PII, unrestricted future network payloads, and new adapters still require separate validation.

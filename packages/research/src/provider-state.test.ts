@@ -214,6 +214,96 @@ test('rejects invalid provider observations before changing state', () => {
   );
 });
 
+test('rejects credential-bearing observations without changing success state', () => {
+  const store = new InMemoryProviderStateStore();
+  store.recordSuccess({
+    kind: 'success',
+    providerId: 'provider',
+    observedAt,
+    observation: 'ordinary diagnostic',
+  });
+  const before = store.get('provider');
+  const unsafeObservations = [
+    'request failed: api_key=abcdEFGH1234',
+    'request failed: Bearer abcdEFGH1234',
+    'request failed: eyJhbGciOiJIUzI1NiJ9.payload123.signature123',
+    'request failed: https://user:password@example.com/path',
+    'request failed: sk_live_12345678',
+  ];
+  for (const observation of unsafeObservations) {
+    assert.throws(
+      () =>
+        store.recordSuccess({
+          kind: 'success',
+          providerId: 'provider',
+          observedAt: later,
+          observation,
+        }),
+      (error: unknown) =>
+        error instanceof ProviderStateError &&
+        error.code === 'invalid_observation',
+    );
+    assert.deepEqual(store.get('provider'), before);
+  }
+});
+
+test('rejects credential-bearing observations without changing failure state', () => {
+  const store = new InMemoryProviderStateStore();
+  store.recordFailure({
+    kind: 'failure',
+    providerId: 'provider',
+    observedAt,
+    failure: 'timeout',
+    observation: 'ordinary diagnostic',
+  });
+  const before = store.get('provider');
+  const unsafeObservations = [
+    'request failed: token=abcdEFGH1234',
+    'request failed: Basic abcdEFGH1234',
+    'request failed: eyJhbGciOiJIUzI1NiJ9.payload123.signature123',
+    'request failed: http://user:password@example.com/path',
+    'request failed: ghp_1234567890',
+  ];
+  for (const observation of unsafeObservations) {
+    assert.throws(
+      () =>
+        store.recordFailure({
+          kind: 'failure',
+          providerId: 'provider',
+          observedAt: later,
+          failure: 'unavailable',
+          observation,
+        }),
+      (error: unknown) =>
+        error instanceof ProviderStateError &&
+        error.code === 'invalid_observation',
+    );
+    assert.deepEqual(store.get('provider'), before);
+  }
+});
+
+test('accepts ordinary provider observations', () => {
+  const store = new InMemoryProviderStateStore();
+  const success = store.recordSuccess({
+    kind: 'success',
+    providerId: 'provider',
+    observedAt,
+    observation: 'response completed in 42ms',
+  });
+  assert.equal(success.lastObservation, 'response completed in 42ms');
+  const failure = store.recordFailure({
+    kind: 'failure',
+    providerId: 'provider',
+    observedAt: later,
+    failure: 'timeout',
+    observation: 'upstream did not respond before deadline',
+  });
+  assert.equal(
+    failure.lastObservation,
+    'upstream did not respond before deadline',
+  );
+});
+
 test('returns frozen defensive snapshots', () => {
   const store = new InMemoryProviderStateStore();
   const first = store.recordSuccess({
