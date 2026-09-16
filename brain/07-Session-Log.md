@@ -183,3 +183,10 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
 - Parser, RSS, Ollama, worker, SQLite, file delivery, and API projection boundaries now reject or redact recognized text credentials; URL query handling remains covered by ADR-0019.
 - Tests cover normal-language negatives, parser/API rejection, model output/configuration, worker pre-delivery rejection, persisted briefings, and artifact safety. Arbitrary sensitive text/PII and unrestricted future payloads/adapters remain outside this bounded policy.
 - The complete `npm run ci` suite passes with 96 tests.
+
+## 2026-09-16 - Stage 7 Docker Compose acceptance
+
+- `docker compose config` exits 0. A clean `docker compose build --no-cache` completed for both `tatu-api` and `tatu-worker`.
+- `docker compose up -d` started a healthy API and running worker. `GET /api/health` returned `200` with the typed healthy contract, and `GET /api/setup-health` returned `200` with secret-free setup checks.
+- The build installs only temporary native compilation tools needed by `better-sqlite3`, ignores TypeScript incremental artifacts, and forces fresh TypeScript emission; the runtime image remains slim. `docker compose down` stopped the smoke-test stack while preserving the named data volume.
+- The Docker Compose checkbox is now proven for the local/self-hosted reference. No Supabase, Firebase, VPS, remote database, provider credential, production hardening, or external delivery guarantee was introduced.

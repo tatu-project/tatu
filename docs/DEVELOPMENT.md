@@ -35,7 +35,7 @@ npm run dev
 
 Open `http://localhost:3000` for the responsive Tatu Health page. Its machine-readable health contracts are available at `http://localhost:3000/api/health` and `http://localhost:3000/api/setup-health`; the latter reports bounded setup configuration without secrets or provider probes.
 
-The repository also includes a local Docker Compose reference. Validate its service graph with `docker compose config`; this check currently exits 0 for the API, worker, healthcheck, dependency, and shared-volume structure. Docker CLI `29.8.0` and Compose `v5.5.1` are installed on the checked workstation, but `docker version` cannot connect to the Docker Engine named pipe and the client reports access denied for the user Docker configuration/context. The next action is to start or repair Docker Desktop/the Docker daemon and rerun `docker compose build` followed by a `docker compose up` smoke test. Until then, no image build or container startup is claimed and the roadmap checkbox remains open. The Compose volume stores the local SQLite database and filesystem outbox under `/app/data`; it does not configure Supabase, Firebase, a VPS, PostgreSQL, or provider credentials. The optional `TATU_RSS_FEEDS`, `TATU_OLLAMA_MODEL`, and `TATU_OLLAMA_BASE_URL` values are passed through from the host environment when set.
+The repository also includes a local Docker Compose reference. Validate its service graph with `docker compose config`; this check exits 0 for the API, worker, healthcheck, dependency, and shared-volume structure. On the checked workstation, a clean `docker compose build --no-cache` produces both images and `docker compose up -d` starts a healthy API and running worker. `GET /api/health` and `GET /api/setup-health` each returned `200` during the smoke test. The build stage installs only the native compilation tools required by `better-sqlite3`, excludes TypeScript incremental artifacts from the build context, and forces a fresh TypeScript emission; the runtime image remains slim. The Compose volume stores the local SQLite database and filesystem outbox under `/app/data`; it does not configure Supabase, Firebase, a VPS, PostgreSQL, or provider credentials. The optional `TATU_RSS_FEEDS`, `TATU_OLLAMA_MODEL`, and `TATU_OLLAMA_BASE_URL` values are passed through from the host environment when set.
 
 The complete guided zero-cost path is documented in [`docs/DEPLOYMENT.md`](DEPLOYMENT.md). It uses the local Node/npm workflow and does not require Docker, Ollama, a hosted provider, or remote infrastructure.
 
@@ -69,7 +69,7 @@ npm run ci
 
 ## Why Docker Desktop
 
-Docker provides a reproducible reference runtime and can eventually allow Tatu to start through containers on different computers and servers. It is not required for the local Node/npm development path. To verify the Compose acceptance item, Docker Desktop or another Docker daemon must be running and accessible; after repairing that local engine/context, rerun the documented build and startup smoke test.
+Docker provides a reproducible reference runtime and can allow Tatu to start through containers on different computers and servers. It is not required for the local Node/npm development path. The Compose acceptance item was verified on the checked workstation with Docker Desktop running: a clean build completed, the API became healthy, the worker started, and both health contracts returned `200`. Rerun the same smoke test after changing the image or Compose definition.
 
 ## Why GitHub CLI
 

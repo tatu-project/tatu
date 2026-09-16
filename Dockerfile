@@ -7,8 +7,14 @@ COPY apps ./apps
 COPY packages ./packages
 COPY scripts ./scripts
 
+# better-sqlite3 may need to compile its native addon when no matching
+# prebuild is available for the selected Node.js image.
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends python3 make g++ \
+  && rm -rf /var/lib/apt/lists/*
+
 RUN npm ci
-RUN npm run build
+RUN npm run build -- --force
 RUN npm prune --omit=dev
 
 FROM node:24-bookworm-slim AS runtime
