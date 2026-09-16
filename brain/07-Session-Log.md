@@ -164,6 +164,13 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
 - Accepted ADR-0018 and added `docs/DEPLOYMENT.md` with the clean-clone `npm ci`/`npm run ci`/`npm run dev` path, Setup Health verification, default credential-free RSS route, optional local Ollama, local backup guidance, and security/troubleshooting limits.
 - The guide keeps Docker optional and does not introduce Supabase, Firebase, VPS hosting, remote/shared PostgreSQL, provider credentials, or a production deployment claim.
 
+## 2026-09-16 - Stage 7 Docker Compose verification boundary rechecked
+
+- `docker compose config` exits 0 and validates the API/worker services, shared data volume, API healthcheck, and worker dependency; Docker CLI `29.8.0` and Compose `v5.5.1` are installed.
+- `docker version` cannot connect to the Docker Engine named pipe, and the Docker client reports access denied for the user Docker configuration/context. No image build or container startup result is claimed.
+- The next action is to start or repair Docker Desktop/the Docker daemon and rerun `docker compose build` followed by a `docker compose up` smoke test. The Stage 7 Docker checkbox remains unchecked.
+- No Supabase, Firebase, VPS, remote database, provider credential, or production deployment decision was introduced.
+
 ## 2026-09-16 - Stage 7 bounded secret boundaries
 
 - Accepted ADR-0019 and added a shared sensitive-query URL policy used by RSS fetch/redirect validation, SQLite briefing validation, file delivery, and loopback model endpoint validation. Ordinary query parameters remain allowed; credential-like names and token-shaped values are rejected before network or artifact boundaries.

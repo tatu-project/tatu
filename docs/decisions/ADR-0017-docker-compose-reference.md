@@ -15,4 +15,6 @@ The Compose file is a reference for local/self-hosted use only. It does not add 
 
 ## Verification boundary
 
-`docker compose config` validates the service, volume, healthcheck, and dependency structure. A full image build remains an environment-dependent acceptance check; on the development workstation it was blocked before Dockerfile execution by Windows Docker context symlink permissions. The Stage 7 Docker Compose checkbox therefore remains unchecked until a clean Docker build and startup smoke test are completed.
+`docker compose config` exits successfully and validates the `api` and `worker` services, their shared data volume, the API healthcheck, and the worker dependency on API health. Docker CLI `29.8.0` and Compose `v5.5.1` are installed. However, `docker version` cannot connect to the Docker Engine named pipe, and the Docker client reports access denied while reading the user Docker configuration/context. No image build or container startup has therefore been proven.
+
+The next action is to start or repair Docker Desktop/the Docker daemon and restore access to the Docker configuration/context, then rerun `docker compose build` followed by a `docker compose up` smoke test. The Stage 7 Docker Compose checkbox remains unchecked until those build and startup checks succeed.
