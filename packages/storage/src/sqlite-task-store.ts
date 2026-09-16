@@ -114,7 +114,9 @@ const isCitedStory = (
       typeof story.source === 'string' &&
       typeof story.publishedAt === 'string' &&
       !Number.isNaN(Date.parse(story.publishedAt)) &&
-      new URL(story.url).protocol === 'https:'
+      new URL(story.url).protocol === 'https:' &&
+      new URL(story.url).username === '' &&
+      new URL(story.url).password === ''
     );
   } catch {
     return false;

@@ -7,6 +7,69 @@ import { renderHealthPage } from '@tatu/web';
 import { SqliteTaskStore } from '@tatu/storage';
 import type { TatuStore } from '@tatu/shared';
 
+const publicExecution = (
+  execution: Awaited<ReturnType<TatuStore['listExecutions']>>[number],
+) => ({
+  id: execution.id,
+  taskId: execution.taskId,
+  scheduledFor: execution.scheduledFor,
+  status: execution.status,
+  attempt: execution.attempt,
+  maxAttempts: execution.maxAttempts,
+  availableAt: execution.availableAt,
+  leaseExpiresAt: execution.leaseExpiresAt,
+  failure: execution.failure,
+  createdAt: execution.createdAt,
+  updatedAt: execution.updatedAt,
+});
+const publicEvents = (events: Awaited<ReturnType<TatuStore['events']>>) =>
+  (events ?? []).map(({ type, at }) => ({ type, at, detail: null }));
+const publicStory = (
+  story: NonNullable<ReturnType<TatuStore['briefing']>>['stories'][number],
+) => ({
+  title: story.title,
+  url: story.url,
+  publishedAt: story.publishedAt,
+  source: story.source,
+});
+const publicBriefing = (
+  result: NonNullable<ReturnType<TatuStore['briefing']>>,
+) => {
+  const publicResult: Record<string, unknown> = {
+    topic: result.topic,
+    stories: result.stories.map(publicStory),
+    facts: result.facts.map(publicStory),
+    inference: result.inference,
+  };
+  if (result.route !== undefined) publicResult.route = result.route;
+  if (result.model !== undefined) {
+    publicResult.model = { id: result.model.id, route: result.model.route };
+  }
+  if (result.fallback !== undefined) {
+    publicResult.fallback = {
+      from: result.fallback.from,
+      reason: result.fallback.reason,
+    };
+  }
+  if (result.observability !== undefined) {
+    publicResult.observability = {
+      provider: result.observability.provider,
+      model: result.observability.model,
+      tools: [...result.observability.tools],
+      latencyMs: result.observability.latencyMs,
+      estimatedCost: { status: 'unknown' },
+    };
+  }
+  if (result.delivery !== undefined) {
+    publicResult.delivery = {
+      channel: result.delivery.channel,
+      artifactId: result.delivery.artifactId,
+      contentSha256: result.delivery.contentSha256,
+    };
+  }
+  return publicResult;
+};
+
 const drafts = new Map<string, BriefingDraft>();
 const json = (
   response: import('node:http').ServerResponse,
@@ -55,14 +118,14 @@ export function createTatuServer(
       return;
     }
     if (request.method === 'GET' && request.url === '/api/executions') {
-      json(response, 200, repository.listExecutions());
+      json(response, 200, repository.listExecutions().map(publicExecution));
       return;
     }
     const executionEvents = request.url?.match(
       /^\/api\/executions\/([^/]+)\/events$/,
     );
     if (request.method === 'GET' && executionEvents) {
-      json(response, 200, repository.events(executionEvents[1]));
+      json(response, 200, publicEvents(repository.events(executionEvents[1])));
       return;
     }
     const briefing = request.url?.match(
@@ -74,7 +137,7 @@ export function createTatuServer(
         json(response, 404, { error: 'Briefing não encontrado.' });
         return;
       }
-      json(response, 200, result);
+      json(response, 200, publicBriefing(result));
       return;
     }
 

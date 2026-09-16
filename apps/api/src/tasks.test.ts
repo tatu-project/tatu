@@ -82,7 +82,7 @@ test('exposes persisted execution events through the API', async () => {
   await fetch(`${base}/api/briefing-drafts/${draftId}/confirm`, {
     method: 'POST',
   });
-  const scheduler = new LocalScheduler(db, 'api-test', async () =>
+  const scheduler = new LocalScheduler(db, 'api-test', async (context) =>
     JSON.stringify({
       topic: 'inteligência artificial',
       stories: [
@@ -91,6 +91,7 @@ test('exposes persisted execution events through the API', async () => {
           url: 'https://source.test/story',
           publishedAt: '2026-09-15T00:00:00.000Z',
           source: 'source.test',
+          providerPayload: 'must not cross the public API boundary',
         },
       ],
       facts: [
@@ -99,6 +100,7 @@ test('exposes persisted execution events through the API', async () => {
           url: 'https://source.test/story',
           publishedAt: '2026-09-15T00:00:00.000Z',
           source: 'source.test',
+          providerPayload: 'must not cross the public API boundary',
         },
       ],
       inference: [],
@@ -110,33 +112,59 @@ test('exposes persisted execution events through the API', async () => {
       observability: {
         provider: 'public-rss',
         model: null,
-        tools: ['public-rss', 'local-ollama'],
+        tools: ['public-rss', 'local-ollama', 'file-outbox'],
         latencyMs: 7,
         estimatedCost: { status: 'unknown' },
       },
+      delivery: {
+        channel: 'file-outbox',
+        idempotencyKey: context.idempotencyKey,
+        artifactId: `${'a'.repeat(64)}.md`,
+        contentSha256: 'b'.repeat(64),
+      },
+      providerPayload: 'must not cross the public API boundary',
     }),
   );
   await scheduler.poll(new Date(Date.now() + 24 * 60 * 60 * 1000));
   scheduler.close();
   const executions = (await fetch(`${base}/api/executions`).then((response) =>
     response.json(),
-  )) as Array<{ id: string }>;
+  )) as Array<{
+    id: string;
+    occurrenceKey?: string;
+    result?: string;
+    claimedBy?: string;
+  }>;
   assert.equal(executions.length, 1);
+  assert.equal('occurrenceKey' in executions[0], false);
+  assert.equal('result' in executions[0], false);
+  assert.equal('claimedBy' in executions[0], false);
   const events = (await fetch(
     `${base}/api/executions/${executions[0].id}/events`,
-  ).then((response) => response.json())) as Array<{ type: string }>;
+  ).then((response) => response.json())) as Array<{
+    type: string;
+    detail: string | null;
+  }>;
+  assert.equal(
+    events.every((event) => event.detail === null),
+    true,
+  );
   assert.deepEqual(
     events.map((event) => event.type),
-    ['queued', 'claimed', 'fallback_used', 'succeeded'],
+    ['queued', 'claimed', 'fallback_used', 'delivered', 'succeeded'],
   );
   const savedBriefing = await fetch(
     `${base}/api/executions/${executions[0].id}/briefing`,
   );
   assert.equal(savedBriefing.status, 200);
-  assert.equal(
-    (await savedBriefing.json()).stories[0].url,
-    'https://source.test/story',
-  );
+  const publicBriefing = (await savedBriefing.json()) as {
+    stories: Array<{ url: string; providerPayload?: unknown }>;
+    fallback?: unknown;
+    delivery: Record<string, unknown>;
+    providerPayload?: unknown;
+  };
+  assert.equal(publicBriefing.stories[0].url, 'https://source.test/story');
+  assert.equal('providerPayload' in publicBriefing.stories[0], false);
   assert.deepEqual(
     (
       await fetch(`${base}/api/executions/${executions[0].id}/briefing`).then(
@@ -148,6 +176,13 @@ test('exposes persisted execution events through the API', async () => {
       reason: 'model_unavailable',
     },
   );
+  assert.equal('providerPayload' in publicBriefing, false);
+  assert.equal('idempotencyKey' in publicBriefing.delivery, false);
+  assert.deepEqual(publicBriefing.delivery, {
+    channel: 'file-outbox',
+    artifactId: `${'a'.repeat(64)}.md`,
+    contentSha256: 'b'.repeat(64),
+  });
   const observability = (
     await fetch(`${base}/api/executions/${executions[0].id}/briefing`).then(
       (response) => response.json(),
@@ -162,7 +197,7 @@ test('exposes persisted execution events through the API', async () => {
   assert.deepEqual(observability, {
     provider: 'public-rss',
     model: null,
-    tools: ['public-rss', 'local-ollama'],
+    tools: ['public-rss', 'local-ollama', 'file-outbox'],
     latencyMs: 7,
     estimatedCost: { status: 'unknown' },
   });
