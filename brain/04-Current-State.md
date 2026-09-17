@@ -62,6 +62,8 @@ historical pre-rollback counts; the current suite has 112 tests.
 - A single manual preflight was intentionally excluded from the trial count;
   it exercised three research retries, ended in the public `failed` state with
   `research_failed`/`retry_scheduled` events, and created no delivery artifact.
+  The configured public feed's host resolved, but outbound HTTPS could not be
+  established in this environment; no fixture or alternate feed was used.
 
 Exact progress and next action: [`ROADMAP.md`](../ROADMAP.md).
 

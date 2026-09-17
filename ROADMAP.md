@@ -177,7 +177,9 @@ delivery outbox were started with one confirmed daily task at 08:00 in
 Preflight record (September 16, 2026): one manual preflight was excluded from
 the trial count. It exhausted three research attempts, exposed only the public
 `research_failed`, `retry_scheduled`, and `failed` states, and produced no
-delivery artifact. The scheduled-trial observation remains pending.
+delivery artifact. The configured public feed resolved but outbound HTTPS could
+not be established in this environment; no fixture or alternate feed was used.
+The scheduled-trial observation remains pending.
 
 ## Later roadmap
 

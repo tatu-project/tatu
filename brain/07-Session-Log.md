@@ -291,6 +291,9 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
 - The worker claimed the execution three times, recorded the public
   `research_failed` and `retry_scheduled` events, and ended with the public
   `failed` status after the retry limit. No delivery artifact was created.
+- A direct HTTPS probe to the configured public TechCrunch feed could resolve
+  the host but could not establish the outbound connection in this environment;
+  no local fixture or alternate feed was substituted.
 - This is evidence of the bounded research-failure path, not a reliability
   success claim. The first scheduled occurrence remains pending and the trial
   checklist remains open.
