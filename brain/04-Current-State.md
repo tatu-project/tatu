@@ -22,10 +22,18 @@ updated: 2026-09-16
 
 The latest complete `npm run ci` suite passes with 112 tests; this supersedes the earlier count embedded in the historical Stage 7 summary above.
 
+The 111-test references in the preceding Stage 7 and manual-flow summaries are
+historical pre-rollback counts; the current suite has 112 tests.
+
 - The local “Test now” flow is implemented through ADR-0021: `POST /api/tasks/:taskId/test` requires a bounded `Idempotency-Key`, hashes it into a distinct manual occurrence, and queues the row plus its `queued` event transactionally through the replaceable persistence port. Repeated task/key requests return one execution without exposing the occurrence key; the existing worker consumes it with the task's topic and quantity. The latest focused verification covers API validation, duplicate behavior, event cardinality, and worker context propagation; the full suite now passes with 111 tests. The 30-day reliability trial still requires the creator to begin and observe a real run.
 
 - The 112-test suite supersedes the earlier 111-test count in the historical
   Stage 7 paragraph above; it includes the manual queue rollback proof.
+
+- Stage 7 now distinguishes the verified bounded credential-secret policy from
+  the still-open promise of arbitrary sensitive-payload/PII detection. The
+  former is checked at known parser, routing, persistence, delivery, and public
+  projection boundaries; the latter remains intentionally unclaimed.
 
 - The Tasks UI exposes `Testar agora` for each confirmed task. It URL-encodes
   the task ID, reuses a per-task idempotency key only in browser memory, keeps

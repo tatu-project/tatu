@@ -253,3 +253,9 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
 - Focused storage verification passes 5/5; the complete suite is rerun before
   publication. This strengthens the manual queue's atomicity evidence without
   changing the replaceable persistence boundary.
+
+## 2026-09-16 - Bounded redaction acceptance clarified
+
+- Split the Stage 7 checklist so the verified high-confidence credential-secret
+  rejection/redaction boundaries are checked separately from arbitrary sensitive
+  payload and PII detection, which remains open and unclaimed.
