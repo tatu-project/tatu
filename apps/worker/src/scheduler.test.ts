@@ -496,6 +496,41 @@ test('passes the durable occurrence key to the executor as idempotencyKey', asyn
   rmSync(dir, { recursive: true, force: true });
 });
 
+test('consumes a manually queued execution with its topic, quantity, and key', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'tatu-manual-worker-'));
+  const path = join(dir, 'tatu.sqlite');
+  const store = new SqliteTaskStore(path);
+  const task = store.create({
+    cadence: 'daily',
+    time: '08:00',
+    quantity: 4,
+    topic: 'manual topic',
+    deliveryRequested: true,
+    timezone: 'America/Sao_Paulo',
+  });
+  const queued = store.enqueueManualExecution(
+    task.id,
+    'manual:hashed-occurrence',
+    new Date().toISOString(),
+  );
+  assert.ok(queued);
+  let context:
+    { idempotencyKey: string; topic?: string; quantity?: number } | undefined;
+  const scheduler = new LocalScheduler(path, 'manual-worker', (received) => {
+    context = received;
+  });
+  await scheduler.poll(new Date(Date.now() + 1000));
+  assert.deepEqual(context, {
+    executionId: queued.id,
+    idempotencyKey: 'manual:hashed-occurrence',
+    topic: 'manual topic',
+    quantity: 4,
+  });
+  scheduler.close();
+  store.close();
+  rmSync(dir, { recursive: true, force: true });
+});
+
 test('persists a strict delivery receipt and emits delivered before succeeded', async () => {
   const dir = mkdtempSync(join(tmpdir(), 'tatu-delivery-event-'));
   const path = join(dir, 'tatu.sqlite');

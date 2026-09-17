@@ -6,6 +6,7 @@ Use sequential files named `NNNN-short-title.md`, beginning with `0001`. Each re
 
 ## Accepted records
 
+- [ADR-0021: Manual test execution](ADR-0021-manual-test-execution.md) - accepted September 16, 2026; repeated requests are idempotent by a hashed manual occurrence key.
 - [ADR-0020: Bounded text-secret validation](ADR-0020-bounded-text-secret-validation.md) - accepted September 16, 2026; arbitrary sensitive text/PII remains open.
 - [ADR-0019: Bounded secret boundaries for URLs and execution diagnostics](ADR-0019-bounded-secret-boundaries.md) - accepted September 16, 2026; broader sensitive-text redaction remains open.
 - [ADR-0018: Guided zero-cost local deployment](ADR-0018-guided-zero-cost-deployment.md) - accepted September 16, 2026.

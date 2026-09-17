@@ -49,6 +49,21 @@ TATU_RSS_FEEDS=https://example.org/news.xml,https://example.net/feed.xml npm run
 
 The route validates article links, removes duplicates, ranks topical stories before recency, and persists only source-backed facts. Set `TATU_RSS_FEEDS=` explicitly to disable research; the occurrence then records a safe `research_failed` event instead of a successful placeholder. A saved result is available at `GET /api/executions/:id/briefing`.
 
+To verify an existing confirmed task immediately, call the local manual-run
+endpoint with a stable request key:
+
+```bash
+curl -X POST http://localhost:3000/api/tasks/TASK_ID/test \
+  -H 'Idempotency-Key: manual-check-1'
+```
+
+The endpoint returns `202` with a queued execution. Repeating the same task
+and key returns the same execution instead of creating another row; a different
+key creates a separate manual run. The request key is hashed before persistence,
+and the public response omits both the request key and the internal occurrence
+key. The standby worker consumes the manual execution through the same research,
+retry, delivery, and event pipeline as a scheduled run.
+
 The default source is an operational starting point, not a permanent provider commitment. It can be replaced through `TATU_RSS_FEEDS` without changing the research adapter.
 
 For optional local synthesis, install and run Ollama locally, choose a model, and set only its model name. The endpoint defaults to loopback and remote endpoints are rejected:

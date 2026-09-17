@@ -13,6 +13,12 @@ export interface TaskStore {
 }
 
 export interface ExecutionStore {
+  /** Queue one manual execution for an existing task, idempotently by occurrence key. */
+  enqueueManualExecution(
+    taskId: string,
+    occurrenceKey: string,
+    scheduledFor: string,
+  ): ExecutionRecord | undefined;
   listExecutions(): ExecutionRecord[];
   events(executionId: string): ExecutionEvent[] | undefined;
   briefing(executionId: string): BriefingResult | undefined;

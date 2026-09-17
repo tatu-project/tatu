@@ -347,3 +347,78 @@ test('exposes persisted execution events through the API', async () => {
   await new Promise<void>((resolve) => server.close(() => resolve()));
   rmSync(dir, { recursive: true, force: true });
 });
+
+test('queues a manual test execution idempotently without exposing its key', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'tatu-manual-'));
+  const db = join(dir, 'tatu.sqlite');
+  const server = createTatuServer(db);
+  await new Promise<void>((resolve) => server.listen(0, resolve));
+  try {
+    const address = server.address();
+    assert.ok(address && typeof address !== 'string');
+    const base = `http://127.0.0.1:${address.port}`;
+    const draft = await fetch(`${base}/api/briefing-drafts`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ message: phrase, timezone: 'America/Sao_Paulo' }),
+    });
+    const { draftId } = (await draft.json()) as { draftId: string };
+    const confirmed = await fetch(
+      `${base}/api/briefing-drafts/${draftId}/confirm`,
+      { method: 'POST' },
+    );
+    const task = (await confirmed.json()) as { id: string };
+    const missing = await fetch(`${base}/api/tasks/${task.id}/test`, {
+      method: 'POST',
+    });
+    assert.equal(missing.status, 400);
+    const oversized = await fetch(`${base}/api/tasks/${task.id}/test`, {
+      method: 'POST',
+      headers: { 'Idempotency-Key': 'x'.repeat(257) },
+    });
+    assert.equal(oversized.status, 400);
+    const unknownTask = await fetch(`${base}/api/tasks/missing/test`, {
+      method: 'POST',
+      headers: { 'Idempotency-Key': 'manual-check-unknown' },
+    });
+    assert.equal(unknownTask.status, 404);
+
+    const first = await fetch(`${base}/api/tasks/${task.id}/test`, {
+      method: 'POST',
+      headers: { 'Idempotency-Key': 'manual-check-1' },
+    });
+    assert.equal(first.status, 202);
+    const firstBody = (await first.json()) as {
+      id: string;
+      occurrenceKey?: string;
+    };
+    assert.equal('occurrenceKey' in firstBody, false);
+    const duplicate = await fetch(`${base}/api/tasks/${task.id}/test`, {
+      method: 'POST',
+      headers: { 'Idempotency-Key': 'manual-check-1' },
+    });
+    assert.equal(duplicate.status, 202);
+    assert.equal(((await duplicate.json()) as { id: string }).id, firstBody.id);
+    const second = await fetch(`${base}/api/tasks/${task.id}/test`, {
+      method: 'POST',
+      headers: { 'Idempotency-Key': 'manual-check-2' },
+    });
+    assert.equal(second.status, 202);
+    assert.notEqual(((await second.json()) as { id: string }).id, firstBody.id);
+    const executions = (await fetch(`${base}/api/executions`).then((r) =>
+      r.json(),
+    )) as Array<{ id: string }>;
+    assert.equal(executions.length, 2);
+    assert.equal(
+      (
+        await fetch(`${base}/api/executions/${firstBody.id}/events`).then((r) =>
+          r.json(),
+        )
+      ).length,
+      1,
+    );
+  } finally {
+    await new Promise<void>((resolve) => server.close(() => resolve()));
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

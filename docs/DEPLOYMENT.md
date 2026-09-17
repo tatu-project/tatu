@@ -31,6 +31,18 @@ Open `http://localhost:3000`. The page's Setup Health section should show the AP
 
 Use the Chat section to confirm the daily briefing task. The worker polls the same local SQLite file and writes completed briefings to `data/deliveries`. Leave the terminal running for scheduled execution.
 
+To test a confirmed task without waiting for its scheduled time, call the
+manual execution endpoint with a stable key:
+
+```sh
+curl -X POST http://localhost:3000/api/tasks/TASK_ID/test \
+  -H 'Idempotency-Key: manual-check-1'
+```
+
+The response queues a separate execution for the standby worker. Repeating the
+same task and key is idempotent; the request key is hashed and neither it nor
+the internal occurrence key appears in the public response.
+
 ## 4. Zero-cost defaults
 
 With no additional environment variables, the worker uses the selected public TechCrunch Artificial Intelligence RSS feed and no credentials. This is a public external source, so an outage or unavailable network records a safe research failure rather than inventing a briefing.

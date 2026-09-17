@@ -217,3 +217,19 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
   worker, file delivery, SQLite adapter, and API event/briefing path. The full
   `npm run ci` suite passes with 109 tests. Arbitrary PII detection, unrestricted
   future payloads, and future adapters remain outside this bounded policy.
+
+## 2026-09-16 - Local manual test execution
+
+- Accepted ADR-0021 and added `POST /api/tasks/:taskId/test` for an existing
+  confirmed task. The endpoint requires a bounded `Idempotency-Key`, hashes it
+  with the task ID into a distinct manual occurrence, and never exposes the
+  raw key or occurrence key.
+- The database-independent execution port queues the row and `queued` event
+  transactionally in the local SQLite adapter. Repeated task/key requests
+  return the same execution, while different keys create independent runs;
+  the existing worker consumes the manual row with the task topic and
+  quantity.
+- API and worker tests cover validation, duplicate/event cardinality,
+  public projection, and context propagation. The complete `npm run ci` suite
+  passes with 111 tests. This is a local verification control, not the start
+  of the separate 30-day reliability trial.

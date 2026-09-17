@@ -242,6 +242,45 @@ export class SqliteTaskStore implements TatuStore {
         .all() as Array<BriefingTask>
     ).map((row) => ({ ...row, deliveryRequested: true, enabled: true }));
   }
+  enqueueManualExecution(
+    taskId: string,
+    occurrenceKey: string,
+    scheduledFor: string,
+  ): ExecutionRecord | undefined {
+    const now = new Date().toISOString();
+    return this.database.transaction(() => {
+      const task = this.database
+        .prepare('SELECT id FROM tasks WHERE id=?')
+        .get(taskId) as { id: string } | undefined;
+      if (!task) return undefined;
+      const insert = this.database
+        .prepare(
+          "INSERT OR IGNORE INTO executions VALUES (?,?,?,?, 'pending',0,3,?,NULL,NULL,NULL,NULL,?,?)",
+        )
+        .run(
+          crypto.randomUUID(),
+          taskId,
+          occurrenceKey,
+          scheduledFor,
+          now,
+          now,
+          now,
+        );
+      if (insert.changes) {
+        const row = this.database
+          .prepare('SELECT id FROM executions WHERE occurrence_key=?')
+          .get(occurrenceKey) as { id: string };
+        this.database
+          .prepare('INSERT INTO execution_events VALUES (?,?,?,?,?)')
+          .run(crypto.randomUUID(), row.id, 'queued', now, null);
+      }
+      return this.database
+        .prepare(
+          'SELECT id,task_id as taskId,occurrence_key as occurrenceKey,scheduled_for as scheduledFor,status,attempt,max_attempts as maxAttempts,available_at as availableAt,lease_expires_at as leaseExpiresAt,claimed_by as claimedBy,result,failure,created_at as createdAt,updated_at as updatedAt FROM executions WHERE occurrence_key=? AND task_id=?',
+        )
+        .get(occurrenceKey, taskId) as ExecutionRecord | undefined;
+    })();
+  }
   listExecutions(): ExecutionRecord[] {
     return this.database
       .prepare(

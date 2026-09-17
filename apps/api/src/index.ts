@@ -1,4 +1,5 @@
 import { createServer, type Server } from 'node:http';
+import { createHash } from 'node:crypto';
 import { pathToFileURL } from 'node:url';
 
 import {
@@ -197,6 +198,12 @@ const json = (
   response.end(JSON.stringify(body));
 };
 const maxJsonBytes = 64 * 1024;
+const maxIdempotencyKeyBytes = 256;
+const hasControlCharacter = (value: string) =>
+  [...value].some((character) => {
+    const code = character.codePointAt(0) ?? 0;
+    return code < 0x20 || code === 0x7f;
+  });
 class BodyTooLargeError extends Error {}
 const readJson = async (request: import('node:http').IncomingMessage) => {
   const chunks: Buffer[] = [];
@@ -239,6 +246,40 @@ export function createTatuServer(
     }
     if (request.method === 'GET' && request.url === '/api/executions') {
       json(response, 200, repository.listExecutions().map(publicExecution));
+      return;
+    }
+    const manual = request.url?.match(/^\/api\/tasks\/([^/]+)\/test$/);
+    if (request.method === 'POST' && manual) {
+      const rawKey = request.headers['idempotency-key'];
+      const key = Array.isArray(rawKey) ? undefined : rawKey?.trim();
+      if (
+        !key ||
+        Buffer.byteLength(key, 'utf8') > maxIdempotencyKeyBytes ||
+        hasControlCharacter(key)
+      ) {
+        json(response, 400, {
+          error: 'Idempotency-Key ausente ou inválida (máximo de 256 bytes).',
+        });
+        return;
+      }
+      const task = repository.list().find((item) => item.id === manual[1]);
+      if (!task) {
+        json(response, 404, { error: 'Tarefa não encontrada.' });
+        return;
+      }
+      const occurrenceKey = `manual:${createHash('sha256')
+        .update(`${task.id}\u0000${key}`)
+        .digest('hex')}`;
+      const execution = repository.enqueueManualExecution(
+        task.id,
+        occurrenceKey,
+        new Date().toISOString(),
+      );
+      if (!execution) {
+        json(response, 404, { error: 'Tarefa não encontrada.' });
+        return;
+      }
+      json(response, 202, publicExecution(execution));
       return;
     }
     const executionEvents = request.url?.match(
