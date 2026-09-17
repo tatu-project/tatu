@@ -20,7 +20,7 @@ const isBriefingDeliveryReceipt = (
   if (!value || typeof value !== 'object') return false;
   const receipt = value as Partial<BriefingDeliveryReceipt>;
   return (
-    Object.keys(value).length === 4 &&
+    Object.keys(value).length >= 4 &&
     receipt.channel === 'file-outbox' &&
     typeof receipt.idempotencyKey === 'string' &&
     receipt.idempotencyKey.length > 0 &&
@@ -35,7 +35,6 @@ const isBriefingFallback = (value: unknown): value is BriefingFallback => {
   if (!value || typeof value !== 'object') return false;
   const fallback = value as Partial<BriefingFallback>;
   return (
-    Object.keys(value).length === 2 &&
     fallback.from === 'local-ollama' &&
     (fallback.reason === 'model_unavailable' ||
       fallback.reason === 'model_invalid_output' ||
@@ -56,7 +55,6 @@ const isBriefingObservability = (
   if (!value || typeof value !== 'object') return false;
   const observability = value as Partial<BriefingObservability>;
   if (
-    Object.keys(value).length !== 5 ||
     (observability.provider !== 'public-rss' &&
       observability.provider !== 'local-ollama') ||
     (observability.model !== null &&
@@ -82,7 +80,6 @@ const isBriefingObservability = (
     observability.latencyMs > 86_400_000 ||
     !observability.estimatedCost ||
     typeof observability.estimatedCost !== 'object' ||
-    Object.keys(observability.estimatedCost).length !== 1 ||
     (observability.estimatedCost as { status?: unknown }).status !== 'unknown'
   )
     return false;
@@ -109,7 +106,7 @@ const isCitedStory = (
   value: unknown,
 ): value is BriefingResult['stories'][number] => {
   if (!value || typeof value !== 'object') return false;
-  const story = value as BriefingResult['stories'][number];
+  const story = value as unknown as BriefingResult['stories'][number];
   try {
     const url = new URL(story.url);
     return (
@@ -159,6 +156,54 @@ const isBriefingResult = (value: unknown): value is BriefingResult => {
       (item) => typeof item === 'string' && !hasTextSecret(item),
     )
   );
+};
+
+/**
+ * SQLite stores JSON for the local adapter, so project only the provider-
+ * independent contract when reading it back. Unknown provider fields are
+ * intentionally discarded instead of becoming part of the public result.
+ */
+const sanitizeBriefingResult = (result: BriefingResult): BriefingResult => {
+  const sanitized: BriefingResult = {
+    topic: result.topic,
+    stories: result.stories.map(({ title, url, publishedAt, source }) => ({
+      title,
+      url,
+      publishedAt,
+      source,
+    })),
+    facts: result.facts.map(({ title, url, publishedAt, source }) => ({
+      title,
+      url,
+      publishedAt,
+      source,
+    })),
+    inference: [...result.inference],
+  };
+  if (result.route !== undefined) sanitized.route = result.route;
+  if (result.model !== undefined)
+    sanitized.model = { id: result.model.id, route: result.model.route };
+  if (result.fallback !== undefined)
+    sanitized.fallback = {
+      from: result.fallback.from,
+      reason: result.fallback.reason,
+    };
+  if (result.delivery !== undefined)
+    sanitized.delivery = {
+      channel: result.delivery.channel,
+      idempotencyKey: result.delivery.idempotencyKey,
+      artifactId: result.delivery.artifactId,
+      contentSha256: result.delivery.contentSha256,
+    };
+  if (result.observability !== undefined)
+    sanitized.observability = {
+      provider: result.observability.provider,
+      model: result.observability.model,
+      tools: [...result.observability.tools],
+      latencyMs: result.observability.latencyMs,
+      estimatedCost: { status: result.observability.estimatedCost.status },
+    };
+  return sanitized;
 };
 
 /** SQLite is the local v0.1 adapter, not a production database decision. */
@@ -211,7 +256,9 @@ export class SqliteTaskStore implements TatuStore {
     if (!row?.result) return undefined;
     try {
       const result: unknown = JSON.parse(row.result);
-      return isBriefingResult(result) ? result : undefined;
+      return isBriefingResult(result)
+        ? sanitizeBriefingResult(result)
+        : undefined;
     } catch {
       return undefined;
     }

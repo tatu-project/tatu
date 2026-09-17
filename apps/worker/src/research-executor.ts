@@ -6,7 +6,12 @@ import type {
   BriefingSynthesizer,
   ExecutionContext,
 } from '@tatu/shared';
-import { hasSensitiveUrlQuery, hasTextSecret } from '@tatu/shared';
+import {
+  hasExactKeys,
+  hasOnlyKeys,
+  hasSensitiveUrlQuery,
+  hasTextSecret,
+} from '@tatu/shared';
 import { performance } from 'node:perf_hooks';
 import {
   ModelError,
@@ -38,6 +43,147 @@ const containsTextSecret = (briefing: BriefingResult) =>
   (briefing.observability !== undefined &&
     briefing.observability.model !== null &&
     hasTextSecret(briefing.observability.model));
+
+const isCitedStory = (value: unknown): boolean => {
+  if (!hasExactKeys(value, ['title', 'url', 'publishedAt', 'source']))
+    return false;
+  const story = value as Record<string, unknown>;
+  if (
+    typeof story.title !== 'string' ||
+    typeof story.url !== 'string' ||
+    typeof story.publishedAt !== 'string' ||
+    typeof story.source !== 'string' ||
+    Number.isNaN(Date.parse(story.publishedAt))
+  )
+    return false;
+  try {
+    const url = new URL(story.url);
+    return (
+      url.protocol === 'https:' &&
+      url.username === '' &&
+      url.password === '' &&
+      !hasSensitiveUrlQuery(url)
+    );
+  } catch {
+    return false;
+  }
+};
+
+const isBriefingDelivery = (value: unknown): boolean => {
+  if (
+    !hasExactKeys(value, [
+      'channel',
+      'idempotencyKey',
+      'artifactId',
+      'contentSha256',
+    ])
+  )
+    return false;
+  const receipt = value as Record<string, unknown>;
+  return (
+    receipt.channel === 'file-outbox' &&
+    typeof receipt.idempotencyKey === 'string' &&
+    receipt.idempotencyKey.length > 0 &&
+    typeof receipt.artifactId === 'string' &&
+    /^[a-f0-9]{64}\.md$/u.test(receipt.artifactId) &&
+    typeof receipt.contentSha256 === 'string' &&
+    /^[a-f0-9]{64}$/u.test(receipt.contentSha256)
+  );
+};
+
+const isBriefingObservability = (value: unknown): boolean => {
+  if (
+    !hasExactKeys(value, [
+      'provider',
+      'model',
+      'tools',
+      'latencyMs',
+      'estimatedCost',
+    ])
+  )
+    return false;
+  const observability = value as Record<string, unknown>;
+  const tools = observability.tools;
+  return (
+    (observability.provider === 'public-rss' ||
+      observability.provider === 'local-ollama') &&
+    (observability.model === null || typeof observability.model === 'string') &&
+    Array.isArray(tools) &&
+    tools.length >= 1 &&
+    tools.length <= 3 &&
+    new Set(tools).size === tools.length &&
+    tools.every(
+      (tool) =>
+        tool === 'public-rss' ||
+        tool === 'local-ollama' ||
+        tool === 'file-outbox',
+    ) &&
+    typeof observability.latencyMs === 'number' &&
+    Number.isInteger(observability.latencyMs) &&
+    observability.latencyMs >= 0 &&
+    observability.latencyMs <= 86_400_000 &&
+    hasExactKeys(observability.estimatedCost, ['status']) &&
+    observability.estimatedCost.status === 'unknown'
+  );
+};
+
+const hasStrictBriefingShape = (value: unknown): value is BriefingResult => {
+  if (
+    !hasOnlyKeys(value, [
+      'topic',
+      'stories',
+      'facts',
+      'inference',
+      'route',
+      'model',
+      'fallback',
+      'delivery',
+      'observability',
+    ])
+  )
+    return false;
+  const result = value as unknown as BriefingResult;
+  if (
+    typeof result.topic !== 'string' ||
+    result.topic.length === 0 ||
+    !Array.isArray(result.stories) ||
+    !result.stories.every(isCitedStory) ||
+    !Array.isArray(result.facts) ||
+    !result.facts.every(isCitedStory) ||
+    !Array.isArray(result.inference) ||
+    !result.inference.every((item) => typeof item === 'string') ||
+    (result.route !== undefined &&
+      result.route !== 'deterministic-rss' &&
+      result.route !== 'local-ollama')
+  )
+    return false;
+  if (
+    result.model !== undefined &&
+    (!hasExactKeys(result.model, ['id', 'route']) ||
+      typeof result.model.id !== 'string' ||
+      result.model.id.length === 0 ||
+      result.model.route !== 'local-ollama')
+  )
+    return false;
+  if (
+    result.fallback !== undefined &&
+    (!hasExactKeys(result.fallback, ['from', 'reason']) ||
+      result.route !== 'deterministic-rss' ||
+      result.fallback.from !== 'local-ollama' ||
+      (result.fallback.reason !== 'model_unavailable' &&
+        result.fallback.reason !== 'model_invalid_output' &&
+        result.fallback.reason !== 'model_timeout'))
+  )
+    return false;
+  if (result.delivery !== undefined && !isBriefingDelivery(result.delivery))
+    return false;
+  if (
+    result.observability !== undefined &&
+    !isBriefingObservability(result.observability)
+  )
+    return false;
+  return true;
+};
 export const DEFAULT_RSS_FEED =
   'https://techcrunch.com/category/artificial-intelligence/feed/';
 
@@ -85,10 +231,13 @@ export const createResearchExecutor =
         throw error;
       }
     }
-    if (containsTextSecret(briefing)) throw new ResearchError('unsafe_text');
+    if (!hasStrictBriefingShape(briefing) || containsTextSecret(briefing))
+      throw new ResearchError('unsafe_text');
     const receipt = delivery
       ? await delivery.deliver(context, briefing, signal)
       : undefined;
+    if (receipt !== undefined && !isBriefingDelivery(receipt))
+      throw new ResearchError('unsafe_text');
     const provider =
       briefing.route === 'local-ollama' ? 'local-ollama' : 'public-rss';
     const tools: BriefingObservabilityTool[] = ['public-rss'];

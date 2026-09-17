@@ -198,3 +198,81 @@ test('does not return briefings containing credential patterns in text fields', 
     rmSync(directory, { recursive: true, force: true });
   }
 });
+
+test('projects unknown briefing payload fields out of persisted results', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'tatu-store-unknown-fields-'));
+  const databasePath = join(directory, 'tatu.sqlite');
+  const stamp = '2026-09-15T00:00:00.000Z';
+  const story = {
+    title: 'AI story',
+    url: 'https://source.test/story',
+    publishedAt: stamp,
+    source: 'source.test',
+  };
+  const base = {
+    topic: 'AI',
+    stories: [story],
+    facts: [story],
+    inference: [],
+    route: 'deterministic-rss',
+  };
+  try {
+    const initial = new SqliteTaskStore(databasePath);
+    initial.close();
+    const database = new Database(databasePath);
+    const insert = database.prepare(
+      'INSERT INTO executions VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+    );
+    const variants = [
+      { ...base, providerPayload: { raw: 'must not be returned' } },
+      {
+        ...base,
+        stories: [{ ...story, providerPayload: { raw: 'untrusted' } }],
+      },
+      {
+        ...base,
+        observability: {
+          provider: 'public-rss',
+          model: null,
+          tools: ['public-rss'],
+          latencyMs: 0,
+          estimatedCost: { status: 'unknown' },
+          providerPayload: { raw: 'untrusted' },
+        },
+      },
+    ];
+    variants.forEach((value, index) =>
+      insert.run(
+        `execution-${index}`,
+        'task',
+        `occurrence-${index}`,
+        stamp,
+        'succeeded',
+        1,
+        1,
+        stamp,
+        null,
+        null,
+        JSON.stringify(value),
+        null,
+        stamp,
+        stamp,
+      ),
+    );
+    database.close();
+
+    const store = new SqliteTaskStore(databasePath);
+    const first = store.briefing('execution-0');
+    assert.ok(first);
+    assert.equal('providerPayload' in first, false);
+    const nested = store.briefing('execution-1');
+    assert.ok(nested);
+    assert.equal('providerPayload' in nested.stories[0], false);
+    const metadata = store.briefing('execution-2');
+    assert.ok(metadata?.observability);
+    assert.equal('providerPayload' in metadata.observability, false);
+    store.close();
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});

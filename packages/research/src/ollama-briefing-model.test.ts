@@ -77,6 +77,32 @@ test('rejects malformed and invented model outputs', async () => {
     ModelError,
   );
 });
+
+test('rejects unknown model and citation payload fields', async () => {
+  await assert.rejects(
+    model(
+      JSON.stringify({
+        ...facts,
+        providerPayload: { raw: 'must not cross the model boundary' },
+      }),
+    ).synthesize(facts, new AbortController().signal),
+    (error: unknown) =>
+      error instanceof ModelError && error.code === 'model_invalid_output',
+  );
+  await assert.rejects(
+    model(
+      JSON.stringify({
+        ...facts,
+        stories: [
+          { ...facts.stories[0], providerPayload: { raw: 'untrusted' } },
+        ],
+      }),
+    ).synthesize(facts, new AbortController().signal),
+    (error: unknown) =>
+      error instanceof ModelError && error.code === 'model_invalid_output',
+  );
+});
+
 test('rejects non-loopback endpoints and sends no secret fields', async () => {
   const remote = new OllamaBriefingModel('local', 'https://remote.test');
   await assert.rejects(

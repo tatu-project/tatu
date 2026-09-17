@@ -202,3 +202,18 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
 - Provider IDs are rejected before state lookup or mutation; the Ollama adapter rejects credential-shaped model IDs before metadata exposure; capability and quota/provider routers skip unsafe model metadata IDs.
 - Tests cover healthy-provider routing, constructor rejection without network calls, unchanged candidate/state data, and ordinary identifiers. The complete `npm run ci` suite passes with 102 tests.
 - The Stage 7 redaction checkbox remains intentionally bounded to recognized credential patterns; arbitrary sensitive text/PII and future adapters are not claimed.
+
+## 2026-09-16 - Stage 7 unknown briefing payload boundaries
+
+- Added shared runtime object-key helpers and strict allowlists at the Ollama
+  model output, final worker result, delivery receipt, and filesystem delivery
+  boundaries. Model, citation, delivery, observability, and estimated-cost
+  payloads reject unknown keys before they can be delivered or serialized.
+- The local SQLite adapter continues to validate known briefing fields and now
+  projects only the provider-independent allowlist when reading persisted JSON;
+  valid legacy rows therefore remain available without exposing provider
+  payloads through the API.
+- Regression tests cover top-level and nested unknown fields in the model,
+  worker, file delivery, SQLite adapter, and API event/briefing path. The full
+  `npm run ci` suite passes with 109 tests. Arbitrary PII detection, unrestricted
+  future payloads, and future adapters remain outside this bounded policy.

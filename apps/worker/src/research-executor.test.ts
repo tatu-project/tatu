@@ -433,6 +433,100 @@ test('rejects credential patterns in a research result before serialization', as
   );
 });
 
+test('rejects unknown briefing payload fields before delivery or serialization', async () => {
+  let deliveryCalls = 0;
+  const delivery: BriefingDelivery = {
+    async deliver() {
+      deliveryCalls += 1;
+      return {
+        channel: 'file-outbox',
+        idempotencyKey: 'occurrence',
+        artifactId: `${'a'.repeat(64)}.md`,
+        contentSha256: 'b'.repeat(64),
+      };
+    },
+  };
+  const variants = [
+    {
+      ...sourceResult,
+      providerPayload: { raw: 'must not cross the worker boundary' },
+    },
+    {
+      ...sourceResult,
+      stories: [
+        { ...sourceResult.stories[0], providerPayload: { raw: 'untrusted' } },
+      ],
+    },
+    {
+      ...sourceResult,
+      observability: {
+        provider: 'public-rss',
+        model: null,
+        tools: ['public-rss'],
+        latencyMs: 0,
+        estimatedCost: { status: 'unknown' },
+        providerPayload: { raw: 'untrusted' },
+      },
+    },
+  ] as unknown as BriefingResult[];
+  for (const [index, value] of variants.entries())
+    await assert.rejects(
+      createResearchExecutor(
+        'https://source.test/rss',
+        undefined,
+        undefined,
+        undefined,
+        { create: async () => value },
+        delivery,
+      )(
+        {
+          executionId: `execution-${index}`,
+          idempotencyKey: `occurrence-${index}`,
+          topic: 'AI',
+          quantity: 1,
+        },
+        new AbortController().signal,
+      ),
+      (error: unknown) =>
+        error instanceof ResearchError && error.code === 'unsafe_text',
+    );
+  assert.equal(deliveryCalls, 0);
+});
+
+test('rejects an unknown delivery receipt before serialization', async () => {
+  const delivery: BriefingDelivery = {
+    async deliver() {
+      return {
+        channel: 'file-outbox',
+        idempotencyKey: 'occurrence',
+        artifactId: `${'a'.repeat(64)}.md`,
+        contentSha256: 'b'.repeat(64),
+        providerPayload: { raw: 'must not cross the worker boundary' },
+      } as unknown as BriefingDeliveryReceipt;
+    },
+  };
+  await assert.rejects(
+    createResearchExecutor(
+      'https://source.test/rss',
+      undefined,
+      undefined,
+      undefined,
+      research,
+      delivery,
+    )(
+      {
+        executionId: 'execution-receipt',
+        idempotencyKey: 'occurrence',
+        topic: 'AI',
+        quantity: 1,
+      },
+      new AbortController().signal,
+    ),
+    (error: unknown) =>
+      error instanceof ResearchError && error.code === 'unsafe_text',
+  );
+});
+
 test('rejects a credential-bearing model name before model invocation', async () => {
   let called = false;
   const model: LocalBriefingModel = {

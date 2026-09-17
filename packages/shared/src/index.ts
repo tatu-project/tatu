@@ -278,6 +278,7 @@ export type {
 export type { BriefingDelivery, BriefingDeliveryReceipt } from './delivery.js';
 export { hasSensitiveUrlQuery } from './url-policy.js';
 export { hasTextSecret, redactTextSecrets } from './text-policy.js';
+export { hasExactKeys, hasOnlyKeys } from './object-policy.js';
 
 const normalize = (value: string) =>
   value

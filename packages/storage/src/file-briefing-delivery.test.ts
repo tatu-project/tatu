@@ -268,3 +268,47 @@ test('rejects unbounded observability metadata before writing it', async () => {
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test('rejects unknown briefing payload fields before writing an artifact', async () => {
+  const root = await mkdtemp('tatu-delivery-unknown-fields-');
+  try {
+    const delivery = new FileBriefingDelivery(root);
+    const base = briefing();
+    const variants = [
+      {
+        ...base,
+        providerPayload: { raw: 'must not be delivered' },
+      },
+      {
+        ...base,
+        stories: [
+          { ...base.stories[0], providerPayload: { raw: 'untrusted' } },
+        ],
+      },
+      {
+        ...base,
+        delivery: {
+          channel: 'file-outbox',
+          idempotencyKey: 'key',
+          artifactId: `${'a'.repeat(64)}.md`,
+          contentSha256: 'b'.repeat(64),
+          providerPayload: { raw: 'untrusted' },
+        },
+      },
+    ] as unknown as BriefingResult[];
+    for (const [index, value] of variants.entries())
+      await assert.rejects(
+        delivery.deliver(
+          context(`unknown-fields-${index}`),
+          value,
+          new AbortController().signal,
+        ),
+        (error: unknown) =>
+          error instanceof FileBriefingDeliveryError &&
+          error.code === 'invalid_briefing',
+      );
+    assert.deepEqual(await readdir(root), []);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});

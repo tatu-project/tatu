@@ -8,7 +8,12 @@ import type {
   BriefingResult,
   ExecutionContext,
 } from '@tatu/shared';
-import { hasSensitiveUrlQuery, hasTextSecret } from '@tatu/shared';
+import {
+  hasExactKeys,
+  hasOnlyKeys,
+  hasSensitiveUrlQuery,
+  hasTextSecret,
+} from '@tatu/shared';
 
 export type FileBriefingDeliveryErrorCode =
   'aborted' | 'invalid_briefing' | 'delivery_conflict' | 'delivery_io';
@@ -25,6 +30,8 @@ export class FileBriefingDeliveryError extends Error {
 
 const isCitedStory = (value: unknown) => {
   if (!value || typeof value !== 'object') return false;
+  if (!hasExactKeys(value, ['title', 'url', 'publishedAt', 'source']))
+    return false;
   const story = value as Partial<BriefingResult['stories'][number]>;
   try {
     if (typeof story.url !== 'string') return false;
@@ -62,7 +69,13 @@ const isBriefingObservability = (
   if (!value || typeof value !== 'object') return false;
   const observability = value as Partial<BriefingObservability>;
   if (
-    Object.keys(value).length !== 5 ||
+    !hasExactKeys(value, [
+      'provider',
+      'model',
+      'tools',
+      'latencyMs',
+      'estimatedCost',
+    ]) ||
     (observability.provider !== 'public-rss' &&
       observability.provider !== 'local-ollama') ||
     (observability.model !== null &&
@@ -88,7 +101,7 @@ const isBriefingObservability = (
     observability.latencyMs > 86_400_000 ||
     !observability.estimatedCost ||
     typeof observability.estimatedCost !== 'object' ||
-    Object.keys(observability.estimatedCost).length !== 1 ||
+    !hasExactKeys(observability.estimatedCost, ['status']) ||
     (observability.estimatedCost as { status?: unknown }).status !== 'unknown'
   )
     return false;
@@ -112,6 +125,17 @@ const isBriefingObservability = (
 };
 
 const isBriefing = (value: BriefingResult): boolean =>
+  hasOnlyKeys(value, [
+    'topic',
+    'stories',
+    'facts',
+    'inference',
+    'route',
+    'model',
+    'fallback',
+    'delivery',
+    'observability',
+  ]) &&
   typeof value.topic === 'string' &&
   value.topic.length > 0 &&
   !hasTextSecret(value.topic) &&
@@ -129,19 +153,30 @@ const isBriefing = (value: BriefingResult): boolean =>
   (value.model === undefined ||
     (typeof value.model === 'object' &&
       value.model !== null &&
+      hasExactKeys(value.model, ['id', 'route']) &&
       typeof value.model.id === 'string' &&
       !hasTextSecret(value.model.id) &&
       value.model.route === 'local-ollama')) &&
   (value.fallback === undefined ||
     (typeof value.fallback === 'object' &&
       value.fallback !== null &&
+      hasExactKeys(value.fallback, ['from', 'reason']) &&
       value.route === 'deterministic-rss' &&
       value.fallback.from === 'local-ollama' &&
       (value.fallback.reason === 'model_unavailable' ||
         value.fallback.reason === 'model_invalid_output' ||
         value.fallback.reason === 'model_timeout'))) &&
   (value.observability === undefined ||
-    isBriefingObservability(value.observability, value));
+    isBriefingObservability(value.observability, value)) &&
+  (value.delivery === undefined ||
+    (typeof value.delivery === 'object' &&
+      value.delivery !== null &&
+      hasExactKeys(value.delivery, [
+        'channel',
+        'idempotencyKey',
+        'artifactId',
+        'contentSha256',
+      ])));
 
 const escapeText = (value: string) =>
   value.replace(/[\\`*_{}[\]()#+.!|<>]/g, '\\$&').replace(/\r?\n/g, ' ');

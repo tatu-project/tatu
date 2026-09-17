@@ -4,7 +4,11 @@ import type {
   CitedStory,
   LocalBriefingModel,
 } from '@tatu/shared';
-import { hasSensitiveUrlQuery, hasTextSecret } from '@tatu/shared';
+import {
+  hasExactKeys,
+  hasSensitiveUrlQuery,
+  hasTextSecret,
+} from '@tatu/shared';
 export class ModelError extends Error {
   constructor(
     readonly code:
@@ -133,7 +137,8 @@ export class OllamaBriefingModel implements LocalBriefingModel {
       );
     };
     const isCitedStory = (value: unknown): value is CitedStory => {
-      if (!value || typeof value !== 'object') return false;
+      if (!hasExactKeys(value, ['title', 'url', 'publishedAt', 'source']))
+        return false;
       const story = value as Partial<CitedStory>;
       return (
         typeof story.title === 'string' &&
@@ -147,6 +152,7 @@ export class OllamaBriefingModel implements LocalBriefingModel {
     if (
       !output ||
       typeof output !== 'object' ||
+      !hasExactKeys(output, ['topic', 'stories', 'facts', 'inference']) ||
       output.topic !== input.topic ||
       hasTextSecret(output.topic) ||
       !Array.isArray(output.stories) ||
