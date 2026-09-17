@@ -283,3 +283,14 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
 - Confirmed one daily task at 08:00 in `America/Sao_Paulo`; the first scheduled
   occurrence is pending. The 30-day checklist remains open until 30 calendar
   days of public, non-sensitive evidence are reviewed.
+
+## 2026-09-16 - Trial preflight safe failure
+
+- Ran one `Testar agora` preflight for the confirmed task. It is explicitly not
+  counted as a scheduled-trial day.
+- The worker claimed the execution three times, recorded the public
+  `research_failed` and `retry_scheduled` events, and ended with the public
+  `failed` status after the retry limit. No delivery artifact was created.
+- This is evidence of the bounded research-failure path, not a reliability
+  success claim. The first scheduled occurrence remains pending and the trial
+  checklist remains open.

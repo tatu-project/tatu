@@ -59,6 +59,9 @@ historical pre-rollback counts; the current suite has 112 tests.
   database/outbox and one confirmed daily task at 08:00 in
   `America/Sao_Paulo`. Its first scheduled occurrence is pending; no trial
   completion or reliability target is claimed.
+- A single manual preflight was intentionally excluded from the trial count;
+  it exercised three research retries, ended in the public `failed` state with
+  `research_failed`/`retry_scheduled` events, and created no delivery artifact.
 
 Exact progress and next action: [`ROADMAP.md`](../ROADMAP.md).
 

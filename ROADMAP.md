@@ -174,6 +174,11 @@ delivery outbox were started with one confirmed daily task at 08:00 in
 `America/Sao_Paulo`. The first scheduled occurrence is still pending; the
 30-day checkbox remains unchecked.
 
+Preflight record (September 16, 2026): one manual preflight was excluded from
+the trial count. It exhausted three research attempts, exposed only the public
+`research_failed`, `retry_scheduled`, and `failed` states, and produced no
+delivery artifact. The scheduled-trial observation remains pending.
+
 ## Later roadmap
 
 ## Planning horizon
