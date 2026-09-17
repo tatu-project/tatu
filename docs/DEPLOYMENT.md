@@ -77,7 +77,7 @@ Stop `npm run dev` before copying these files for a backup. Protect the backup w
 
 Keep the service on a trusted local machine and do not expose port 3000 publicly. Do not commit `.env` files, credentials, database files, or delivery artifacts. The first deployment is single-user/local; production database selection, remote/shared hosting, worker heartbeat, persistent memory, provider authentication, and monetary pricing remain undecided or unimplemented.
 
-The Docker Compose files are a separate local packaging reference. They are not required for this path, and their image build/startup acceptance remains pending until a Docker daemon is available for verification.
+The Docker Compose files are a separate local packaging reference. They are not required for this path; their local image build/startup acceptance has been verified, and the stack must be rechecked after changing the Dockerfile or Compose definition.
 
 ## 8. Troubleshooting
 
