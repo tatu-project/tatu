@@ -244,3 +244,12 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
   retry is duplicate-safe; neither the key nor the internal occurrence key is
   rendered or persisted. The page contract and complete `npm run ci` suite pass
   with 111 tests.
+
+## 2026-09-16 - Manual queue rollback proof
+
+- Added an isolated SQLite fault-injection test that removes only the temporary
+  database's `execution_events` table, confirms `enqueueManualExecution` fails,
+  and verifies that no execution row remains after the transaction rolls back.
+- Focused storage verification passes 5/5; the complete suite is rerun before
+  publication. This strengthens the manual queue's atomicity evidence without
+  changing the replaceable persistence boundary.

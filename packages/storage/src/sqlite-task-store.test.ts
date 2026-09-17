@@ -276,3 +276,37 @@ test('projects unknown briefing payload fields out of persisted results', () => 
     rmSync(directory, { recursive: true, force: true });
   }
 });
+
+test('rolls back a manual execution when its queued event cannot be inserted', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'tatu-store-manual-rollback-'));
+  const databasePath = join(directory, 'tatu.sqlite');
+  const stamp = '2026-09-16T00:00:00.000Z';
+  const store = new SqliteTaskStore(databasePath);
+  try {
+    const task = store.create({
+      cadence: 'daily',
+      time: '08:00',
+      quantity: 3,
+      topic: 'AI',
+      deliveryRequested: true,
+      timezone: 'America/Sao_Paulo',
+    });
+    const database = new Database(databasePath);
+    database.exec('DROP TABLE execution_events');
+    database.close();
+
+    assert.throws(() =>
+      store.enqueueManualExecution(task.id, 'manual:rollback', stamp),
+    );
+
+    const verification = new Database(databasePath);
+    const row = verification
+      .prepare('SELECT COUNT(*) as count FROM executions WHERE task_id=?')
+      .get(task.id) as { count: number };
+    assert.equal(row.count, 0);
+    verification.close();
+  } finally {
+    store.close();
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
