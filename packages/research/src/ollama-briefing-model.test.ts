@@ -115,18 +115,18 @@ test('rejects loopback endpoints with sensitive query parameters', async () => {
   );
 });
 
-test('rejects a credential-bearing configured model before making a request', async () => {
+test('rejects a credential-bearing configured model before exposing metadata or making a request', () => {
   let called = false;
-  const configured = new OllamaBriefingModel(
-    'api_key=abcdEFGH1234',
-    'http://127.0.0.1:11434',
-    async () => {
-      called = true;
-      return new Response('{}');
-    },
-  );
-  await assert.rejects(
-    configured.synthesize(facts, new AbortController().signal),
+  assert.throws(
+    () =>
+      new OllamaBriefingModel(
+        'api_key=abcdEFGH1234',
+        'http://127.0.0.1:11434',
+        async () => {
+          called = true;
+          return new Response('{}');
+        },
+      ),
     (error: unknown) =>
       error instanceof ModelError && error.code === 'model_unavailable',
   );

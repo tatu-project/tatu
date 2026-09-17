@@ -39,8 +39,9 @@ separate URL policy.
 
 ## Consequences
 
-Current parser, research, Ollama, provider-state, worker, SQLite,
-file-delivery, and API paths have tested coverage for high-confidence text
-credentials. This remains a bounded local policy: unrestricted future network
-payloads, arbitrary PII, additional providers, and new adapters require their
-own validation before the Stage 7 redaction checkbox can be marked complete.
+Current parser, research, Ollama, model/provider routers, provider-state,
+worker, SQLite, file-delivery, and API paths have tested coverage for
+high-confidence text credentials. This remains a bounded local policy:
+unrestricted future network payloads, arbitrary PII, additional providers, and
+new adapters require their own validation before the Stage 7 redaction
+checkbox can be marked complete.

@@ -5,6 +5,7 @@ import type {
   ProviderStateStore,
   QuotaProviderRouter as QuotaProviderRouterContract,
 } from '@tatu/shared';
+import { hasTextSecret } from '@tatu/shared';
 
 const hasRequiredCapabilities = (
   request: BriefingModelRequest,
@@ -28,6 +29,7 @@ export class QuotaProviderRouter implements QuotaProviderRouterContract {
   ): ProviderRouteCandidate | undefined {
     return candidates.find(
       (candidate) =>
+        !hasTextSecret(candidate.model.metadata.id) &&
         hasRequiredCapabilities(request, candidate) &&
         isEligible(stateStore.get(candidate.providerId)),
     );

@@ -21,6 +21,7 @@ export class OllamaBriefingModel implements LocalBriefingModel {
     private readonly endpoint = 'http://127.0.0.1:11434',
     private readonly request: typeof fetch = fetch,
   ) {
+    if (hasTextSecret(model)) throw new ModelError('model_unavailable');
     this.metadata = Object.freeze({
       id: model,
       capabilities: Object.freeze([

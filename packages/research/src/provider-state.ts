@@ -63,7 +63,11 @@ const isTimestamp = (value: unknown): value is string => {
 };
 
 function validateProviderId(providerId: unknown): asserts providerId is string {
-  if (typeof providerId !== 'string' || !providerIdPattern.test(providerId))
+  if (
+    typeof providerId !== 'string' ||
+    !providerIdPattern.test(providerId) ||
+    hasTextSecret(providerId)
+  )
     throw new ProviderStateError('invalid_provider_id');
 }
 

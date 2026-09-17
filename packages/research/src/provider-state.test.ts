@@ -214,6 +214,51 @@ test('rejects invalid provider observations before changing state', () => {
   );
 });
 
+test('rejects credential-shaped provider IDs before changing provider state', () => {
+  const store = new InMemoryProviderStateStore();
+  store.recordSuccess({
+    kind: 'success',
+    providerId: 'provider',
+    observedAt,
+    observation: 'ordinary diagnostic',
+  });
+  const before = store.get('provider');
+  const unsafeProviderIds = ['token:abcdEFGH1234', 'sk_live_12345678'];
+
+  for (const providerId of unsafeProviderIds) {
+    assert.throws(
+      () => store.get(providerId),
+      (error: unknown) =>
+        error instanceof ProviderStateError &&
+        error.code === 'invalid_provider_id',
+    );
+    assert.throws(
+      () =>
+        store.recordSuccess({
+          kind: 'success',
+          providerId,
+          observedAt: later,
+        }),
+      (error: unknown) =>
+        error instanceof ProviderStateError &&
+        error.code === 'invalid_provider_id',
+    );
+    assert.throws(
+      () =>
+        store.recordFailure({
+          kind: 'failure',
+          providerId,
+          observedAt: later,
+          failure: 'unavailable',
+        }),
+      (error: unknown) =>
+        error instanceof ProviderStateError &&
+        error.code === 'invalid_provider_id',
+    );
+    assert.deepEqual(store.get('provider'), before);
+  }
+});
+
 test('rejects credential-bearing observations without changing success state', () => {
   const store = new InMemoryProviderStateStore();
   store.recordSuccess({

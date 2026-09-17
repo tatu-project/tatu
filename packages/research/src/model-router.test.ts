@@ -126,3 +126,17 @@ test('does not mutate candidate order or capability metadata', () => {
   );
   assert.deepEqual(first.metadata.capabilities, capabilities);
 });
+
+test('skips credential-shaped metadata IDs and selects the next safe candidate', () => {
+  const router = new CapabilityModelRouter();
+  const unsafe = model('token:abcdEFGH1234', ['briefing-synthesis']);
+  const safe = model('local', ['briefing-synthesis']);
+  const candidates = [unsafe, safe];
+
+  assert.equal(
+    router.select(request(['briefing-synthesis']), candidates),
+    safe,
+  );
+  assert.deepEqual(candidates, [unsafe, safe]);
+  assert.equal(unsafe.metadata.id, 'token:abcdEFGH1234');
+});

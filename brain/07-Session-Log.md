@@ -196,3 +196,9 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
 - Provider availability observations now reuse the shared high-confidence text-secret policy and reject credential-shaped diagnostics before process-local state mutation.
 - Tests cover assignments, Bearer/Basic schemes, JWT-like values, URL userinfo, known key prefixes, both success/failure transitions, unchanged snapshots after rejection, and ordinary diagnostic text.
 - The full redaction checkbox remains bounded: arbitrary sensitive text/PII, unrestricted future network payloads, and new adapters still require separate validation.
+
+## 2026-09-16 - Stage 7 model/provider identity boundaries
+
+- Provider IDs are rejected before state lookup or mutation; the Ollama adapter rejects credential-shaped model IDs before metadata exposure; capability and quota/provider routers skip unsafe model metadata IDs.
+- Tests cover healthy-provider routing, constructor rejection without network calls, unchanged candidate/state data, and ordinary identifiers. The complete `npm run ci` suite passes with 102 tests.
+- The Stage 7 redaction checkbox remains intentionally bounded to recognized credential patterns; arbitrary sensitive text/PII and future adapters are not claimed.

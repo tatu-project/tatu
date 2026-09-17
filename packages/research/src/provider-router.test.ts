@@ -159,6 +159,32 @@ test('returns the first eligible candidate in deterministic order', () => {
   );
 });
 
+test('skips credential-shaped model IDs even for healthy providers', () => {
+  const store = new InMemoryProviderStateStore();
+  healthy(store, 'unsafe-provider');
+  healthy(store, 'safe-provider');
+  const unsafe = candidate('unsafe-provider', 'api_key=unsafe-model-secret', [
+    'briefing-synthesis',
+  ]);
+  const safe = candidate('safe-provider', 'safe-model', ['briefing-synthesis']);
+  const candidates = Object.freeze([unsafe, safe]);
+  const beforeUnsafe = {
+    id: unsafe.model.metadata.id,
+    capabilities: [...unsafe.model.metadata.capabilities],
+  };
+
+  assert.equal(
+    new QuotaProviderRouter().select(
+      request(['briefing-synthesis']),
+      candidates,
+      store,
+    ),
+    safe,
+  );
+  assert.deepEqual(unsafe.model.metadata, beforeUnsafe);
+  assert.deepEqual(candidates, [unsafe, safe]);
+});
+
 test('returns no route when no candidate satisfies both decisions', () => {
   const store = new InMemoryProviderStateStore();
   healthy(store, 'missing-capability');
