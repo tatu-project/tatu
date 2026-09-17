@@ -169,6 +169,11 @@ Next action: the creator starts the protocol, creates the scheduled task, and
 records the first public execution; no trial completion is claimed before the
 30-day observation ends.
 
+Trial start record (September 16, 2026): a dedicated local database and
+delivery outbox were started with one confirmed daily task at 08:00 in
+`America/Sao_Paulo`. The first scheduled occurrence is still pending; the
+30-day checkbox remains unchecked.
+
 ## Later roadmap
 
 ## Planning horizon

@@ -55,6 +55,11 @@ historical pre-rollback counts; the current suite has 112 tests.
 - Exact next action: the creator starts the protocol, confirms the scheduled
   task, and records the first public execution.
 
+- The trial observation started on September 16, 2026 with a dedicated local
+  database/outbox and one confirmed daily task at 08:00 in
+  `America/Sao_Paulo`. Its first scheduled occurrence is pending; no trial
+  completion or reliability target is claimed.
+
 Exact progress and next action: [`ROADMAP.md`](../ROADMAP.md).
 
 Session entry: [[07-Session-Log]].

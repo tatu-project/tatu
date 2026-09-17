@@ -274,3 +274,12 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
   The protocol explicitly does not start or complete the 30-day trial and keeps
   occurrence keys, credentials, raw provider responses, and full briefing
   content out of the evidence log.
+
+## 2026-09-16 - Reliability trial started
+
+- Started the local observation with a dedicated `data/reliability-trial.sqlite`
+  database and `data/reliability-trial-deliveries` outbox. API and standby
+  worker are running on the documented local path.
+- Confirmed one daily task at 08:00 in `America/Sao_Paulo`; the first scheduled
+  occurrence is pending. The 30-day checklist remains open until 30 calendar
+  days of public, non-sensitive evidence are reviewed.
