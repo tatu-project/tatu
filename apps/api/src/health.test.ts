@@ -98,6 +98,12 @@ test('serves the Tatu Health page', async (context) => {
   assert.match(page, /fetch\('\/api\/setup-health'\)/);
   assert.match(page, /id="executions-title"/);
   assert.match(page, /fetch\('\/api\/executions'\)/);
+  assert.match(page, /Testar agora/);
+  assert.match(
+    page,
+    /fetch\('\/api\/tasks\/'.*encodeURIComponent\(taskId\).*\/test'/,
+  );
+  assert.match(page, /'Idempotency-Key': key/);
   assert.match(
     page,
     /\/api\/executions\/.*encodeURIComponent\(execution\.id\).*\/events/,

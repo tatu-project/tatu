@@ -56,6 +56,7 @@ export function renderHealthPage(): string {
       const setupHealthList = document.querySelector('#setup-health');
       const setupHealthStatus = document.querySelector('#setup-health-status');
       const setupNext = document.querySelector('#setup-next');
+      const manualKeys = new Map();
 
       function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
       function appendText(parent, tag, value, className) { const child = document.createElement(tag); child.textContent = String(value); if (className) child.className = className; parent.append(child); return child; }
@@ -96,6 +97,21 @@ export function renderHealthPage(): string {
         } catch { setupHealthStatus.textContent = 'Setup health is unavailable.'; setupNext.textContent = ''; }
       }
 
+      async function testTask(taskId, button, status) {
+        const key = manualKeys.get(taskId) ?? crypto.randomUUID();
+        manualKeys.set(taskId, key);
+        button.disabled = true;
+        status.textContent = 'Enfileirando teste…';
+        try {
+          const response = await fetch('/api/tasks/' + encodeURIComponent(taskId) + '/test', {method:'POST', headers:{'Idempotency-Key': key}});
+          const body = await response.json();
+          if (!response.ok || !body || typeof body.id !== 'string') throw new Error('manual-test');
+          status.textContent = 'Teste enfileirado.';
+          await executions();
+        } catch { status.textContent = 'Não foi possível iniciar o teste.'; }
+        finally { button.disabled = false; }
+      }
+
       async function tasks() {
         clear(taskList);
         try {
@@ -103,7 +119,20 @@ export function renderHealthPage(): string {
           if (!response.ok) throw new Error('tasks');
           const items = await response.json();
           if (!Array.isArray(items) || items.length === 0) { appendText(taskList, 'li', 'Nenhuma tarefa confirmada.', 'muted'); return; }
-          items.forEach((task) => appendText(taskList, 'li', task.time + ' — ' + task.quantity + ' notícias sobre ' + task.topic + ' (' + task.timezone + ')'));
+          items.forEach((task) => {
+            const item = document.createElement('li');
+            appendText(item, 'span', task.time + ' — ' + task.quantity + ' notícias sobre ' + task.topic + ' (' + task.timezone + ')');
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.textContent = 'Testar agora';
+            button.setAttribute('aria-label', 'Testar tarefa agora');
+            const status = document.createElement('span');
+            status.className = 'muted';
+            status.setAttribute('aria-live', 'polite');
+            button.onclick = () => testTask(task.id, button, status);
+            item.append(button, status);
+            taskList.append(item);
+          });
         } catch { appendText(taskList, 'li', 'Não foi possível carregar as tarefas.', 'muted'); }
       }
 

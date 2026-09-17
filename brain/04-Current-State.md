@@ -24,6 +24,12 @@ The latest complete `npm run ci` suite passes with 111 tests; this supersedes th
 
 - The local “Test now” flow is implemented through ADR-0021: `POST /api/tasks/:taskId/test` requires a bounded `Idempotency-Key`, hashes it into a distinct manual occurrence, and queues the row plus its `queued` event transactionally through the replaceable persistence port. Repeated task/key requests return one execution without exposing the occurrence key; the existing worker consumes it with the task's topic and quantity. The latest focused verification covers API validation, duplicate behavior, event cardinality, and worker context propagation; the full suite now passes with 111 tests. The 30-day reliability trial still requires the creator to begin and observe a real run.
 
+- The Tasks UI exposes `Testar agora` for each confirmed task. It URL-encodes
+  the task ID, reuses a per-task idempotency key only in browser memory, keeps
+  both the key and occurrence identifier out of the DOM, and refreshes the
+  execution timeline after a successful queue response. The page contract and
+  full suite pass with 111 tests.
+
 Exact progress and next action: [`ROADMAP.md`](../ROADMAP.md).
 
 Session entry: [[07-Session-Log]].

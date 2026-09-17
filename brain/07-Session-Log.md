@@ -233,3 +233,14 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
   public projection, and context propagation. The complete `npm run ci` suite
   passes with 111 tests. This is a local verification control, not the start
   of the separate 30-day reliability trial.
+
+## 2026-09-16 - Manual test control in the Tasks UI
+
+- Added a `Testar agora` button to each confirmed task in the local Tasks UI.
+  It calls the existing manual execution endpoint with an URL-encoded task ID,
+  disables the button while waiting, refreshes the execution timeline after a
+  `202` response, and reports a safe fixed failure message otherwise.
+- The browser keeps one generated idempotency key per task only in memory so a
+  retry is duplicate-safe; neither the key nor the internal occurrence key is
+  rendered or persisted. The page contract and complete `npm run ci` suite pass
+  with 111 tests.

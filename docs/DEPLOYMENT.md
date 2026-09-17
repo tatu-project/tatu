@@ -41,7 +41,8 @@ curl -X POST http://localhost:3000/api/tasks/TASK_ID/test \
 
 The response queues a separate execution for the standby worker. Repeating the
 same task and key is idempotent; the request key is hashed and neither it nor
-the internal occurrence key appears in the public response.
+the internal occurrence key appears in the public response. The Tasks section
+also provides a `Testar agora` button for the same local check.
 
 ## 4. Zero-cost defaults
 

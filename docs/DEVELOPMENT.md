@@ -61,8 +61,10 @@ The endpoint returns `202` with a queued execution. Repeating the same task
 and key returns the same execution instead of creating another row; a different
 key creates a separate manual run. The request key is hashed before persistence,
 and the public response omits both the request key and the internal occurrence
-key. The standby worker consumes the manual execution through the same research,
-retry, delivery, and event pipeline as a scheduled run.
+key. The Tasks section also exposes a `Testar agora` button; its generated key
+stays only in browser memory so repeated clicks in the same page remain
+idempotent. The standby worker consumes the manual execution through the same
+research, retry, delivery, and event pipeline as a scheduled run.
 
 The default source is an operational starting point, not a permanent provider commitment. It can be replaced through `TATU_RSS_FEEDS` without changing the research adapter.
 
