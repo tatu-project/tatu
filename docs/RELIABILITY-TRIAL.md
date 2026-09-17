@@ -1,9 +1,8 @@
 # 30-day reliability trial
 
-This protocol is a creator-run observation plan. It does not claim that the
-trial has started or that a reliability target has been met. The Stage 7
-checklist remains unchecked until the creator records a real 30-calendar-day
-run.
+This protocol is a creator-run observation plan. It does not by itself claim
+that a reliability target has been met. The Stage 7 checklist remains
+unchecked until the creator records and reviews a real 30-calendar-day run.
 
 ## Start checklist
 
