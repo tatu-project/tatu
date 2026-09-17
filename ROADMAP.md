@@ -160,6 +160,11 @@ The Stage 7 redaction acceptance is bounded: credential-shaped secrets are
 rejected or redacted at known validated boundaries, while arbitrary sensitive
 payload and PII detection remains unchecked.
 
+The creator-run trial protocol is documented in
+[`docs/RELIABILITY-TRIAL.md`](docs/RELIABILITY-TRIAL.md). The 30-day checkbox
+remains unchecked until a real 30-calendar-day observation is started,
+completed, and reviewed with public, non-sensitive evidence.
+
 ## Later roadmap
 
 ## Planning horizon

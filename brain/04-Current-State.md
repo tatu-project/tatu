@@ -47,6 +47,11 @@ historical pre-rollback counts; the current suite has 112 tests.
   text nodes. URLs, keys, raw results, inference, and provider payloads are
   omitted.
 
+- The creator-run 30-day trial protocol is documented in
+  [`docs/RELIABILITY-TRIAL.md`](../docs/RELIABILITY-TRIAL.md). No trial days
+  are claimed until the creator starts a real scheduled run and records the
+  required public, non-sensitive evidence.
+
 Exact progress and next action: [`ROADMAP.md`](../ROADMAP.md).
 
 Session entry: [[07-Session-Log]].

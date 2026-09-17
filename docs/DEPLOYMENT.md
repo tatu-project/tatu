@@ -31,6 +31,11 @@ Open `http://localhost:3000`. The page's Setup Health section should show the AP
 
 Use the Chat section to confirm the daily briefing task. The worker polls the same local SQLite file and writes completed briefings to `data/deliveries`. Leave the terminal running for scheduled execution.
 
+For the creator's reliability observation, follow the 30-day checklist in
+[`docs/RELIABILITY-TRIAL.md`](RELIABILITY-TRIAL.md). It records only public
+execution events and delivery outcomes; it does not require copying keys or
+raw provider payloads into notes.
+
 To test a confirmed task without waiting for its scheduled time, call the
 manual execution endpoint with a stable key:
 

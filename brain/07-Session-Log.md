@@ -266,3 +266,11 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
   briefing projection. It accepts at most three title/source pairs, rejects
   malformed, oversized, or control-character values, and renders with DOM text
   nodes without exposing URLs, keys, raw results, inference, or provider data.
+
+## 2026-09-16 - Trial protocol prepared
+
+- Added `docs/RELIABILITY-TRIAL.md` with the creator-run start checklist, daily
+  public-evidence table, restart/recovery guidance, and completion criteria.
+  The protocol explicitly does not start or complete the 30-day trial and keeps
+  occurrence keys, credentials, raw provider responses, and full briefing
+  content out of the evidence log.
