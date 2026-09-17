@@ -52,6 +52,9 @@ historical pre-rollback counts; the current suite has 112 tests.
   are claimed until the creator starts a real scheduled run and records the
   required public, non-sensitive evidence.
 
+- Exact next action: the creator starts the protocol, confirms the scheduled
+  task, and records the first public execution.
+
 Exact progress and next action: [`ROADMAP.md`](../ROADMAP.md).
 
 Session entry: [[07-Session-Log]].

@@ -165,6 +165,10 @@ The creator-run trial protocol is documented in
 remains unchecked until a real 30-calendar-day observation is started,
 completed, and reviewed with public, non-sensitive evidence.
 
+Next action: the creator starts the protocol, creates the scheduled task, and
+records the first public execution; no trial completion is claimed before the
+30-day observation ends.
+
 ## Later roadmap
 
 ## Planning horizon

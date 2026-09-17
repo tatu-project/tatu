@@ -16,6 +16,10 @@ run.
 6. Confirm Setup Health, the task row, and the delivery outbox before the first
    scheduled occurrence.
 
+The published baseline for this checklist is `npm run ci` with 112 passing
+tests. A later change must record its new verified count rather than reusing
+this baseline.
+
 The `Testar agora` control is useful for a local preflight, but it is not a
 scheduled-trial observation and must not be counted as a trial day.
 
