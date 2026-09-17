@@ -259,3 +259,10 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
 - Split the Stage 7 checklist so the verified high-confidence credential-secret
   rejection/redaction boundaries are checked separately from arbitrary sensitive
   payload and PII detection, which remains open and unclaimed.
+
+## 2026-09-16 - Safe briefing preview
+
+- Added a bounded preview in each execution detail using only the public
+  briefing projection. It accepts at most three title/source pairs, rejects
+  malformed, oversized, or control-character values, and renders with DOM text
+  nodes without exposing URLs, keys, raw results, inference, or provider data.

@@ -42,6 +42,11 @@ historical pre-rollback counts; the current suite has 112 tests.
   injection test proves that a failed `queued` event insert rolls back its
   execution row. The page contract and full suite pass with 112 tests.
 
+- The execution details now show a bounded briefing preview from the public
+  projection: at most three validated title/source pairs, rendered with DOM
+  text nodes. URLs, keys, raw results, inference, and provider payloads are
+  omitted.
+
 Exact progress and next action: [`ROADMAP.md`](../ROADMAP.md).
 
 Session entry: [[07-Session-Log]].

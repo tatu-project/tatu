@@ -66,6 +66,10 @@ stays only in browser memory so repeated clicks in the same page remain
 idempotent. The standby worker consumes the manual execution through the same
 research, retry, delivery, and event pipeline as a scheduled run.
 
+Execution details also show a safe preview of up to three validated briefing
+title/source pairs. The page omits URLs, keys, raw results, inference, and
+provider payloads from this preview.
+
 The default source is an operational starting point, not a permanent provider commitment. It can be replaced through `TATU_RSS_FEEDS` without changing the research adapter.
 
 For optional local synthesis, install and run Ollama locally, choose a model, and set only its model name. The endpoint defaults to loopback and remote endpoints are rejected:

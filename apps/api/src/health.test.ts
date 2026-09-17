@@ -104,6 +104,8 @@ test('serves the Tatu Health page', async (context) => {
     /fetch\('\/api\/tasks\/'.*encodeURIComponent\(taskId\).*\/test'/,
   );
   assert.match(page, /'Idempotency-Key': key/);
+  assert.match(page, /safeBriefingPreview/);
+  assert.match(page, /Briefing preview/);
   assert.match(
     page,
     /\/api\/executions\/.*encodeURIComponent\(execution\.id\).*\/events/,
@@ -112,6 +114,8 @@ test('serves the Tatu Health page', async (context) => {
     page,
     /\/api\/executions\/.*encodeURIComponent\(execution\.id\).*\/briefing/,
   );
+  assert.match(page, /function safeBriefingPreview\(value\)/);
+  assert.match(page, /safeBriefingPreview\(briefing\)/);
   assert.match(page, /Estimated cost: unknown/);
   assert.match(page, /Measured latency:/);
 });

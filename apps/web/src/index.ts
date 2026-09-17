@@ -62,7 +62,6 @@ export function renderHealthPage(): string {
       function appendText(parent, tag, value, className) { const child = document.createElement(tag); child.textContent = String(value); if (className) child.className = className; parent.append(child); return child; }
       function safeDate(value) { const date = new Date(value); return Number.isNaN(date.getTime()) ? 'horário indisponível' : date.toLocaleString(); }
       function safeDetail(value) { return typeof value === 'string' ? value.replace(/[\t\r\n]+/g, ' ').slice(0, 160) : ''; }
-
       const setupLabels = {agent: 'Agent online', storage: 'Storage online', 'ai-route': 'AI route available', research: 'Web research available', memory: 'Memory online', scheduler: 'Scheduler online'};
       const setupStates = {healthy: 'ready', configured: 'configured', disabled: 'disabled', unknown: 'unknown', not_implemented: 'not implemented', unavailable: 'unavailable'};
       function safeSetupHealth(value) {
@@ -166,6 +165,22 @@ export function renderHealthPage(): string {
         return value && typeof value === 'object' && value.from === 'local-ollama' && ['model_unavailable', 'model_invalid_output', 'model_timeout'].includes(value.reason) ? value.reason : null;
       }
 
+      function safePreviewText(value, maximum) {
+        if (typeof value !== 'string' || value.length === 0 || value.length > maximum) return null;
+        if ([...value].some((character) => { const code = character.codePointAt(0) ?? 0; return code < 0x20 || code === 0x7f; })) return null;
+        return value;
+      }
+
+      function safeBriefingPreview(value) {
+        if (!value || typeof value !== 'object' || !Array.isArray(value.stories)) return [];
+        return value.stories.slice(0, 3).map((story) => {
+          if (!story || typeof story !== 'object') return null;
+          const title = safePreviewText(story.title, 240);
+          const source = safePreviewText(story.source, 128);
+          return title && source ? {title, source} : null;
+        }).filter(Boolean);
+      }
+
       async function executions() {
         clear(executionList);
         executionStatus.textContent = 'Carregando execuções…';
@@ -206,6 +221,14 @@ export function renderHealthPage(): string {
               }
               const fallback = safeFallback(briefing.fallback);
               if (fallback) appendText(metadata, 'p', 'Fallback: ' + fallback);
+              const preview = safeBriefingPreview(briefing);
+              if (preview.length > 0) {
+                appendText(metadata, 'p', 'Briefing preview');
+                const previewList = document.createElement('ul');
+                previewList.setAttribute('aria-label', 'Briefing preview');
+                preview.forEach((story) => appendText(previewList, 'li', story.title + ' — ' + story.source));
+                metadata.append(previewList);
+              }
               if (metadata.childNodes.length > 0) details.append(metadata);
             } catch { appendText(details, 'p', 'Briefing metadata indisponível.', 'muted'); }
             executionList.append(item);
