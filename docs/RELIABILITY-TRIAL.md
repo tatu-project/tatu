@@ -26,9 +26,10 @@ scheduled-trial observation and must not be counted as a trial day.
 
 For each calendar day, record only public, non-sensitive evidence:
 
-| Date | Execution status | Public event types | Delivery artifact present | Restart/recovery note | Safe failure note |
-| ---- | ---------------- | ------------------ | ------------------------- | --------------------- | ----------------- |
-|      |                  |                    |                           |                       |                   |
+| Date       | Execution status            | Public event types                                                  | Delivery artifact present | Restart/recovery note                                                                                             | Safe failure note                                                                                               |
+| ---------- | --------------------------- | ------------------------------------------------------------------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| 2026-09-17 | failed (`research_failure`) | `queued`, `claimed`, `research_failed`, `retry_scheduled`, `failed` | no                        | The local process had stopped; restart recovery created one occurrence for the missed 08:00 run and no duplicate. | Outbound HTTPS to the configured public feed was unavailable; the occurrence ended safely after three attempts. |
+|            |                             |                                                                     |                           |                                                                                                                   |                                                                                                                 |
 
 Use the execution ID and the public event endpoint for correlation. Do not
 copy occurrence keys, `Idempotency-Key` values, raw provider responses, local

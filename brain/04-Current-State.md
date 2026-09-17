@@ -57,13 +57,17 @@ historical pre-rollback counts; the current suite has 112 tests.
 
 - The trial observation started on September 16, 2026 with a dedicated local
   database/outbox and one confirmed daily task at 08:00 in
-  `America/Sao_Paulo`. Its first scheduled occurrence is pending; no trial
-  completion or reliability target is claimed.
+  `America/Sao_Paulo`. Its first scheduled occurrence was pending at the start
+  record; no trial completion or reliability target is claimed.
 - A single manual preflight was intentionally excluded from the trial count;
   it exercised three research retries, ended in the public `failed` state with
   `research_failed`/`retry_scheduled` events, and created no delivery artifact.
   The configured public feed's host resolved, but outbound HTTPS could not be
   established in this environment; no fixture or alternate feed was used.
+- The first scheduled observation on September 17 recovered one missed 08:00
+  occurrence after a process restart, with no duplicate. It ended after three
+  `research_failed` retries in the public `failed` state and created no delivery
+  artifact because outbound HTTPS remained unavailable.
 
 Exact progress and next action: [`ROADMAP.md`](../ROADMAP.md).
 

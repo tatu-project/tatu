@@ -171,8 +171,8 @@ records the first public execution; no trial completion is claimed before the
 
 Trial start record (September 16, 2026): a dedicated local database and
 delivery outbox were started with one confirmed daily task at 08:00 in
-`America/Sao_Paulo`. The first scheduled occurrence is still pending; the
-30-day checkbox remains unchecked.
+`America/Sao_Paulo`. At the start record, the first scheduled occurrence was
+pending; the 30-day checkbox remains unchecked.
 
 Preflight record (September 16, 2026): one manual preflight was excluded from
 the trial count. It exhausted three research attempts, exposed only the public
@@ -180,6 +180,13 @@ the trial count. It exhausted three research attempts, exposed only the public
 delivery artifact. The configured public feed resolved but outbound HTTPS could
 not be established in this environment; no fixture or alternate feed was used.
 The scheduled-trial observation remains pending.
+
+First scheduled observation (September 17, 2026): restart recovery created one
+execution for the missed 08:00 occurrence with no duplicate. The worker exposed
+`queued`, `claimed`, `research_failed`, `retry_scheduled`, and final `failed`
+states after three attempts; no delivery artifact was created because outbound
+HTTPS to the configured public feed was unavailable. This counts as one public
+trial-day observation and does not claim reliability success.
 
 ## Later roadmap
 

@@ -297,3 +297,15 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
 - This is evidence of the bounded research-failure path, not a reliability
   success claim. The first scheduled occurrence remains pending and the trial
   checklist remains open.
+
+## 2026-09-17 - First scheduled trial observation
+
+- The local process had stopped before the scheduled window. Restarting the
+  same dedicated database and outbox recovered the missed 08:00 occurrence as
+  one execution; no duplicate occurrence was created.
+- The worker recorded `queued`, `claimed`, `research_failed`,
+  `retry_scheduled`, and final `failed` events after three research attempts.
+  No delivery artifact was created because outbound HTTPS to the configured
+  public feed was unavailable in this environment.
+- This is the first public trial-day observation and a safe failure, not a
+  reliability success claim. The 30-day checklist remains open.
