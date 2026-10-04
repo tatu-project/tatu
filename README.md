@@ -2,6 +2,8 @@
 
 > A free and open-source personal AI agent that works for you 24/7.
 
+[Leia em português](README.pt-BR.md).
+
 **Status:** early development. Stages 4, 5, and 6 are complete for their verified local foundations; Stage 7 now has a local filesystem inbox, execution timeline, bounded route/latency observability, API redaction, Setup Health, and bounded URL/text secret boundaries. Provider authentication/OAuth, durable key persistence, multiple live providers, push notifications, and quota-based multi-provider fallback are not implemented yet. Tatu is not ready for production use yet.
 
 Tatu aims to let anyone describe what they want in natural language while the system handles scheduling, research, tools, memory, model selection, free-provider fallback, permissions, and execution traces.
@@ -22,6 +24,13 @@ The first end-to-end goal is intentionally small:
 > Every day at 8 AM, find the three most important AI stories and send them to me.
 
 Tatu must execute this automatically on the following day, use an available free route, cite sources, record a trace, and deliver the result.
+
+Today, Chat prepares a bounded daily-briefing request for confirmation. Delivery
+means a cited Markdown file in the installation's local inbox, not a push
+notification. The default RSS route is deterministic and does not call an AI
+model; local Ollama synthesis is optional. General conversation, editable
+personal memory, installable PWA assets, and MCP/ChatGPT integration remain
+future work. The real 30-day reliability trial is still open.
 
 ## Current status
 
@@ -52,11 +61,15 @@ npm ci
 npm run dev
 ```
 
-Open `http://localhost:3000` for the responsive Tatu Health page, or `http://localhost:3000/api/health` for its JSON contract. Stop the development processes with `Ctrl+C`.
+Open `http://127.0.0.1:3000` for the responsive Tatu Health page, or `http://127.0.0.1:3000/api/health` for its JSON contract. Stop the development processes with `Ctrl+C`.
 
-For the local container reference, run `docker compose config` to validate the graph and `docker compose up --build` to start the API and worker with a shared local data volume. Docker Compose is packaging only; the production database decision remains open.
+For the local container reference, run `docker compose config` to validate the graph and `docker compose up --build` to start the API and worker with a shared local data volume. Docker Compose packages the individual local installation; a remote/shared database remains a future decision.
 
 For the beginner-friendly zero-cost path, follow [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md). It starts the local API and worker with `npm run dev`, verifies Setup Health, and keeps persistence and delivery on the local machine.
+
+For an evidence checklist and draft materials for maintainer-support programs,
+see [`docs/OPEN_SOURCE_SUPPORT.md`](docs/OPEN_SOURCE_SUPPORT.md). These programs
+support development; their approval is not a prerequisite for running Tatu.
 
 Run the full local quality suite with:
 

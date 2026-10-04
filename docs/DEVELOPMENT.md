@@ -33,9 +33,36 @@ npm ci
 npm run dev
 ```
 
-Open `http://localhost:3000` for the responsive Tatu Health page. Its machine-readable health contracts are available at `http://localhost:3000/api/health` and `http://localhost:3000/api/setup-health`; the latter reports bounded setup configuration without secrets or provider probes.
+Open `http://127.0.0.1:3000` for the responsive Tatu Health page. Its
+machine-readable health contracts are available at `/api/health` and
+`/api/setup-health`; the latter reports bounded setup configuration without
+secrets or provider probes. Native startup binds IPv4 loopback by default;
+`TATU_BIND_HOST=::1` explicitly selects IPv6 loopback. The HTTP request boundary
+accepts local authorities only at the actual port, requires matching browser
+Origin, rejects cross-site/same-site Fetch Metadata, and ignores forwarding
+headers. It is not user authentication. See the deployment safety section for
+the container-only wildcard bind.
 
-The repository also includes a local Docker Compose reference. Validate its service graph with `docker compose config`; this check exits 0 for the API, worker, healthcheck, dependency, and shared-volume structure. On the checked workstation, a clean `docker compose build --no-cache` produces both images and `docker compose up -d` starts a healthy API and running worker. `GET /api/health` and `GET /api/setup-health` each returned `200` during the smoke test. The build stage installs only the native compilation tools required by `better-sqlite3`, excludes TypeScript incremental artifacts from the build context, and forces a fresh TypeScript emission; the runtime image remains slim. The Compose volume stores the local SQLite database and filesystem outbox under `/app/data`; it does not configure Supabase, Firebase, a VPS, PostgreSQL, or provider credentials. The optional `TATU_RSS_FEEDS`, `TATU_OLLAMA_MODEL`, and `TATU_OLLAMA_BASE_URL` values are passed through from the host environment when set.
+Ordinary `npm ci` uses `.npmrc` with `ignore-scripts=true`. The current audited
+lockfile supplies SQLite native prebuilds, avoiding external C++/Python build
+tools on supported Windows installations. Unsupported binaries fail visibly
+when loaded; do not silently override the policy to compile dependencies.
+Review future lifecycle-script requirements before changing dependencies or
+enabling install hooks. Git's `.gitattributes` enforces LF for tracked text,
+including Windows checkouts with `core.autocrlf=true`. CI runs the same quality
+suite on Windows and Linux.
+
+The repository also includes a local Docker Compose reference. Validate its
+service graph with `docker compose config`. The September 16, 2026 roadmap
+record documents a clean image build and healthy API/worker startup under the
+previous configuration. On October 3, standalone Compose validates the updated
+loopback mapping; image build/startup has not been repeated because this
+workstation has no Docker engine. Recheck that runtime on a Docker-enabled
+machine before relying on container deployment. The unchanged build stage
+installs native compilation tools, excludes TypeScript incremental artifacts,
+and forces fresh TypeScript emission. The shared volume stores local SQLite
+and the outbox under `/app/data`; no remote service or provider credentials
+are required. Optional RSS/Ollama variables pass through from the host.
 
 The complete guided zero-cost path is documented in [`docs/DEPLOYMENT.md`](DEPLOYMENT.md). It uses the local Node/npm workflow and does not require Docker, Ollama, a hosted provider, or remote infrastructure.
 
@@ -90,7 +117,12 @@ npm run ci
 
 ## Why Docker Desktop
 
-Docker provides a reproducible reference runtime and can allow Tatu to start through containers on different computers and servers. It is not required for the local Node/npm development path. The Compose acceptance item was verified on the checked workstation with Docker Desktop running: a clean build completed, the API became healthy, the worker started, and both health contracts returned `200`. Rerun the same smoke test after changing the image or Compose definition.
+Docker provides optional container packaging. The September 16, 2026 record
+verified the previous configuration with Docker Desktop running. This
+workstation's October 3 verification covers Compose configuration only.
+Rerun image build and API/worker startup on a Docker-enabled machine before
+using the updated container deployment. Docker is not required for the
+verified local Node/npm path.
 
 ## Why GitHub CLI
 

@@ -22,6 +22,20 @@ this baseline.
 The `Testar agora` control is useful for a local preflight, but it is not a
 scheduled-trial observation and must not be counted as a trial day.
 
+## Latest release preflight
+
+On October 3, 2026, a separate temporary installation passed ordinary Windows
+dependency installation and the full 116-test quality suite. Its manual
+preflight used the default public RSS feed, recovered the persisted task and
+queue after API restart, delivered three distinct cited stories/facts in one
+Markdown artifact, and recorded `queued`, `claimed`, `delivered`, `succeeded`.
+Repeating the same manual request key did not create another execution.
+
+The helper processes were stopped afterward. This preflight adds no scheduled
+trial days and does not fill any gap after the September 17 observation.
+Resume observations on a continuously running owner installation and record
+the actual dates; unobserved calendar days do not count.
+
 ## Daily observation
 
 For each calendar day, record only public, non-sensitive evidence:

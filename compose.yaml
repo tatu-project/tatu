@@ -4,6 +4,7 @@ services:
     command: ['node', 'apps/api/dist/index.js']
     environment:
       PORT: '3000'
+      TATU_BIND_HOST: '0.0.0.0'
       TATU_DATABASE_PATH: /app/data/tatu.sqlite
       TATU_DELIVERY_DIR: /app/data/deliveries
       TATU_WORKER_POLL_MS: '10000'
@@ -14,7 +15,7 @@ services:
       TATU_OLLAMA_MODEL:
       TATU_OLLAMA_BASE_URL:
     ports:
-      - '3000:3000'
+      - '127.0.0.1:3000:3000'
     volumes:
       - tatu-data:/app/data
     healthcheck:

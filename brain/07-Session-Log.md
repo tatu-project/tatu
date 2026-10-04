@@ -8,6 +8,22 @@ updated: 2026-09-15
 
 # Session Log
 
+## 2026-10-03 - Local release preparation
+
+- Synchronized 42 remote commits by fast-forward; preserved the four existing
+  user edits under `.codex` and excluded them from publication.
+- Reconciled stale pre-development/decision and trial-start descriptions with
+  accepted ADRs and implemented behavior; kept Stage 7/trial open.
+- Added reviewed lifecycle/LF installation policies, Windows/Linux CI matrix,
+  and local HTTP request/binding boundaries (ADR-0022/0023).
+- Ordinary Windows installation passed; full quality suite passed with 116
+  tests. A separate live manual restart/recovery preflight delivered three
+  cited stories/facts in one artifact; no trial days were added.
+- Official standalone Compose validated loopback publication. Docker image
+  build/startup was not rerun without an engine; no public-release/uptime claim.
+- Added Portuguese onboarding and truthful support-program preparation.
+  Next: real scheduled observations, usable public release, and external feedback.
+
 ## 2026-09-02 — Initial repository foundation
 
 - Added and verified the initial public repository documentation and collaboration files.

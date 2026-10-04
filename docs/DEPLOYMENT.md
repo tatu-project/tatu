@@ -19,6 +19,15 @@ npm run ci
 
 The CI command is the local proof that formatting, linting, type checking, build, and tests pass before starting the service.
 
+The repository's `.npmrc` disables dependency lifecycle scripts. The current
+audited lockfile includes native SQLite prebuilds, so the supported Windows
+installation does not require Python, Visual Studio Build Tools, or a C++
+compiler. A missing or incompatible platform binary must fail visibly when
+storage loads; do not override the policy to silently compile or run install
+hooks. Future dependencies that require lifecycle scripts need a separate
+review. `.gitattributes` keeps tracked text in LF format even with Windows Git
+`core.autocrlf=true`.
+
 ## 3. Start the local service
 
 Run the API and standby worker together:
@@ -27,7 +36,13 @@ Run the API and standby worker together:
 npm run dev
 ```
 
-Open `http://localhost:3000`. The page's Setup Health section should show the API and task storage as ready, the deterministic RSS route as configured, memory as not implemented, scheduler liveness as unknown, and cost as unknown. The machine-readable checks are available at `/api/health` and `/api/setup-health`.
+Open `http://127.0.0.1:3000` (or `http://localhost:3000` if your browser connects
+through IPv4). The API binds only IPv4 loopback by default. For explicit IPv6
+loopback, set `TATU_BIND_HOST=::1` and open `http://[::1]:3000`. `PORT` must be an
+integer from 1 to 65535. The page's Setup Health section should show the API and
+task storage as ready, the deterministic RSS route as configured, memory as not
+implemented, scheduler liveness as unknown, and cost as unknown. The
+machine-readable checks are available at `/api/health` and `/api/setup-health`.
 
 Use the Chat section to confirm the daily briefing task. The worker polls the same local SQLite file and writes completed briefings to `data/deliveries`. Leave the terminal running for scheduled execution.
 
@@ -95,11 +110,33 @@ Stop `npm run dev` before copying these files for a backup. Protect the backup w
 
 Keep the service on a trusted local machine and do not expose port 3000 publicly. Do not commit `.env` files, credentials, database files, or delivery artifacts. The first deployment is single-user/local; production database selection, remote/shared hosting, worker heartbeat, persistent memory, provider authentication, and monetary pricing remain undecided or unimplemented.
 
-The Docker Compose files are a separate local packaging reference. They are not required for this path; their local image build/startup acceptance has been verified, and the stack must be rechecked after changing the Dockerfile or Compose definition.
+Before routing any request, the API requires a `Host` authority of
+`127.0.0.1`, `localhost`, or `[::1]` with the actual listening port. Browser
+requests with an `Origin` must match that exact authority over HTTP; loopback
+aliases are different origins. Cross-site and same-site `Sec-Fetch-Site`
+requests are rejected. Local CLI requests without these browser headers remain
+supported. Forwarding headers cannot override these checks. A denied request
+returns a fixed `403` error. These boundaries reduce browser cross-origin and
+DNS-rebinding exposure; they do not authenticate local programs or users.
+
+The Docker Compose files are an optional local packaging reference. The
+September 16, 2026 roadmap record covers its previous image build/startup
+acceptance. The October 3 update is validated with standalone Compose config;
+image build/startup has not been repeated on this workstation because there
+is no Docker engine. Recheck the updated runtime on a Docker-enabled machine.
+
+Compose explicitly sets `TATU_BIND_HOST=0.0.0.0` inside the container and
+publishes `127.0.0.1:3000:3000` on the host. The wildcard bind is only for that
+container interface; it does not enable an authenticated remote deployment.
+Keep this loopback mapping and do not put the API behind a public tunnel or
+reverse proxy. The container image retains its separate native-build path;
+the repository `.npmrc` policy applies to the ordinary Node/npm installation.
 
 ## 8. Troubleshooting
 
 - Port 3000 is busy: stop the other process or set `PORT` to another local port.
+- Browser receives `403`: use the documented loopback URL and port directly;
+  browser extensions or proxies must not replace the Host/Origin headers.
 - Setup Health reports research disabled: remove `TATU_RSS_FEEDS` or set it to a valid public HTTPS feed list.
 - Setup Health reports scheduler unknown: this is expected until a worker heartbeat contract exists; keep the standby worker process running.
 - No briefing is delivered: inspect the execution timeline and `data/deliveries`; research failures are recorded rather than hidden.

@@ -1,10 +1,10 @@
 # Tatu — Project Source of Truth
 
-> Status: pre-development / architecture and MVP definition
+> Status: early development; local scheduled-briefing foundations implemented, Stage 7 validation open
 > Project name: Tatu (decided)
 > License: MIT (decided)
 > Project start: August 26, 2026
-> Last updated: September 15, 2026
+> Last updated: October 3, 2026
 
 ## 1. Executive summary
 
@@ -21,6 +21,8 @@ The product philosophy is:
 > Free isn't a tier. It's the architecture.
 
 The user describes an outcome in natural language. The system plans the work, selects available models and tools, executes it within explicit permissions, records a trace, and delivers the result.
+
+The implemented first slice accepts a bounded daily-briefing request, persists it in local SQLite, executes it through a durable worker, researches public HTTPS RSS, and delivers cited Markdown to a local filesystem inbox. Local Ollama synthesis is optional; the default deterministic RSS output does not call an AI model. General conversation, product memory, push notifications, installable PWA assets, and MCP/ChatGPT integration are not implemented. The wider capabilities below describe the product direction unless an accepted ADR and verified roadmap outcome say otherwise.
 
 ## 2. Non-negotiable principles
 
@@ -489,11 +491,11 @@ The two project partners will develop primarily through Codex inside VS Code. Wo
 The repository must contain a living execution checklist, initially in `ROADMAP.md`, with stages such as:
 
 ```text
-[ ] Stage 1 — Repository and development environment ready
-[ ] Stage 2 — Application starts locally
-[ ] Stage 3 — User can create a scheduled briefing
-[ ] Stage 4 — Worker executes the task after a restart
-[ ] Stage 5 — Research and cited briefing work end to end
+[x] Stage 1 — Repository and development environment ready
+[x] Stage 2 — Application starts locally
+[x] Stage 3 — User can create a scheduled briefing
+[x] Stage 4 — Worker executes the task after a restart
+[x] Stage 5 — Research and cited briefing work end to end
 [x] Stage 6 — Free routing and fallback work
 [ ] Stage 7 — Delivery, trace, and zero-cost health are visible
 ```
@@ -569,32 +571,27 @@ Coordination rules:
 - More sophisticated workflows and optional multi-agent behavior.
 - Possible hosted convenience product, without weakening the free self-hosted core.
 
-## 27. Immediate technical decisions still required
+## 27. Accepted foundations and remaining decisions
 
-Before implementation, decide and record ADRs for:
+Accepted ADRs and implementation establish:
 
-1. Repository owner/organization and final GitHub handle availability for Tatu.
-2. Primary language and monorepo structure.
-3. Web framework and API framework.
-4. Local-first database and migration strategy.
-5. Scheduler/queue implementation that works without paid infrastructure.
-6. First model/provider adapters and development mock.
-7. Future search expansion beyond the initial RSS route (the first free route is accepted in ADR-0005).
-8. First delivery/notification channel.
-9. Authentication for local and remote deployment.
-10. Secret encryption and key ownership.
-11. Remote/shared deployment target, only when individual local deployment no longer fits the product need.
+- TypeScript npm workspaces with web, native Node HTTP API, worker, and shared packages; Node.js `>=24.11.0 <25` and npm `>=11.6.0 <12` (ADR-0001).
+- The replaceable local SQLite adapter using `better-sqlite3`, with durable occurrences, leases, retries, and restart recovery; no Redis requirement (ADR-0002 and ADR-0003).
+- One individual local/self-hosted installation per user, with optional Docker Compose packaging (ADR-0004 and ADR-0017).
+- Public HTTPS RSS research, optional loopback-only Ollama synthesis, and an explicit deterministic RSS fallback (ADR-0005 through ADR-0012).
+- Local cited Markdown delivery, bounded public execution projections, and Setup Health (ADR-0013 through ADR-0020).
+- Idempotent manual test executions through the existing worker (ADR-0021).
 
-Current recommendation to validate, not yet a final decision:
+Remaining decisions and unverified outcomes include:
 
-- TypeScript end to end.
-- Monorepo with web app, API/worker, and shared packages.
-- Responsive PWA.
-- SQLite as the implemented local adapter for the first single-user/local installation; a PostgreSQL adapter remains conditional on a future remote/shared deployment decision.
-- Durable database-backed jobs without requiring Redis for v0.1.
-- Guided local/self-hosted runtime as the initial reference; Docker Compose remains a later packaging option.
-- Provider, search, delivery, and tool adapters defined as interfaces from day one.
-- Public HTTPS RSS is the accepted first free research route; the initial default is the TechCrunch Artificial Intelligence feed and remains replaceable through configuration.
+1. Completing and reviewing the real 30-day reliability trial; its recorded September 17 occurrence failed safely during a network outage.
+2. A usable in-app briefing reader, installable PWA assets, and explicit editable preference memory.
+3. Provider authentication, durable BYOK key ownership/rotation, and multiple live AI routes.
+4. Authentication and authorization before any remote access, account integration, or shared deployment.
+5. Future search expansion and external push delivery channels.
+6. The bounded scope and acceptance criteria for general conversation, followed by the user-requested MCP/ChatGPT integration.
+
+The local briefing release remains the immediate priority. Open-source support applications use truthful public release, maintenance, and adoption evidence; personal development subscriptions are not an operating dependency of Tatu.
 
 ## 28. First acceptance test
 

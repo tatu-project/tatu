@@ -146,7 +146,9 @@ Outcome: the creator receives briefings automatically and can understand every r
 - [x] Setup Health page visible.
 - [x] Docker Compose reference deployment added when the service boundaries are stable.
 - [x] Guided zero-cost deployment path documented.
-- [ ] Creator begins the 30-day reliability trial.
+- [x] Ordinary Windows installation and full quality checks pass without external C++ build tools.
+- [x] Local HTTP defaults and browser request boundaries enforce the individual deployment scope.
+- [ ] Creator completes and reviews the 30-day reliability trial.
 
 Acceptance test:
 
@@ -162,12 +164,15 @@ payload and PII detection remains unchecked.
 
 The creator-run trial protocol is documented in
 [`docs/RELIABILITY-TRIAL.md`](docs/RELIABILITY-TRIAL.md). The 30-day checkbox
-remains unchecked until a real 30-calendar-day observation is started,
-completed, and reviewed with public, non-sensitive evidence.
+remains unchecked until a real 30-calendar-day observation is completed and
+reviewed with public, non-sensitive evidence. Starting the trial alone does
+not satisfy this item.
 
-Next action: the creator starts the protocol, creates the scheduled task, and
-records the first public execution; no trial completion is claimed before the
-30-day observation ends.
+Next action: resume the observation protocol on the owner's running installation
+and record real scheduled delivery outcomes. Recheck optional container startup
+on a Docker-enabled machine before using that deployment. The September 16 start
+and September 17 failure below do not establish 30 consecutive observed days;
+no trial completion is claimed.
 
 Trial start record (September 16, 2026): a dedicated local database and
 delivery outbox were started with one confirmed daily task at 08:00 in
@@ -187,6 +192,29 @@ execution for the missed 08:00 occurrence with no duplicate. The worker exposed
 states after three attempts; no delivery artifact was created because outbound
 HTTPS to the configured public feed was unavailable. This counts as one public
 trial-day observation and does not claim reliability success.
+
+Local release preparation (October 3, 2026): ADR-0022 records the reviewed
+dependency-lifecycle policy and LF checkout rules; a clean ordinary `npm ci`
+installed all 120 locked packages on Windows x64 with Node.js 24.13.0/npm
+11.6.2, without external C++ tools. The full `npm run ci` passed formatting,
+lint, typecheck, 116 tests, and build. ADR-0023 adds default IPv4 loopback,
+validated explicit container/IPv6 binding, and deterministic Host/Origin/Fetch
+Metadata checks before all routes. Regression tests prove hostile requests
+cannot read or mutate tasks while the valid local flow remains usable.
+
+An isolated live preflight confirmed a task, queued the same manual key twice
+as one execution, restarted the API, then ran the real worker against the
+default public feed. It delivered three distinct cited stories and facts as
+one Markdown artifact, with `queued` -> `claimed` -> `delivered` -> `succeeded`;
+a foreign Origin received `403`. Its processes were stopped after verification.
+This is a manual preflight, adds no trial days, and does not prove 24/7 uptime.
+
+Official standalone Compose 5.6.0 validated the updated configuration and host
+loopback port mapping. No Docker engine is installed here, so image build/startup
+was not rerun; the Dockerfile is unchanged. CI now defines Windows and Linux
+jobs; remote job results must be checked separately. Portuguese onboarding and
+truthful maintainer-support preparation are linked from the README. No public
+release tag, adoption metrics, or program approval is claimed by this change.
 
 ## Later roadmap
 

@@ -13,6 +13,11 @@ import { parseBriefing, type BriefingDraft } from '@tatu/shared';
 import { renderHealthPage } from '@tatu/web';
 import { SqliteTaskStore } from '@tatu/storage';
 import type { TatuStore } from '@tatu/shared';
+import {
+  listenLocally,
+  localListenOptions,
+  permitsLocalRequest,
+} from './local-access.js';
 
 const publicExecution = (
   execution: Awaited<ReturnType<TatuStore['listExecutions']>>[number],
@@ -227,6 +232,10 @@ export function createTatuServer(
   repository: TatuStore = new SqliteTaskStore(databasePath),
 ): Server {
   return createServer((request, response) => {
+    if (!permitsLocalRequest(request)) {
+      json(response, 403, { error: 'Local request denied.' });
+      return;
+    }
     if (request.method === 'GET' && request.url === '/api/health') {
       response.writeHead(200, {
         'content-type': 'application/json; charset=utf-8',
@@ -368,11 +377,15 @@ export function createTatuServer(
 }
 
 function start(): void {
-  const port = Number(process.env.PORT ?? 3000);
+  const { host, port } = localListenOptions();
   const server = createTatuServer();
 
-  server.listen(port, () => {
-    console.log(`Tatu API listening on http://localhost:${port}`);
+  listenLocally(server, process.env, () => {
+    const bindAuthority = host === '::1' ? '[::1]' : host;
+    const authority = host === '::1' ? '[::1]' : '127.0.0.1';
+    console.log(
+      `Tatu API bound to ${bindAuthority}:${port}; local URL: http://${authority}:${port}`,
+    );
   });
 }
 
