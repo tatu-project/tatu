@@ -12,7 +12,16 @@ import type {
   ExecutionRecord,
   TatuStore,
 } from '@tatu/shared';
-import { hasSensitiveUrlQuery, hasTextSecret } from '@tatu/shared';
+import {
+  AssistantError,
+  validBriefingDraft,
+  hasOnlyKeys,
+  hasSensitiveUrlQuery,
+  hasTextSecret,
+  safeAssistantText,
+  type BriefingProposal,
+  type TaskPatch,
+} from '@tatu/shared';
 
 const isBriefingDeliveryReceipt = (
   value: unknown,
@@ -217,8 +226,28 @@ export class SqliteTaskStore implements TatuStore {
     this.database.exec(
       'CREATE TABLE IF NOT EXISTS tasks (id TEXT PRIMARY KEY, cadence TEXT NOT NULL, time TEXT NOT NULL, quantity INTEGER NOT NULL, topic TEXT NOT NULL, delivery_requested INTEGER NOT NULL, timezone TEXT NOT NULL, enabled INTEGER NOT NULL, created_at TEXT NOT NULL); CREATE TABLE IF NOT EXISTS executions (id TEXT PRIMARY KEY, task_id TEXT NOT NULL, occurrence_key TEXT NOT NULL UNIQUE, scheduled_for TEXT NOT NULL, status TEXT NOT NULL, attempt INTEGER NOT NULL, max_attempts INTEGER NOT NULL, available_at TEXT NOT NULL, lease_expires_at TEXT, claimed_by TEXT, result TEXT, failure TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL); CREATE TABLE IF NOT EXISTS execution_events (id TEXT PRIMARY KEY, execution_id TEXT NOT NULL, type TEXT NOT NULL, at TEXT NOT NULL, detail TEXT)',
     );
+    this.database.exec(
+      'CREATE TABLE IF NOT EXISTS task_proposals (id TEXT PRIMARY KEY,draft TEXT NOT NULL,expires_at TEXT NOT NULL,task_id TEXT)',
+    );
+    if (
+      !(
+        this.database.prepare('PRAGMA table_info(task_proposals)').all() as {
+          name: string;
+        }[]
+      ).some((column) => column.name === 'request_key')
+    )
+      this.database.exec(
+        'ALTER TABLE task_proposals ADD COLUMN request_key TEXT',
+      );
+    this.database.exec(
+      'CREATE UNIQUE INDEX IF NOT EXISTS task_proposal_request_key ON task_proposals(request_key)',
+    );
+    this.database.exec(
+      'CREATE TABLE IF NOT EXISTS task_schedule_state (task_id TEXT PRIMARY KEY,active_since TEXT NOT NULL)',
+    );
   }
   create(draft: BriefingDraft): BriefingTask {
+    if (!validBriefingDraft(draft)) throw new AssistantError('invalid_input');
     if (hasTextSecret(draft.topic)) throw new Error('unsafe_text');
     const task: BriefingTask = {
       ...draft,
@@ -231,6 +260,9 @@ export class SqliteTaskStore implements TatuStore {
         'INSERT INTO tasks VALUES (@id,@cadence,@time,@quantity,@topic,@deliveryRequested,@timezone,@enabled,@createdAt)',
       )
       .run({ ...task, deliveryRequested: 1, enabled: 1 });
+    this.database
+      .prepare('INSERT INTO task_schedule_state VALUES (?,?)')
+      .run(task.id, task.createdAt);
     return task;
   }
   list(): BriefingTask[] {
@@ -240,7 +272,219 @@ export class SqliteTaskStore implements TatuStore {
           'SELECT id,cadence,time,quantity,topic,delivery_requested as deliveryRequested,timezone,enabled,created_at as createdAt FROM tasks ORDER BY created_at,id',
         )
         .all() as Array<BriefingTask>
-    ).map((row) => ({ ...row, deliveryRequested: true, enabled: true }));
+    ).map((row) => ({
+      ...row,
+      deliveryRequested: true,
+      enabled: Boolean(row.enabled),
+    }));
+  }
+  update(id: string, patch: TaskPatch): BriefingTask | undefined {
+    if (
+      !hasOnlyKeys(patch, [
+        'time',
+        'timezone',
+        'quantity',
+        'topic',
+        'enabled',
+      ]) ||
+      !Object.keys(patch).length ||
+      ('enabled' in patch && typeof patch.enabled !== 'boolean')
+    )
+      throw new AssistantError('invalid_input');
+    return this.database
+      .transaction(() => {
+        const task = this.list().find((item) => item.id === id);
+        if (!task) return undefined;
+        const changed = { ...task, ...patch };
+        if (
+          !validBriefingDraft({
+            cadence: changed.cadence,
+            time: changed.time,
+            quantity: changed.quantity,
+            topic: changed.topic,
+            deliveryRequested: changed.deliveryRequested,
+            timezone: changed.timezone,
+          })
+        )
+          throw new AssistantError('invalid_input');
+        this.database
+          .prepare(
+            'UPDATE tasks SET time=?,timezone=?,quantity=?,topic=?,enabled=? WHERE id=?',
+          )
+          .run(
+            changed.time,
+            changed.timezone,
+            changed.quantity,
+            changed.topic,
+            changed.enabled ? 1 : 0,
+            id,
+          );
+        const edited = ['time', 'timezone', 'quantity', 'topic'].some(
+          (key) =>
+            key in patch &&
+            patch[key as keyof TaskPatch] !== task[key as keyof BriefingTask],
+        );
+        const stamp = new Date().toISOString();
+        if (edited || (!task.enabled && changed.enabled))
+          this.database
+            .prepare('INSERT OR REPLACE INTO task_schedule_state VALUES (?,?)')
+            .run(id, stamp);
+        if (!changed.enabled || edited) {
+          const pending = this.database
+            .prepare(
+              "SELECT id FROM executions WHERE task_id=? AND status='pending'",
+            )
+            .all(id) as { id: string }[];
+          for (const execution of pending) {
+            const reason = !changed.enabled ? 'task_paused' : 'task_changed';
+            this.database
+              .prepare(
+                "UPDATE executions SET status='skipped',failure=?,updated_at=? WHERE id=? AND status='pending'",
+              )
+              .run(reason, stamp, execution.id);
+            this.database
+              .prepare('INSERT INTO execution_events VALUES (?,?,?,?,?)')
+              .run(
+                crypto.randomUUID(),
+                execution.id,
+                `skipped_${reason}`,
+                stamp,
+                reason,
+              );
+          }
+        }
+        return changed;
+      })
+      .immediate();
+  }
+  propose(
+    draft: BriefingDraft,
+    now = new Date(),
+    requestKey?: string,
+  ): BriefingProposal {
+    if (!validBriefingDraft(draft)) throw new AssistantError('invalid_input');
+    if (
+      requestKey !== undefined &&
+      (!safeAssistantText(requestKey, 128) ||
+        !/^[A-Za-z0-9:_-]+$/u.test(requestKey))
+    )
+      throw new AssistantError('invalid_input');
+    return this.database
+      .transaction(() => {
+        if (requestKey) {
+          const existing = this.database
+            .prepare(
+              'SELECT id,draft,expires_at as expiresAt,task_id as taskId FROM task_proposals WHERE request_key=?',
+            )
+            .get(requestKey) as
+            | {
+                id: string;
+                draft: string;
+                expiresAt: string;
+                taskId: string | null;
+              }
+            | undefined;
+          if (existing) {
+            if (existing.draft !== JSON.stringify(draft))
+              throw new AssistantError('conflict');
+            if (
+              !existing.taskId &&
+              Date.parse(existing.expiresAt) <= now.getTime()
+            )
+              throw new AssistantError('expired');
+            return {
+              id: existing.id,
+              kind: 'create_briefing' as const,
+              draft: { ...draft },
+              expiresAt: existing.expiresAt,
+            };
+          }
+        }
+        const proposal = {
+          id: crypto.randomUUID(),
+          kind: 'create_briefing' as const,
+          draft: { ...draft },
+          expiresAt: new Date(now.getTime() + 15 * 60_000).toISOString(),
+        };
+        this.database
+          .prepare(
+            'INSERT INTO task_proposals (id,draft,expires_at,task_id,request_key) VALUES (?,?,?,NULL,?)',
+          )
+          .run(
+            proposal.id,
+            JSON.stringify(draft),
+            proposal.expiresAt,
+            requestKey ?? null,
+          );
+        return proposal;
+      })
+      .immediate();
+  }
+  proposals(now = new Date()): BriefingProposal[] {
+    this.database
+      .prepare(
+        'DELETE FROM task_proposals WHERE task_id IS NULL AND expires_at<=?',
+      )
+      .run(now.toISOString());
+    const rows = this.database
+      .prepare(
+        'SELECT id,draft,expires_at as expiresAt FROM task_proposals WHERE task_id IS NULL AND expires_at>? ORDER BY rowid DESC LIMIT 100',
+      )
+      .all(now.toISOString()) as {
+      id: string;
+      draft: string;
+      expiresAt: string;
+    }[];
+    return rows.flatMap((row) => {
+      try {
+        const draft: unknown = JSON.parse(row.draft);
+        return validBriefingDraft(draft)
+          ? [
+              {
+                id: row.id,
+                kind: 'create_briefing' as const,
+                draft,
+                expiresAt: row.expiresAt,
+              },
+            ]
+          : [];
+      } catch {
+        return [];
+      }
+    });
+  }
+  confirmProposal(id: string, now = new Date()): BriefingTask | undefined {
+    return this.database
+      .transaction(() => {
+        const row = this.database
+          .prepare(
+            'SELECT draft,expires_at as expiresAt,task_id as taskId FROM task_proposals WHERE id=?',
+          )
+          .get(id) as
+          | { draft: string; expiresAt: string; taskId: string | null }
+          | undefined;
+        if (!row) return undefined;
+        if (row.taskId)
+          return this.list().find((item) => item.id === row.taskId);
+        if (Date.parse(row.expiresAt) <= now.getTime())
+          throw new AssistantError('expired');
+        let draft: unknown;
+        try {
+          draft = JSON.parse(row.draft);
+        } catch {
+          throw new AssistantError('invalid_input');
+        }
+        if (!validBriefingDraft(draft))
+          throw new AssistantError('invalid_input');
+        const task = this.create(draft);
+        this.database
+          .prepare(
+            'UPDATE task_proposals SET task_id=? WHERE id=? AND task_id IS NULL',
+          )
+          .run(task.id, id);
+        return task;
+      })
+      .immediate();
   }
   enqueueManualExecution(
     taskId: string,
@@ -248,38 +492,41 @@ export class SqliteTaskStore implements TatuStore {
     scheduledFor: string,
   ): ExecutionRecord | undefined {
     const now = new Date().toISOString();
-    return this.database.transaction(() => {
-      const task = this.database
-        .prepare('SELECT id FROM tasks WHERE id=?')
-        .get(taskId) as { id: string } | undefined;
-      if (!task) return undefined;
-      const insert = this.database
-        .prepare(
-          "INSERT OR IGNORE INTO executions VALUES (?,?,?,?, 'pending',0,3,?,NULL,NULL,NULL,NULL,?,?)",
-        )
-        .run(
-          crypto.randomUUID(),
-          taskId,
-          occurrenceKey,
-          scheduledFor,
-          now,
-          now,
-          now,
-        );
-      if (insert.changes) {
-        const row = this.database
-          .prepare('SELECT id FROM executions WHERE occurrence_key=?')
-          .get(occurrenceKey) as { id: string };
-        this.database
-          .prepare('INSERT INTO execution_events VALUES (?,?,?,?,?)')
-          .run(crypto.randomUUID(), row.id, 'queued', now, null);
-      }
-      return this.database
-        .prepare(
-          'SELECT id,task_id as taskId,occurrence_key as occurrenceKey,scheduled_for as scheduledFor,status,attempt,max_attempts as maxAttempts,available_at as availableAt,lease_expires_at as leaseExpiresAt,claimed_by as claimedBy,result,failure,created_at as createdAt,updated_at as updatedAt FROM executions WHERE occurrence_key=? AND task_id=?',
-        )
-        .get(occurrenceKey, taskId) as ExecutionRecord | undefined;
-    })();
+    return this.database
+      .transaction(() => {
+        const task = this.database
+          .prepare('SELECT id,enabled FROM tasks WHERE id=?')
+          .get(taskId) as { id: string; enabled: number } | undefined;
+        if (!task) return undefined;
+        if (!task.enabled) throw new AssistantError('conflict');
+        const insert = this.database
+          .prepare(
+            "INSERT OR IGNORE INTO executions VALUES (?,?,?,?, 'pending',0,3,?,NULL,NULL,NULL,NULL,?,?)",
+          )
+          .run(
+            crypto.randomUUID(),
+            taskId,
+            occurrenceKey,
+            scheduledFor,
+            now,
+            now,
+            now,
+          );
+        if (insert.changes) {
+          const row = this.database
+            .prepare('SELECT id FROM executions WHERE occurrence_key=?')
+            .get(occurrenceKey) as { id: string };
+          this.database
+            .prepare('INSERT INTO execution_events VALUES (?,?,?,?,?)')
+            .run(crypto.randomUUID(), row.id, 'queued', now, null);
+        }
+        return this.database
+          .prepare(
+            'SELECT id,task_id as taskId,occurrence_key as occurrenceKey,scheduled_for as scheduledFor,status,attempt,max_attempts as maxAttempts,available_at as availableAt,lease_expires_at as leaseExpiresAt,claimed_by as claimedBy,result,failure,created_at as createdAt,updated_at as updatedAt FROM executions WHERE occurrence_key=? AND task_id=?',
+          )
+          .get(occurrenceKey, taskId) as ExecutionRecord | undefined;
+      })
+      .immediate();
   }
   listExecutions(): ExecutionRecord[] {
     return this.database

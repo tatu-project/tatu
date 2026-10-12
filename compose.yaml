@@ -14,6 +14,8 @@ services:
       TATU_RSS_FEEDS:
       TATU_OLLAMA_MODEL:
       TATU_OLLAMA_BASE_URL:
+      TATU_CHAT_TIMEOUT_MS: '60000'
+      TATU_TIMEZONE: America/Sao_Paulo
     ports:
       - '127.0.0.1:3000:3000'
     volumes:

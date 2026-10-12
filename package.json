@@ -11,23 +11,30 @@
     "packages/*"
   ],
   "scripts": {
+    "start": "npm run build && node scripts/dev.mjs",
+    "smoke": "npm run build && node scripts/smoke.mjs",
+    "mcp": "node scripts/mcp.mjs",
     "dev": "npm run build && node scripts/dev.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",
     "typecheck": "tsc -b --pretty false",
-    "test": "npm run build && node --test packages/*/dist/**/*.test.js apps/*/dist/**/*.test.js",
-    "build": "tsc -b --pretty false",
+    "test": "npm run build && node --test packages/*/dist/**/*.test.js apps/*/dist/**/*.test.js scripts/*.test.mjs",
+    "build": "tsc -b --pretty false && node scripts/build-cloud.mjs",
+    "build:cloud": "npm run build",
+    "export:site": "npm run build && node scripts/build-cloud.mjs --export-site",
     "check": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run build",
     "ci": "npm run check"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
-    "@types/node": "^24.10.1",
     "@types/better-sqlite3": "9.6.0",
+    "@types/node": "^24.10.1",
+    "esbuild": "0.28.2",
     "eslint": "^9.39.1",
     "prettier": "^3.7.4",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.46.4"
+    "typescript-eslint": "^8.46.4",
+    "wrangler": "4.149.0"
   }
 }

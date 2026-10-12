@@ -1,0 +1,9 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "tatu",
+  "version": "0.1.0",
+  "description": "Perfil de desenvolvimento stdio do Tatu: API local opcional. O produto móvel usa o plugin privado autenticado da hospedagem Sites.",
+  "license": "MIT",
+  "repository": "https://github.com/tatu-project/tatu",
+  "keywords": ["tatu", "local-first", "portuguese", "mcp"]
+}

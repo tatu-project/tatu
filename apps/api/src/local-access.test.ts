@@ -69,6 +69,59 @@ test('validates local listen configuration without reflecting config values', ()
   }
 });
 
+test('local session projection initializes the shared UI without claiming a remote identity', async () => {
+  const server = createTatuServer(':memory:');
+  server.listen(0, '127.0.0.1');
+  await once(server, 'listening');
+  const port = portOf(server),
+    host = `127.0.0.1:${port}`;
+  try {
+    const response = await fetch(`http://${host}/api/me`);
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('cache-control'), 'no-store');
+    const me = (await response.json()) as {
+      authenticated: boolean;
+      authMode: string;
+      signinPath: string;
+      signoutPath: string;
+    };
+    assert.deepEqual(me, {
+      authenticated: true,
+      authMode: 'local-individual',
+      signinPath: '/',
+      signoutPath: '/',
+    });
+    assert.equal(me.authenticated === true, true);
+    const deniedHeaders: Record<string, string | string[]>[] = [
+      { Host: `attacker.example:${port}` },
+      { Host: host, Origin: 'https://attacker.example' },
+      { Host: host, Origin: 'null' },
+      { Host: host, 'Sec-Fetch-Site': 'cross-site' },
+    ];
+    for (const headers of deniedHeaders)
+      assert.deepEqual(await send(port, headers, '/api/me'), {
+        status: 403,
+        body: '{"error":"Local request denied."}',
+      });
+    assert.equal(
+      (
+        await send(
+          port,
+          {
+            Host: host,
+            Origin: `http://${host}`,
+            'Sec-Fetch-Site': 'same-origin',
+          },
+          '/api/me',
+        )
+      ).status,
+      200,
+    );
+  } finally {
+    await close(server);
+  }
+});
+
 test('startup binds IPv4 loopback by default and requires explicit container or IPv6 bind', async () => {
   for (const host of ['127.0.0.1', '0.0.0.0', '::1']) {
     const reservation = createServer();

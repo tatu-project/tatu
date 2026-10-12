@@ -3,60 +3,56 @@ title: Current State
 tags:
   - tatu
   - current-state
-updated: 2026-10-03
+updated: 2026-10-12
 ---
 
 # Current State
 
-- Active outcome: finish the local scheduled-briefing release. Stages 1–6 have
-  their recorded bounded acceptance; Stage 7 reliability validation remains open.
-- Stack: TypeScript npm workspaces, Node.js `>=24.11.0 <25`, npm
-  `>=11.6.0 <12`, native Node HTTP, and the replaceable local SQLite adapter
-  using the approved `better-sqlite3` dependency.
-- Implemented workflow: confirm a bounded daily-briefing request, persist the
-  task, execute durable scheduled/manual occurrences with retries and restart
-  recovery, research public HTTPS RSS, and write cited Markdown to a local inbox.
-- The selected default source is TechCrunch's AI RSS feed. Optional Ollama
-  synthesis uses a loopback endpoint; the default RSS output is deterministic
-  and does not call an AI model.
-- The UI exposes tasks, manual testing, execution events, a bounded title/source
-  preview, and Setup Health. Worker liveness and estimated monetary cost are
-  explicitly unknown.
-- General AI conversation, editable product memory, installable PWA assets,
-  push notifications, remote authentication, durable BYOK key management,
-  additional live providers, and MCP/ChatGPT integration are not implemented.
-- The installation is individual/local. Do not expose the unauthenticated API
-  through a remote address, tunnel, reverse proxy, or shared hosting.
-- Accepted technical choices are indexed in
-  [the ADR index](../docs/decisions/README.md). The development brain summarizes
-  those sources; it is not product memory.
+- Private QA beta published: https://tatu-brasil-beta-vitti.craftystar18.chatgpt.site
+  with one owner and no other groups/external access. Native `DB` has 12 applied
+  tables. Positive owner login/CRUD and full assistant acceptance remain open.
+- At this record, public repository publication is pending; the preceding GitHub
+  baseline is `803e1e6`. Private Site source/deployment/version records are in
+  [deployment evidence](../docs/DEPLOYMENT.md#october-12-private-publication-evidence).
+  The founder's four `.codex` edits remain unchanged outside the intended commit.
+- Root final checks: ordinary install of 157 locked packages, Windows Node
+  24.13.0/npm 11.6.2; format/lint/types/186 tests/build passed; production audit
+  has zero known vulnerabilities; final static review has no blocking findings.
+- Fixture SQL/API and ten client tests cover scoped identity/data, encrypted keys,
+  quotas, scheduler/MCP boundaries, and reviewed public cited-text NotebookLM
+  export. Real HTTPS probes confirm negative access guards and empty-queue
+  system readiness, not authenticated CRUD, real AI, or a scheduled task.
+- Mobile/desktop online PWA remains the standard path; no end-user PC/Ollama.
+  Independent Workers/D1/Access/Cron is a second lane not deployed live. Actual
+  native packages/device actions and account integrations remain separate work.
+- No AI binding/Groq key is configured: live chat is unavailable until the owner
+  connects their authorized key in the HTTPS form, never chat. Site scheduling
+  is false; no schedule/new task or LLM call was created by publication probes.
+- Native automations are empty and have no verified code-dispatch bridge/free
+  cadence guarantee. Dispatch trusts the single-owner private platform boundary,
+  not service-only identity; wider sharing requires independent dispatch authority.
+- Native `/mcp` tools are live for this authenticated platform account:
+  `tatu_listar_tarefas` returned `[]`; `tatu_preparar_tarefa` returned an expiring
+  09:00/three-story AI proposal requiring app confirmation. The proposal is
+  transient owner QA data, not a created task. Standalone/manual OAuth, web cookie
+  CRUD and mobile visual QA remain open; no raw direct Worker origin was guessed.
+- Runtime `v1` envelope secret is configured privately; current/previous keyring
+  CAS rotation passes tests. Server-decryptable keys and application-plaintext
+  assistant records are not E2EE; a user-key password vault remains planned.
+- Goal: daily 09:00 São Paulo AI news with NotebookLM Audio Overviews. Current
+  handoff exports cited text for manual NotebookLM import/user audio generation;
+  automatic audio integration is not implemented. Text alone is not the goal.
+- The 30-day gate is removed without rewriting historical failures. Temporary
+  approximately 3.66 GiB Ollama verification was removed after correction; no
+  local service/process or downloaded model assets remain.
 
-## Reliability evidence
+Next action: owner opens the private URL and signs in; verify CRUD, connect their
+Groq key securely, and prove the first real AI turn. Enable the platform browser
+for mobile visual QA. Native MCP read/proposal is already verified; broader
+confirmation/CRUD, actual scheduling and portable deployment remain unchecked.
+The local-session regression fix is included in the verified 186-pass/zero-fail final suite; the cloud bundle matches the published artifact.
 
-The recorded trial started September 16, 2026. Its only recorded daily
-observation, September 17, recovered one missed occurrence without a duplicate
-and failed safely after three research attempts because HTTPS was unavailable.
-No delivery artifact was produced. No later observation or 30-day success is
-established by those records.
-
-On this workstation on October 3, ordinary `npm ci` succeeded on Windows
-x64/Node 24.13.0/npm 11.6.2 without external C++ tools. Full `npm run ci` passed
-formatting, lint, typecheck, 116 tests, and build. ADR-0022 records the reviewed
-lifecycle and LF policies; ADR-0023 records the local HTTP boundary.
-
-An isolated manual live preflight recovered its task/queue after API restart,
-fetched three cited stories from the default feed, and delivered exactly one
-Markdown artifact. A foreign Origin was rejected. All helper processes were
-stopped; no trial days or continuous uptime were added. Standalone Compose
-validated the new host-loopback mapping, but Docker image startup still needs
-a Docker-enabled machine.
-
-Next action: resume scheduled observations on the owner's running installation
-and inspect the optional Docker runtime before using containers. A usable
-public release, outside-user feedback, and support-program eligibility evidence
-remain to be established. General conversation and MCP require later scoped
-acceptance criteria; the local briefing release stays first.
-
-Exact acceptance and next action: [ROADMAP.md](../ROADMAP.md).
-Observation protocol: [docs/RELIABILITY-TRIAL.md](../docs/RELIABILITY-TRIAL.md).
+Authoritative scope/status: [PROJECT.md](../PROJECT.md), [ROADMAP.md](../ROADMAP.md).
+Security: [SECURITY-ARCHITECTURE.md](../docs/SECURITY-ARCHITECTURE.md).
+Release checks: [RELIABILITY-TRIAL.md](../docs/RELIABILITY-TRIAL.md).
 Session history: [[07-Session-Log]].

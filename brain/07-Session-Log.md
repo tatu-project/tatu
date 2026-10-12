@@ -325,3 +325,47 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
   public feed was unavailable in this environment.
 - This is the first public trial-day observation and a safe failure, not a
   reliability success claim. The 30-day checklist remains open.
+
+## 2026-10-12 - Private QA beta published, bounded acceptance
+
+- Root verified clean install, final format/lint/types/185-test/build suite,
+  zero known production vulnerabilities, and final review without blocking
+  findings. The private Sites beta published with owner-only access and applied
+  D1 schema; exact revision/deployment and HTTPS probe evidence are linked from
+  [DEPLOYMENT.md](../docs/DEPLOYMENT.md#october-12-private-publication-evidence).
+- Real negative guards and empty-queue system readiness passed. No provider key,
+  LLM call, user data, new task, or schedule was created. Positive sign-in/CRUD,
+  mobile visual QA, real inference/scheduling, and private MCP calls remain open;
+  no entire online roadmap stage is complete. Main publication is pending at
+  this record, and the four founder `.codex` edits are preserved.
+- Next owner step: private sign-in, secure Groq connection/first turn, enabled
+  browser visual QA, and MCP refresh/Connect. NotebookLM remains the audio goal
+  through current cited-text export/manual import, not automatic Tatu audio.
+
+## 2026-10-12 - Live native MCP read/proposal verified
+
+- Native platform-authenticated Tatu tools became available for this account.
+  `tatu_listar_tarefas` returned `[]`; `tatu_preparar_tarefa` returned an expiring
+  09:00 São Paulo/three-story AI proposal with app confirmation required. This
+  created transient QA owner data, not a confirmed task or schedule. Refresh/
+  Connect is no longer a blocker for those verified native calls.
+- Independent/manual OAuth and web cookies/CRUD/mobile visual QA remain open;
+  no provider key/LLM call or actual scheduled execution exists. Dispatch trusts
+  the single-owner private platform boundary, not proven service-only access;
+  wider sharing requires independent authority. Native scheduling is disabled
+  with no verified bridge or guaranteed free cadence.
+- The dated 185-test result precedes the later local-session regression fix;
+  its fresh final suite and public repository publication remain pending.
+
+## 2026-10-12 - Final local compatibility suite verified
+
+- Root `npm run ci` exited 0 after the Node local-session regression fix:
+  formatting, lint, typecheck, 186 tests passed/zero failed, and build. The
+  173,003-byte Worker/two migrations retain the exact published SHA-256 recorded
+  in [deployment evidence](../docs/DEPLOYMENT.md#october-12-private-publication-evidence);
+  the local fix did not change the cloud deployment. Earlier 185-test entries
+  above are intermediate dated evidence, not the final count.
+- MCP proposals are discoverable in Tarefas through the owner-scoped proposal
+  endpoint, with 15-minute expiry and app confirmation; code/tests prove this,
+  not visual or live confirmation. Repository publication/remote CI and positive
+  web/mobile/AI/scheduling acceptance remain open.

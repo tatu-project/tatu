@@ -1,0 +1,11 @@
+{
+  "name": "@tatu/cloud",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node ../../scripts/build-cloud.mjs",
+    "deploy:portable": "wrangler deploy --config wrangler.jsonc",
+    "migrate:portable": "wrangler d1 migrations apply tatu --remote --config wrangler.jsonc"
+  }
+}

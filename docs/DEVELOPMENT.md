@@ -1,219 +1,115 @@
 # Development setup
 
-## What is required now
+Development commands are for maintainers. The standard end-user path is the
+private authenticated HTTPS app on a phone/desktop browser; no local runtime
+or model is required. See [DEPLOYMENT.md](DEPLOYMENT.md) for managed and independent
+hosting, and [PROJECT.md](../PROJECT.md) for authoritative scope.
 
-- Git.
-- Visual Studio Code.
-- Codex extension for VS Code.
-- A GitHub account with access to the repository.
-- Node.js `>=24.11.0 <25` and npm `>=11.6.0 <12`.
+## Prerequisites and checks
 
-Docker Desktop and GitHub CLI are useful but are not mandatory for adding the initial documentation files.
+Use Git, Node.js `>=24.11.0 <25`, and npm `>=11.6.0 <12`. VS Code/Codex, GitHub
+CLI, and Docker are optional tools for the relevant workflows. On PowerShell,
+use `npm.cmd` if the `.ps1` launcher is blocked.
 
-## Check the current computer
+From the repository root:
 
-Run these commands in the VS Code terminal:
-
-```bash
-git --version
-node --version
-npm --version
-docker --version
-gh --version
+```sh
+npm ci
+npm run ci
+npm run build
 ```
 
-`command not found` means that tool is not installed or not available in the terminal path.
+The final root verification on October 12, 2026 passed formatting, lint,
+TypeScript, 186 tests, and build on Windows Node 24.13.0/npm 11.6.2 after a clean
+ordinary install of 157 locked packages. Production audit reports zero known
+vulnerabilities; final static review has no blocking findings. This proves those
+checks, not full web login/CRUD/mobile/AI/scheduling acceptance. Remote GitHub CI
+remains a separate check after the pending repository publication.
 
-## Local development
+`.npmrc` disables dependency install hooks. The legacy SQLite development/test
+adapter uses audited package prebuilds on supported platforms; do not override
+the lifecycle policy without review. `.gitattributes` retains LF formatting.
+CI checks the repository on Windows and Linux; confirm the candidate's actual
+remote run after publication.
 
-From a clean clone, install the committed dependency set and start the API with its standby worker:
+## Cloud implementation
 
-```bash
-npm ci
+`apps/cloud` is the canonical online backend: a Fetch Worker with `fetch` and
+`scheduled` handlers, owner-scoped D1 storage, remote provider adapters, envelope
+key encryption, quotas, curated feed research, durable tasks/results, and bounded
+authenticated MCP. The cloud bundle has no external native imports; local SQL
+fixture tests do not prove hosted D1, real account sign-in, inference, or Cron.
+
+```sh
+npm run build:cloud
+npm run export:site
+```
+
+Build generates `apps/cloud/dist/server/index.js` and supported metadata for the
+two SQL migrations under `apps/cloud/migrations`. The isolated managed export
+is ignored `tmp/cloudsite`; it is derived from `apps/cloud`, not a second source
+of truth. The verified private QA bundle is 173,003 bytes with zero native/external
+imports; record each later build's actual size rather than treating it as fixed.
+
+Managed project metadata is `apps/cloud/.openai/hosting.json`. Its private QA Site
+is published, and real HTTPS negative guards plus private MCP read/proposal calls
+are verified. Positive web cookie login/CRUD, mobile visual QA, real inference,
+and unattended scheduled execution remain open. Sites native scheduling
+must be connected and tested before `SCHEDULER_ENABLED` changes from false.
+`apps/cloud/wrangler.jsonc` is independent Workers/D1/Access configuration with a
+one-minute Cron; it requires its own account, hostname, Access policy, bindings,
+reviewed scheduler flag, migrations, secrets, and live acceptance.
+
+Remote chat needs an authorized Groq key or an available Workers AI binding.
+Tests may inject fixture providers; label them. Never call a consumer browser
+session an API key, silently enable paid fallback, or download a model to make
+a phone user's cloud setup work. A configured provider is not proven available.
+
+The [security architecture](SECURITY-ARCHITECTURE.md) and
+[ADR-0024](decisions/ADR-0024-mobile-cloud-security-and-agent-boundaries.md) explain
+server-decryptable key envelopes, application-plaintext assistant records,
+provider-visible selected context, and the separate planned private E2EE vault.
+See the [release protocol](RELIABILITY-TRIAL.md) for auth/owner/CSRF/key/quota,
+actual deployed mobile/MCP, and scheduler acceptance.
+
+## Optional legacy local development
+
+```sh
 npm run dev
 ```
 
-Open `http://127.0.0.1:3000` for the responsive Tatu Health page. Its
-machine-readable health contracts are available at `/api/health` and
-`/api/setup-health`; the latter reports bounded setup configuration without
-secrets or provider probes. Native startup binds IPv4 loopback by default;
-`TATU_BIND_HOST=::1` explicitly selects IPv6 loopback. The HTTP request boundary
-accepts local authorities only at the actual port, requires matching browser
-Origin, rejects cross-site/same-site Fetch Metadata, and ignores forwarding
-headers. It is not user authentication. See the deployment safety section for
-the container-only wildcard bind.
+This starts the Node API and worker on `http://127.0.0.1:3000`, with local
+SQLite/outbox configuration from `.env.example`. It remains useful for historical
+self-hosting and regression work, but is not the mobile cloud backend. Keep its
+unauthenticated API on loopback. `npm run smoke` is a local smoke command, not a
+proof of published cloud inference or scheduling. The local stdio MCP helper is
+also distinct from the authenticated hosted `/mcp` route.
 
-Ordinary `npm ci` uses `.npmrc` with `ignore-scripts=true`. The current audited
-lockfile supplies SQLite native prebuilds, avoiding external C++/Python build
-tools on supported Windows installations. Unsupported binaries fail visibly
-when loaded; do not silently override the policy to compile dependencies.
-Review future lifecycle-script requirements before changing dependencies or
-enabling install hooks. Git's `.gitattributes` enforces LF for tracked text,
-including Windows checkouts with `core.autocrlf=true`. CI runs the same quality
-suite on Windows and Linux.
+Docker remains optional. September 16, 2026 verified the previous local image
+build/startup; October 3 covered the updated Compose configuration only. With
+no Docker engine here, a fresh container startup still needs a Docker-enabled
+machine. Do not erase the historical record or call it current cloud proof.
 
-The repository also includes a local Docker Compose reference. Validate its
-service graph with `docker compose config`. The September 16, 2026 roadmap
-record documents a clean image build and healthy API/worker startup under the
-previous configuration. On October 3, standalone Compose validates the updated
-loopback mapping; image build/startup has not been repeated because this
-workstation has no Docker engine. Recheck that runtime on a Docker-enabled
-machine before relying on container deployment. The unchanged build stage
-installs native compilation tools, excludes TypeScript incremental artifacts,
-and forces fresh TypeScript emission. The shared volume stores local SQLite
-and the outbox under `/app/data`; no remote service or provider credentials
-are required. Optional RSS/Ollama variables pass through from the host.
+The legacy local-individual `/api/me` projection has no remote account, session
+or logout; `/` sign-out navigation is only local navigation. Data is local SQLite.
+Shared UI settings retain cloud-oriented wording, so no full local-PWA or online
+D1 acceptance is claimed for this Node developer/API profile. Its local-session boundary regression test passes in the final 186-test suite; no separate visual check passed.
 
-The complete guided zero-cost path is documented in [`docs/DEPLOYMENT.md`](DEPLOYMENT.md). It uses the local Node/npm workflow and does not require Docker, Ollama, a hosted provider, or remote infrastructure.
+## Coordinated development
 
-The current default is one local SQLite file at `data/tatu.sqlite`, configurable through `TATU_DATABASE_PATH`. The approved first deployment is an individual local/self-hosted installation using this adapter. A future PostgreSQL adapter may support a remote/shared deployment only after a new product decision; no Supabase, Firebase, VPS, or remote database is configured now.
+Read `AGENTS.md`, `PROJECT.md`, `ROADMAP.md`, and the current brain before changing
+code. The user selects the orchestrator model; shared project configuration does
+not pin it. Meaningful work uses read-only Recon, bounded Executor, and read-only
+Reviewer, with the orchestrator owning Git, final checks, status, and publication.
+English delegation prompts include scope, constraints, acceptance, evidence, and
+no Git publication. Preserve concurrent/user edits and stage only intended files.
 
-The worker's first research route is credential-free. When `TATU_RSS_FEEDS` is unset, it uses the selected public TechCrunch Artificial Intelligence feed by default. Set one or more public HTTPS RSS feeds to override that source:
+The usual authorized instruction remains **Continue o Tatu**. Follow the Git
+start/end protocols and report the verified commit; do not mark a roadmap stage
+complete from generated code, fixtures, an expected URL, or a deadline. New agent
+configuration may require restarting Codex before discovery can be verified.
 
-```bash
-TATU_RSS_FEEDS=https://example.org/news.xml,https://example.net/feed.xml npm run dev
-```
-
-The route validates article links, removes duplicates, ranks topical stories before recency, and persists only source-backed facts. Set `TATU_RSS_FEEDS=` explicitly to disable research; the occurrence then records a safe `research_failed` event instead of a successful placeholder. A saved result is available at `GET /api/executions/:id/briefing`.
-
-To verify an existing confirmed task immediately, call the local manual-run
-endpoint with a stable request key:
-
-```bash
-curl -X POST http://localhost:3000/api/tasks/TASK_ID/test \
-  -H 'Idempotency-Key: manual-check-1'
-```
-
-The endpoint returns `202` with a queued execution. Repeating the same task
-and key returns the same execution instead of creating another row; a different
-key creates a separate manual run. The request key is hashed before persistence,
-and the public response omits both the request key and the internal occurrence
-key. The Tasks section also exposes a `Testar agora` button; its generated key
-stays only in browser memory so repeated clicks in the same page remain
-idempotent. The standby worker consumes the manual execution through the same
-research, retry, delivery, and event pipeline as a scheduled run.
-
-Execution details also show a safe preview of up to three validated briefing
-title/source pairs. The page omits URLs, keys, raw results, inference, and
-provider payloads from this preview.
-
-The default source is an operational starting point, not a permanent provider commitment. It can be replaced through `TATU_RSS_FEEDS` without changing the research adapter.
-
-For optional local synthesis, install and run Ollama locally, choose a model, and set only its model name. The endpoint defaults to loopback and remote endpoints are rejected:
-
-```bash
-TATU_OLLAMA_MODEL=llama3.2 TATU_OLLAMA_BASE_URL=http://127.0.0.1:11434 npm run dev
-```
-
-The worker sends only the selected cited stories, requests strict JSON, validates every returned citation against those stories, and records `model_failed` on unavailable, timed-out, or invalid output. After research succeeds, those typed model failures use the already validated deterministic RSS result, add sanitized fallback metadata, and emit `fallback_used` before `succeeded`; research errors, cancellation, and unknown exceptions remain failures. If `TATU_OLLAMA_MODEL` is empty, the deterministic source-backed RSS result remains the explicit no-model route. The process-local provider-state store tracks validated health, quota, rate-limit, latency, and failure observations; the capability-only model router selects suitable models; and the quota/provider router selects the first provider-bound candidate with a healthy, non-exhausted snapshot. ADR-0011 adds a local BYOK connection service that encrypts API-key envelopes with AES-256-GCM under an externally supplied 32-byte key, scopes access by owner, and keeps the backing port replaceable. ADR-0013 adds a local filesystem inbox: final briefings are written as deterministic cited Markdown under `TATU_DELIVERY_DIR` (default `data/deliveries`), with hashed occurrence-key filenames and idempotent conflict checks. ADR-0014 adds bounded observability metadata: allowlisted provider/tool names, model identity, monotonic executor latency, typed fallback, and an explicit unknown-cost status until pricing exists. The web page lists executions and renders their persisted event timeline and briefing metadata through the existing execution APIs; fetched values are placed into DOM text nodes, and occurrence keys/raw results are omitted from the visible view. These selectors and local adapters use no real provider authentication, provider calls, durable production persistence, or key management. Multiple eligible live routes, OAuth, worker integration for additional providers, quota-based fallback, push notifications, pricing integration, and additional delivery channels remain future work.
-
-Run the complete local quality suite with:
-
-```bash
-npm run ci
-```
-
-[`ADR-0001`](decisions/ADR-0001-initial-stack.md) records the dependency-free Stage 2 foundation. [`ADR-0002`](decisions/ADR-0002-local-task-persistence.md) supersedes that narrow restriction for Stage 3 and approves `better-sqlite3` as the sole production runtime dependency.
-
-## Why Docker Desktop
-
-Docker provides optional container packaging. The September 16, 2026 record
-verified the previous configuration with Docker Desktop running. This
-workstation's October 3 verification covers Compose configuration only.
-Rerun image build and API/worker startup on a Docker-enabled machine before
-using the updated container deployment. Docker is not required for the
-verified local Node/npm path.
-
-## Why GitHub CLI
-
-GitHub CLI (`gh`) is optional. Git alone can commit and push code, while the GitHub website can create pull requests. `gh` makes authentication, repository inspection, pull-request creation, and automated Codex workflows easier from the terminal.
-
-Codex can execute Git and GitHub CLI commands when the tools are installed, authentication exists, permissions allow it, and the user authorizes repository-changing actions. Codex cannot bypass missing credentials or protected-branch rules.
-
-## One-command Codex workflow
-
-After the initial files are committed, the normal instruction for either founder is simply:
-
-> Continue o Tatu.
-
-The repository `AGENTS.md` instructs Codex to synchronize `main`, read the project state, continue the next eligible roadmap outcome, verify the work, commit, integrate newer remote commits, and push directly to `main`.
-
-For a specific objective, say:
-
-> Continue o Tatu com o próximo objetivo elegível.
-
-The user does not need to type Git commands during normal work. GitHub authentication, Codex execution approval, an ambiguous conflict, or a security-sensitive situation may still require user interaction. Those stops are intentional safety boundaries.
-
-## Orchestrator and custom agents
-
-The primary Codex session acts as the orchestrator. Its model and reasoning effort are selected by the user for each session and are not pinned in repository configuration.
-
-Meaningful implementation work follows this sequence:
-
-1. The orchestrator synchronizes Git and reads `PROJECT.md`, `ROADMAP.md`, and `brain/04-Current-State.md`.
-2. `recon` gathers read-only evidence.
-3. The orchestrator turns that evidence into a bounded plan and acceptance criteria.
-4. `executor` implements only that bounded plan and runs relevant checks without performing Git operations or authoritative status updates.
-5. `reviewer` performs a strict read-only review of the final behavior, diff, verification, security, architecture, and roadmap accuracy.
-6. The orchestrator resolves blocking findings, runs final checks, updates authoritative documentation and the brain, then commits and pushes verified work.
-
-All prompts from the orchestrator to a sub-agent must be written in English. Each prompt must state the objective, scope, relevant paths and context, constraints, expected evidence or deliverable, acceptance criteria, and an explicit prohibition against Git publication. Only the orchestrator communicates with the user.
-
-The custom roles use project-scoped files under `.codex/agents/`. Both founders receive the same definitions after synchronizing Git. The project configuration enables three simultaneous sub-agent threads but does not select the orchestrator model.
-
-### Verify agents after restarting Codex
-
-New custom-agent files may not load into a session that was already running when they were created. After pulling the configuration:
-
-1. Close the current Codex chat or restart the Codex extension/session from the repository root.
-2. Start a new project session.
-3. Ask Codex to list or use the project agents `recon`, `executor`, and `reviewer`.
-4. Confirm each role is discoverable before starting further development.
-5. Record the evidence in `ROADMAP.md` and `brain/04-Current-State.md`.
-
-The standard command remains:
-
-> Continue o Tatu.
-
-Repository-shared workflow files are `.codex/config.toml`, `.codex/agents/*.toml`, `AGENTS.md`, `PROJECT.md`, `ROADMAP.md`, `docs/`, `brain/`, and repository-safe `.vscode/` settings. User-level `~/.codex/config.toml`, credentials, personal settings, caches, logs, and session data stay local.
-
-## Shared workstation configuration
-
-Repository-safe VS Code settings may be committed under `.vscode/`. The `.gitignore` allows `settings.json`, `extensions.json`, `tasks.json`, and `launch.json` while continuing to ignore personal or machine-specific VS Code state.
-
-This keeps useful project behavior aligned without attempting to clone the entire workstation. Credentials, GitHub login, Codex login, personal VS Code preferences, absolute local paths, caches, and secrets must remain local.
-
-The repository pins the Node.js range, npm version, lockfile, formatter, lint rules, TypeScript settings, and repeatable setup commands. Those files—not Docker alone—make both development environments equivalent.
-
-## First documentation commit
-
-After copying the starter files into the repository root:
-
-```bash
-git switch main
-git pull --ff-only
-git status
-git add AGENTS.md ROADMAP.md PROJECT.md README.md CONTRIBUTING.md SECURITY.md CODE_OF_CONDUCT.md LICENSE .gitignore .editorconfig docs
-git commit -m "docs: establish Tatu project foundation"
-git pull --rebase origin main
-git push origin main
-```
-
-The two founding maintainers may use this direct-to-main workflow during early development. External contributors must use branches and pull requests. Founders should also use a branch when they are working simultaneously on overlapping areas or when a change is risky.
-
-Before pushing, ask Codex:
-
-```bash
-> Read AGENTS.md, PROJECT.md and ROADMAP.md. Review the current changes, verify the documentation foundation, and report any blocking issue before committing or pushing.
-```
-
-## After the first push
-
-Both partners update their local `main`:
-
-```bash
-git switch main
-git pull --ff-only
-```
-
-Stage 5 is complete for the deterministic cited-briefing acceptance: the default TechCrunch Artificial Intelligence feed produced three distinct cited stories in a temporary scheduled run, the result persisted, and the trace was `queued -> claimed -> succeeded`. Stage 6 now has shared model capability metadata, a process-local provider-state foundation, a capability-only model router, a quota/provider eligibility selector, the existing local-Ollama plus deterministic-RSS development route pair, typed automatic fallback after model failure, and the local BYOK encrypted-storage foundation from ADR-0011. Stage 7 adds a local filesystem inbox through ADR-0013, a visible execution timeline, bounded route/tool/latency metadata through ADR-0014, the API-only deep redaction projection from ADR-0015, bounded URL/event/log secret boundaries through ADR-0019, bounded high-confidence text-secret validation through ADR-0020 (including provider/model router IDs and provider-state observations), explicit unknown-key allowlists at model/worker/delivery-receipt/file-delivery boundaries, safe allowlisted projection from SQLite, and the bounded Setup Health page/contract from ADR-0016. Multiple live providers, provider authentication/OAuth, durable key management, quota-based multi-provider fallback, push notifications, pricing integration, complete network-payload and arbitrary-text/PII redaction, worker heartbeat, persistent memory, and additional worker route integration remain future work. The live run is an operational smoke check, not a network test required in CI.
+Keep credentials, `.env`/runtime-secret files, databases, artifacts, caches, model
+assets, private logs, and personal workstation configuration outside Git. Shared
+repository documents/configuration describe reproducible behavior; private
+account access, sign-in, and provider credentials remain owner-controlled.

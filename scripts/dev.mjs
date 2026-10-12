@@ -1,25 +1,17 @@
-import { spawn } from 'node:child_process';
 import process from 'node:process';
+import console from 'node:console';
+import { loadEnvironment, supervise } from './runtime.mjs';
 
-const processes = [
-  spawn(process.execPath, ['apps/api/dist/index.js'], { stdio: 'inherit' }),
-  spawn(process.execPath, ['apps/worker/dist/index.js'], { stdio: 'inherit' }),
-];
-
-const stop = (exitCode = 0) => {
-  for (const child of processes) {
-    child.kill('SIGTERM');
-  }
-  process.exit(exitCode);
-};
-
-process.on('SIGINT', () => stop());
-process.on('SIGTERM', () => stop());
-
-for (const child of processes) {
-  child.on('exit', (code) => {
-    if (code !== 0) {
-      stop(code ?? 1);
-    }
-  });
-}
+loadEnvironment();
+const runtime = supervise(
+  [['apps/api/dist/index.js'], ['apps/worker/dist/index.js']],
+  {
+    onEvent: () =>
+      console.error(
+        'Local process stopped; retrying within the bounded restart policy.',
+      ),
+  },
+);
+process.on('SIGINT', () => void runtime.stop());
+process.on('SIGTERM', () => void runtime.stop());
+process.exitCode = await runtime.done;

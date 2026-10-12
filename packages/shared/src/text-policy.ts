@@ -11,9 +11,9 @@ const jwtRedact =
 const userinfo = /\bhttps?:\/\/[^\s/@:]+:[^\s/@]+@[^\s]+/iu;
 const userinfoRedact = /\bhttps?:\/\/[^\s/@:]+:[^\s/@]+@[^\s]+/giu;
 const knownPrefix =
-  /\b(?:sk|pk|ghp|github_pat|xox[baprs]-|ya29|AIza)[A-Za-z0-9_-]{8,}\b/iu;
+  /\b(?:gsk_|sk|pk|ghp|github_pat|xox[baprs]-|ya29|AIza)[A-Za-z0-9_-]{8,}\b/iu;
 const knownPrefixRedact =
-  /\b(?:sk|pk|ghp|github_pat|xox[baprs]-|ya29|AIza)[A-Za-z0-9_-]{8,}\b/giu;
+  /\b(?:gsk_|sk|pk|ghp|github_pat|xox[baprs]-|ya29|AIza)[A-Za-z0-9_-]{8,}\b/giu;
 
 export const hasTextSecret = (value: unknown): value is string =>
   typeof value === 'string' &&

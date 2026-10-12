@@ -1,88 +1,94 @@
 # Tatu
 
-> A free and open-source personal AI agent that works for you 24/7.
+A Brazilian, MIT-licensed personal assistant with an online backend and an
+installable mobile/desktop web app. [Leia em português](README.pt-BR.md).
 
-[Leia em português](README.pt-BR.md).
+**Status:** [private QA beta published](https://tatu-brasil-beta-vitti.craftystar18.chatgpt.site).
+The final local suite passed 186 tests and real HTTPS probes verified negative
+access guards. Authenticated native MCP read/proposal works for the checked
+account; web owner sign-in/CRUD, real AI, mobile visual QA and scheduling remain
+open. Repository publication is
+pending at this October 12 evidence snapshot; `803e1e6` is the preceding public
+baseline. No mandatory 30-day wait remains. [ROADMAP.md](ROADMAP.md) records proof.
 
-**Status:** early development. Stages 4, 5, and 6 are complete for their verified local foundations; Stage 7 now has a local filesystem inbox, execution timeline, bounded route/latency observability, API redaction, Setup Health, and bounded URL/text secret boundaries. Provider authentication/OAuth, durable key persistence, multiple live providers, push notifications, and quota-based multi-provider fallback are not implemented yet. Tatu is not ready for production use yet.
+## Use the private beta
 
-Tatu aims to let anyone describe what they want in natural language while the system handles scheduling, research, tools, memory, model selection, free-provider fallback, permissions, and execution traces.
+Open the private link and sign in with its owner account; access is owner-only.
+The positive sign-in flow still needs a browser verification. Use the app from a phone or desktop
+browser; PWA installation is optional. No PC left running, Ollama, model download,
+Node.js, or terminal is required for the online user path.
 
-## Principles
+The candidate provides conversations, selected preference memory/notes, daily
+AI-news tasks, pause/edit/resume, execution history, a cited briefing reader,
+provider connections, and bounded authenticated MCP. These are implemented
+surfaces with fixture/client test evidence; the full authenticated deployed flow
+is still open. No competitor-parity claim is made.
 
-- Free isn't a tier. It's the architecture.
-- R$0 is the standard path for the creator and user whenever technically possible.
-- Simple for nontechnical users; powerful for developers.
-- Provider-agnostic, self-hostable, and open source.
-- Optional BYOK and premium models, never required for the base experience.
-- Safe autonomy through deterministic permissions and risk-based confirmation.
+No Workers AI binding or Groq credential is configured, so general AI chat is
+currently unavailable. After sign-in, connect your own authorized Groq key through
+the HTTPS connection form, never chat, and verify the first real turn. Missing
+routes, provider limits, and internet failures are shown rather than replaced
+with fabricated replies.
 
-## First useful version
+The founder request is AI news at **09:00, America/Sao_Paulo**. Research currently
+uses curated public AI feeds, supports 1–10 stories, and produces cited RSS
+excerpts rather than claiming AI-written facts. Results are delivered in-app.
+Managed Sites scheduling remains disabled until its native dispatch bridge is
+connected and verified; the portable one-minute Cron configuration has separate
+acceptance. A live empty-queue dispatcher readiness test passed, but no schedule
+or new user task was created. This does not prove unattended task execution.
 
-The first end-to-end goal is intentionally small:
+NotebookLM **Audio Overviews** are the confirmed target. Tatu currently exports
+cited text for manual import into [NotebookLM](https://notebooklm.google.com/),
+where you generate the audio. Automatic Tatu audio API integration is not
+implemented; consumer access is not an API grant. Text delivery alone does not
+complete the audio goal.
 
-> Every day at 8 AM, find the three most important AI stories and send them to me.
+## Data, allowances, and limits
 
-Tatu must execute this automatically on the following day, use an available free route, cite sources, record a trace, and deliver the result.
+- Authenticated owner-scoped D1 stores conversations, preferences, notes, tasks,
+  and results. Up to 500 terminal executions per owner are retained; pending and
+  running executions are preserved.
+- Operational Groq keys use server-decryptable encryption, **not E2EE**. Assistant
+  text is plaintext at the application layer; selected context goes to the
+  authorized provider. Provider copies are not erased by deleting Tatu records.
+- Current per-owner AI caps: 8 requests/minute, 30/day for sponsored routes or
+  100/day for BYOK, 4,096 context bytes, 1,024 output tokens, and 2 concurrent
+  requests. Shared/provider limits may be lower and external quota is unknown.
+- API caps are 240 reads and 60 mutations per minute per owner. Free hosting,
+  account eligibility, unlimited inference, and continuous uptime are not
+  guaranteed. There is no automatic paid fallback.
 
-Today, Chat prepares a bounded daily-briefing request for confirmation. Delivery
-means a cited Markdown file in the installation's local inbox, not a push
-notification. The default RSS route is deterministic and does not call an AI
-model; local Ollama synthesis is optional. General conversation, editable
-personal memory, installable PWA assets, and MCP/ChatGPT integration remain
-future work. The real 30-day reliability trial is still open.
+See [security architecture](docs/SECURITY-ARCHITECTURE.md) and
+[deployment/operations](docs/DEPLOYMENT.md). Native mobile/desktop packages,
+physical device actions, connected-account automation, a client-held password
+vault, and automatic NotebookLM/audio adapters remain separately verified work.
 
-## Current status
+Native private MCP is connected for the checked platform account: task listing
+returned `[]`, and task preparation returned an expiring 09:00/three-story AI
+proposal requiring app confirmation. It created no task or schedule. Independent
+manual OAuth setup and browser cookie login are separate unverified flows.
 
-Stages 4 and 5 are complete for the deterministic cited-briefing acceptance, and Stage 7 now exposes persisted execution events, bounded provider/model/tool/latency metadata, API redaction, bounded URL/event/log/text secret boundaries, and a secret-free Setup Health view. Estimated cost is explicitly shown as unknown because no pricing source exists. The worker fetches public HTTPS RSS feeds; when `TATU_RSS_FEEDS` is unset, it uses TechCrunch's public Artificial Intelligence feed, while `TATU_RSS_FEEDS=` explicitly disables research safely. Briefings can optionally be synthesized through a local Ollama-compatible endpoint configured with `TATU_OLLAMA_MODEL`. The first deployment is one local/self-hosted installation per user using the SQLite v0.1 adapter; any remote/shared database decision remains future work. See:
+## Develop or host independently
 
-- [`PROJECT.md`](PROJECT.md) for the product source of truth.
-- [`ROADMAP.md`](ROADMAP.md) for stages and current progress.
-- [`AGENTS.md`](AGENTS.md) for Codex working agreements.
-- [`brain/`](brain/README.md) for the Obsidian-compatible project brain and compact current context.
-- [`CONTRIBUTING.md`](CONTRIBUTING.md) for contribution workflow.
-
-## Planned MVP surfaces
-
-- Chat
-- Tasks
-- Executions
-- Setup Health
-- Responsive PWA
-
-## Development
-
-Requirements: Node.js `>=24.11.0 <25` and npm `>=11.6.0 <12`.
-
-From a clean clone, install and start both the API and standby worker with:
+Maintainers use Node.js `>=24.11.0 <25` and npm `>=11.6.0 <12`:
 
 ```sh
 npm ci
-npm run dev
-```
-
-Open `http://127.0.0.1:3000` for the responsive Tatu Health page, or `http://127.0.0.1:3000/api/health` for its JSON contract. Stop the development processes with `Ctrl+C`.
-
-For the local container reference, run `docker compose config` to validate the graph and `docker compose up --build` to start the API and worker with a shared local data volume. Docker Compose packages the individual local installation; a remote/shared database remains a future decision.
-
-For the beginner-friendly zero-cost path, follow [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md). It starts the local API and worker with `npm run dev`, verifies Setup Health, and keeps persistence and delivery on the local machine.
-
-For an evidence checklist and draft materials for maintainer-support programs,
-see [`docs/OPEN_SOURCE_SUPPORT.md`](docs/OPEN_SOURCE_SUPPORT.md). These programs
-support development; their approval is not a prerequisite for running Tatu.
-
-Run the full local quality suite with:
-
-```sh
 npm run ci
+npm run build
 ```
 
-[`ADR-0001`](docs/decisions/ADR-0001-initial-stack.md) records the dependency-free Stage 2 foundation. [`ADR-0002`](docs/decisions/ADR-0002-local-task-persistence.md) supersedes that narrow runtime restriction for Stage 3 and approves `better-sqlite3` as the sole production runtime dependency.
+These are developer checks, not online-user onboarding. The cloud Worker lives
+in `apps/cloud`; [DEVELOPMENT.md](docs/DEVELOPMENT.md) explains builds/tests and
+[DEPLOYMENT.md](docs/DEPLOYMENT.md) separates private Sites from independent
+Workers/D1/Access deployment. Legacy Node/SQLite self-hosting remains optional
+and must not expose its unauthenticated API publicly.
 
-## Security
+[PROJECT.md](PROJECT.md) defines scope, [AGENTS.md](AGENTS.md) defines the agent
+workflow, and [CONTRIBUTING.md](CONTRIBUTING.md) explains contributions.
+[Maintainer-support preparation](docs/OPEN_SOURCE_SUPPORT.md) is independent of
+hosting and end-user inference; no application approval or adoption is claimed.
 
-Do not report vulnerabilities through public issues. Follow [`SECURITY.md`](SECURITY.md).
-
-## License
-
-MIT — see [`LICENSE`](LICENSE).
+MIT: [LICENSE](LICENSE). Providers, models, and dependencies retain their own
+terms. Report vulnerabilities using [SECURITY.md](SECURITY.md).

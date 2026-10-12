@@ -6,6 +6,7 @@ Use sequential files named `NNNN-short-title.md`, beginning with `0001`. Each re
 
 ## Accepted records
 
+- [ADR-0024: Mobile cloud security and agent boundaries](ADR-0024-mobile-cloud-security-and-agent-boundaries.md) - accepted October 12, 2026; server operational encryption, separate planned client-key vault, typed owner actions, and independently verified native/audio boundaries.
 - [ADR-0023: Local HTTP boundary](ADR-0023-local-http-boundary.md) - accepted October 3, 2026; loopback defaults and deterministic browser request checks.
 - [ADR-0022: Reproducible local installation](ADR-0022-reproducible-local-installation.md) - accepted October 3, 2026; bundled SQLite binaries, reviewed lifecycle policy, and portable LF formatting.
 - [ADR-0021: Manual test execution](ADR-0021-manual-test-execution.md) - accepted September 16, 2026; repeated requests are idempotent by a hashed manual occurrence key.

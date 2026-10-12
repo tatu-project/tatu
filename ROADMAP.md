@@ -1,8 +1,22 @@
 # Tatu Roadmap
 
-> Current status: Stages 4, 5, and 6 are complete; Stage 7 has local delivery, timeline, bounded observability, API redaction, Setup Health, and bounded URL/text secret-boundary foundations.
+> Current status: private QA beta published; dated 186-test suite, fixture implementation, live negative guards and authenticated native MCP read/proposal verified. Positive web owner login/CRUD, inference, scheduling, mobile visual QA and independent/manual OAuth remain open. Public repository publication is pending at this October 12 record; its preceding baseline is `803e1e6`.
 > Rule: check an item only after its acceptance criterion has been verified.
 > Compact session context: [`brain/04-Current-State.md`](brain/04-Current-State.md).
+
+## Active release plan — October 12–18, 2026
+
+The user removed the 30-day pilot and explicitly corrected the goal to a mobile-first online assistant: no end-user PC, Ollama, model download, or local runtime. The target week uses `America/Sao_Paulo` and is a goal, not a completion claim. Bounded implementation/fixture checks and private QA publication are now evidenced below; no whole online stage is complete. Historical local evidence is not proof of positive cloud assistant operation.
+
+1. **Stage 7:** cloud identity and owner-scoped D1 storage; private Sites beta and independent Workers/D1/Access configuration.
+2. **Stage 8:** legitimate remote AI, durable encrypted optional Groq keys, strict global/per-user caps, and honest unavailable/manual-redirect states.
+3. **Stage 9:** responsive Portuguese mobile workspace, saved conversations, explicit memory, notes/pages, task controls, and full cited reader.
+4. **Stage 10:** hosted Cron, durable scheduled execution, cited in-app delivery, and observable retry/duplicate behavior.
+5. **Stage 11:** authenticated remote MCP/private package and reproducible deployed-URL/mobile/CI verification.
+
+Latest accepted direction: website plus installable mobile/desktop PWA first, actual native packages later against the same online backend; future authorized owner actions; daily 09:00 `America/Sao_Paulo` AI news with the user-confirmed NotebookLM Audio Overviews target; operational key encryption plus a separately verified client-held-key private vault. The current implemented handoff exports cited text for manual NotebookLM import, where the user generates audio. Automatic Tatu audio integration is not implemented and requires separate authorized acceptance; text-only delivery does not complete the audio goal. [ADR-0024](docs/decisions/ADR-0024-mobile-cloud-security-and-agent-boundaries.md) and [the security architecture](docs/SECURITY-ARCHITECTURE.md) define the approved boundaries; verified items and remaining gaps are recorded below.
+
+Implementation may proceed in independent bounded packages. Publication requires the relevant checks in [`docs/RELIABILITY-TRIAL.md`](docs/RELIABILITY-TRIAL.md); missing credentials or scheduling capabilities remain explicit gaps rather than fixture/live-success claims. Free account eligibility, hosting, inference, and unlimited capacity are not guaranteed. Product scope is authoritative in [`PROJECT.md`, section 25](PROJECT.md#25-mvp-the-first-useful-vertical-slice).
 
 ## Stage 1 — Repository and collaboration foundation
 
@@ -134,57 +148,56 @@ Acceptance test:
 
 Verification note (September 15, 2026): `@tatu/shared` defines readonly `BriefingModelMetadata`, `BriefingModelRequest`, `ModelRouter`, `ProviderRouteCandidate`, `QuotaProviderRouter`, `ByokConnectionManager`, encrypted-record backing contracts, typed fallback metadata, and the `fallback_used` execution event. `OllamaBriefingModel` exposes frozen metadata for its configured model ID, `CapabilityModelRouter` selects the first candidate satisfying every requested capability, and `QuotaProviderRouter` selects the first provider-bound candidate whose model is suitable and whose observed provider state is healthy with nonzero-or-unknown quota and rate limits. The worker proves the first real `local-ollama` model route, the explicit `deterministic-rss` route when no model is configured, and automatic fallback to the already validated RSS result for typed model failures without repeating research; the scheduler persists the fallback and records `queued` -> `claimed` -> `fallback_used` -> `succeeded` in one transaction. ADR-0010 records the development route pair, ADR-0011 records the local BYOK foundation, and ADR-0012 records the bounded automatic fallback. The full `npm run ci` suite passed with 62 tests, including API briefing/event coverage, fallback reason coverage, cancellation and error propagation, and persisted fallback trace coverage. Provider authentication/OAuth, key management and rotation, durable production persistence, worker integration for additional providers, multiple live providers, and quota-based multi-provider fallback remain unchecked.
 
-## Stage 7 — Delivery, observability, and 30-day trial
+## Local delivery and observability — historical pre-cloud evidence
 
-Outcome: the creator receives briefings automatically and can understand every run.
+These records describe the historical Node/SQLite/RSS self-hosted path and its bounded checks. They are preserved for the optional legacy deployment and do not establish cloud identity, D1, remote AI, hosted Cron, or remote MCP.
 
 - [x] One free delivery channel implemented as a local filesystem inbox.
 - [x] Execution timeline visible.
 - [x] Provider, model, tools, latency, fallback, and estimated cost visible.
 - [x] Credential-shaped secrets rejected or redacted at bounded validated boundaries.
-- [ ] Arbitrary sensitive payloads and PII redacted across future inputs.
 - [x] Setup Health page visible.
 - [x] Docker Compose reference deployment added when the service boundaries are stable.
 - [x] Guided zero-cost deployment path documented.
 - [x] Ordinary Windows installation and full quality checks pass without external C++ build tools.
 - [x] Local HTTP defaults and browser request boundaries enforce the individual deployment scope.
-- [ ] Creator completes and reviews the 30-day reliability trial.
 
-Acceptance test:
+Historical local acceptance target:
 
-- Tatu delivers the briefing automatically on the following day and exposes a complete, safe trace.
+- A real scheduled occurrence delivers a real-source cited briefing without a manual trigger and exposes a complete, safe trace.
+- Restart, repeated occurrence/request, transient failure, retry, and offline recovery checks preserve one intended delivery and show fixed public failure categories.
+- The existing deterministic RSS briefing fallback is distinct from model inference.
 
 Verification note (September 16, 2026): ADR-0013 defines the replaceable `BriefingDelivery` port and typed receipt; `FileBriefingDelivery` writes deterministic cited Markdown under `data/deliveries` by default or `TATU_DELIVERY_DIR` when overridden. The occurrence idempotency key is SHA-256 hashed into the artifact name, repeated identical deliveries are idempotent, conflicting content is rejected, aborted writes create no artifact, credential-bearing cited URLs are rejected, artifact probes require a valid hash filename, and the body contains no raw key or provider payload. The worker delivers after the final model/fallback result, validates the adapter receipt before serializing it, and the scheduler validates and persists the receipt while recording `delivered` before `succeeded`; delivery failures remain retryable and record `delivery_failed`. The Tatu page lists persisted executions and renders their ordered events through the existing execution APIs, using DOM text nodes for fetched values and omitting occurrence keys and raw results from the visible timeline. ADR-0014 adds a bounded `BriefingObservability` summary: allowlisted provider/tool identifiers, optional model ID, monotonic executor latency capped at one day, typed fallback metadata, and explicit `estimatedCost.status = unknown` until a pricing source exists. ADR-0015 adds an API-only public projection: execution listings omit occurrence keys, raw results, and worker claims; events expose only type/timestamp; briefing payloads deep-project approved fields and omit delivery idempotency keys; SQLite rejects cited URL userinfo credentials. ADR-0016 adds the visible Setup Health page and `/api/setup-health` contract: API/storage/configuration facts are shown without secrets, while memory, worker liveness, and cost remain explicit not-implemented/unknown states; no provider network probe is claimed. ADR-0017 adds a local/self-hosted Dockerfile and Compose reference with separate API/worker services, a shared data volume, and an API healthcheck. `docker compose config` exits 0, a clean `docker compose build --no-cache` produces both `tatu-api` and `tatu-worker` images, and `docker compose up -d` starts a healthy API plus running worker; `/api/health` and `/api/setup-health` each return `200`. The build stage installs only the native compilation tools required by `better-sqlite3`, excludes TypeScript incremental artifacts from the build context, and forces a fresh TypeScript emission; the runtime image remains slim. ADR-0018 adds `docs/DEPLOYMENT.md`, the verified zero-cost local/self-hosted path using `npm ci`, `npm run ci`, `npm run dev`, Setup Health, local SQLite, and the default credential-free RSS route; it explicitly keeps Docker optional and remote infrastructure out of scope. ADR-0019 adds one shared tested policy for credential-bearing URL queries across RSS, SQLite, file delivery, and the loopback model endpoint, fixed scheduler event detail codes, and fixed worker poll diagnostics; ordinary feed query parameters remain allowed. ADR-0020 adds a shared high-confidence text-secret policy across parser, research, model and provider routers, provider-state observations, worker, persistence, delivery, and the API projection; strict allowlists reject unknown model, worker, delivery-receipt, and file-delivery payload keys, while the local SQLite adapter validates known fields and projects only approved keys from persisted JSON. Recognized credential-shaped IDs and observations are rejected before routing or process-local storage and recognized values are redacted defensively at the public projection; arbitrary PII detection is not claimed. This remains local-first; arbitrary sensitive text/PII, unrestricted future network payloads and adapters, provider-specific pricing, external push channels, and the 30-day trial remain unchecked.
 
-The full `npm run ci` suite passes with 112 tests.
+The September 16 historical `npm run ci` suite passed with 112 tests; later evidence records its own verified count.
 
-The Stage 7 redaction acceptance is bounded: credential-shaped secrets are
+The historical redaction acceptance is bounded: credential-shaped secrets are
 rejected or redacted at known validated boundaries, while arbitrary sensitive
 payload and PII detection remains unchecked.
 
-The creator-run trial protocol is documented in
-[`docs/RELIABILITY-TRIAL.md`](docs/RELIABILITY-TRIAL.md). The 30-day checkbox
-remains unchecked until a real 30-calendar-day observation is completed and
-reviewed with public, non-sensitive evidence. Starting the trial alone does
-not satisfy this item.
+The historical trial protocol has been replaced by reproducible release checks in
+[`docs/RELIABILITY-TRIAL.md`](docs/RELIABILITY-TRIAL.md). On October 12, 2026,
+the user removed elapsed 30 days as a prerequisite. No completed historical
+trial or continuous-uptime claim is implied. Arbitrary sensitive payload/PII
+detection across future inputs remains later work rather than a claim that
+bounded credential redaction solves every privacy problem.
 
-Next action: resume the observation protocol on the owner's running installation
-and record real scheduled delivery outcomes. Recheck optional container startup
-on a Docker-enabled machine before using that deployment. The September 16 start
-and September 17 failure below do not establish 30 consecutive observed days;
-no trial completion is claimed.
+Next action: implement the cloud identity/storage and remote-provider boundaries
+below before claiming a mobile backend. Optional legacy container startup retains
+separate verification before that deployment is advertised as working.
 
 Trial start record (September 16, 2026): a dedicated local database and
 delivery outbox were started with one confirmed daily task at 08:00 in
-`America/Sao_Paulo`. At the start record, the first scheduled occurrence was
-pending; the 30-day checkbox remains unchecked.
+`America/Sao_Paulo`. At that historical start record, the first scheduled
+occurrence was pending; it did not establish a completed trial.
 
 Preflight record (September 16, 2026): one manual preflight was excluded from
 the trial count. It exhausted three research attempts, exposed only the public
 `research_failed`, `retry_scheduled`, and `failed` states, and produced no
 delivery artifact. The configured public feed resolved but outbound HTTPS could
 not be established in this environment; no fixture or alternate feed was used.
-The scheduled-trial observation remains pending.
+That preflight did not verify scheduled delivery.
 
 First scheduled observation (September 17, 2026): restart recovery created one
 execution for the missed 08:00 occurrence with no duplicate. The worker exposed
@@ -216,6 +229,156 @@ jobs; remote job results must be checked separately. Portuguese onboarding and
 truthful maintainer-support preparation are linked from the README. No public
 release tag, adoption metrics, or program approval is claimed by this change.
 
+## Stage 7 — Cloud identity and owner-scoped storage
+
+Outcome: an authenticated phone user accesses only their own online assistant records.
+
+- [x] Owner-private Sites HTTPS QA deployment published; native D1 overview confirms `DB` and 12 applied tables.
+- [x] Identity/internal-owner mapping, scoped SQL, projection/deletion and auth/CSRF behavior pass fixture tests; live unauthenticated/forged/forwarded-identity requests are rejected.
+- [x] Independent Workers/D1/Access configuration provided with separately tested adapters.
+- [ ] Positive owner sign-in and authenticated persistent CRUD verified on the deployed Site.
+- [ ] Independent Workers/D1/Access deployment and identity migration/remapping verified live; no raw Site user ID copying.
+
+Acceptance test:
+
+- A real deployed HTTPS URL identifies its authenticated owner without trusting a client-supplied owner ID.
+- No raw Site user ID is copied across Sites as portable authorization; identity/provider migration requires reauthentication and an explicit internal-owner remap.
+- Missing authentication, cross-owner reads/mutations, forged owners, and invalid cross-origin mutations fail safely before private access.
+- The portable deployment does not require the founder's Sites account; managed and independent targets state their required credentials/bindings honestly.
+
+## Stage 8 — Remote providers, encrypted keys, and quotas
+
+Outcome: remote conversation uses a legitimate authorized route and stops safely at provider or budget limits.
+
+- [x] Replaceable Workers AI/Groq adapters, unavailable states, encrypted owner-scoped envelopes and quota behavior pass fixture/SQL tests.
+- [x] Runtime operational master key configured privately; bounded current/previous keyring and compare-and-swap rotation pass tests with owner/provider/version-bound authentication.
+- [x] Bounded context/output/global/per-user limits, redaction, and provider failure paths pass the final suite and static review.
+- [ ] Owner connects an authorized Groq key through the deployed HTTPS form and verifies a real first AI turn; no AI binding/key is currently configured.
+- [ ] Live connection removal/provider revocation and auditable operational access verified with the owner's actual credential.
+- [ ] Manual ChatGPT/Grok/Gemini redirect flow verified in the browser; no consumer-session scraping, implicit API entitlement, paid fallback, account pooling, or quota bypass.
+
+Acceptance test:
+
+- Keys remain encrypted in durable storage and cannot be exposed through another owner, model input, logs, API projections, or errors.
+- The current QA envelope can be decrypted by the server. Messages/notes/preferences are plaintext at the application layer; provider-bound context is not private-vault E2EE. The UI/docs explain those facts and do not imply deleting Tatu records erases provider copies.
+- Requests cannot exceed the configured per-user/global caps or silently use a paid route; missing bindings/keys and exhausted quotas are visible.
+- Real remote inference is claimed only after an authorized live binding/key succeeds; fixtures and unavailable states are labeled explicitly. Unpaid Gemini is not the default personal-context route.
+
+## Stage 9 — Mobile personal-assistant workspace
+
+Outcome: the authenticated owner can use a responsive Portuguese assistant from a phone without a local process or model.
+
+- [x] Owner-scoped conversation/memory/note and task-control/result-reader implementations pass fixture SQL/API tests.
+- [x] Client behavior suite passes 10 tests, including cited-text review/export for manual NotebookLM Audio Overviews handoff.
+- [x] Portuguese web/PWA shell and unavailable/offline boundaries are implemented and covered by nonvisual client tests.
+- [ ] Positive deployed owner CRUD, mobile visual QA, and actual PWA installation verified in an enabled browser.
+
+Acceptance test:
+
+- Deployed mobile smoke verifies message/reopen/delete, preference/note create/edit/delete, task controls, and full cited results for the authenticated owner.
+- Context selection, missing AI, quota exhaustion, manual redirects, and internet failure are explained without fabricated replies.
+- No flow requires a desktop process, Ollama, model download, consumer API entitlement, or unlimited free quota.
+
+## Stage 10 — Hosted scheduling and delivery
+
+Outcome: online scheduling produces owner-scoped cited results independently of the user's phone.
+
+- [x] Durable owner-scoped scheduling/claim/retry/delivery implementation passes fixture SQL tests; Worker exports a `scheduled` handler.
+- [x] Curated AI RSS adapter and cited in-app result/text-export implementation pass bounded fixture/client tests.
+- [x] Owner-private platform-boundary dispatcher passes an empty-queue token-auth probe and rejects anonymous access; this does not prove service-only authority or a scheduled run.
+- [ ] Native Sites scheduling bridge configured and verified before enabling dispatch; `SCHEDULER_ENABLED=false` and no schedule exists now.
+- [ ] Independent one-minute Cron deployment verified live; portable configuration/tests alone do not satisfy this item.
+- [ ] Actual remote scheduled occurrence plus repeat/retry/provider-outage/recovery verification.
+- [ ] Founder daily 09:00 `America/Sao_Paulo` cited AI-news request, with cited text export/manual NotebookLM import for user-generated Audio Overviews.
+
+Acceptance test:
+
+- The remote worker reaches a configured due instant without manual execution or a user's device running and records one intended result/trace.
+- Repeated Cron events and requests, failures, and recovery do not duplicate delivery or leak another owner's task/result.
+- If the available deployment cannot run scheduled execution, retain an unchecked capability gap and disclose it before a limited beta publication; fixtures/manual runs are not proof.
+- Text scheduling/delivery and export are verified separately from manual NotebookLM Audio Overview generation. No consumer API entitlement or automatic Tatu audio generation is implied; completing only text delivery does not complete the audio goal.
+
+Sites dispatch accepts same-origin requests behind the single-owner private
+gateway and does not distinguish owner browser sessions from platform services.
+Require independently verifiable dispatch authority before wider/multi-owner
+sharing. Native automations are empty; prompt-based scheduling has no verified
+code-dispatch bridge or entitlement/free-cadence guarantee. Keep disabled.
+
+## Stage 11 — Remote MCP and private publication
+
+Outcome: a verified authenticated online beta can be shared privately with its tested tools and explicit limits.
+
+- [x] Bounded MCP protocol/tools and permission behavior pass fixture tests; real identity-free initialize/list/call requests fail at the private gateway.
+- [x] Private Site and native MCP endpoint/plugin published/installed; authenticated native Tatu tools are exposed for the checked account.
+- [x] Clean ordinary install and final local format/lint/typecheck/186-test/build suite pass; production audit reports zero known vulnerabilities and final static review has no blocking findings.
+- [x] Real private HTTPS publication and CLI negative-access/system-readiness probes pass; exact deployment evidence is recorded below.
+- [x] Live native `tatu_listar_tarefas` returns `[]`, and `tatu_preparar_tarefa` returns an expiring 09:00/three-story AI proposal requiring app confirmation; no task is created.
+- [ ] Public repository publication and its remote CI verified for the final integrated revision.
+- [ ] Positive owner sign-in/mobile visual/PWA smoke and first real inference/scheduled task run satisfy the full online acceptance.
+
+The positive native-tool connection is verified for this platform account.
+Standalone/manual OAuth setup, web cookie login, broader live CRUD/confirmation,
+and independent deployment remain unverified. The final suite includes the
+local-session regression fix: 186 passed, zero failed. The cloud bundle is
+byte-identical to the published artifact; no cloud redeployment was needed.
+
+Acceptance test:
+
+- Remote MCP initializes, lists implemented tools, and exercises representative authorized reads/mutations; unsupported/malformed requests fail safely.
+- The release protocol records dated revision/environment evidence and distinguishes fixtures, live inference, scheduled execution, and explicit gaps.
+- Private publication does not claim public plugin approval, ChatGPT connectivity without live account-supported proof, parity, free account eligibility, unlimited hosting/inference, or continuous uptime.
+
+## October 12, 2026 — bounded private QA evidence
+
+- Clean ordinary `npm ci` installed 157 locked packages on Windows Node
+  24.13.0/npm 11.6.2. Final `npm run ci` passed format, lint, types, 186 tests,
+  and build; production audit reports zero known vulnerabilities. Final static
+  review after export/quota/key-rotation/context fixes has no blocking findings.
+- Private owner-only Sites publication succeeded at
+  [the QA URL](https://tatu-brasil-beta-vitti.craftystar18.chatgpt.site), with the
+  native `DB` overview showing 12 applied tables. The published Worker is
+  173,003 bytes with `fetch`/`scheduled`, two immutable SQL migrations, and zero
+  native/external imports. Source/deployment/version IDs and probe details are
+  in [DEPLOYMENT.md](docs/DEPLOYMENT.md#october-12-private-publication-evidence).
+- Real HTTPS CLI probes reject anonymous, forged/forwarded identity, foreign
+  Origin, and identity-free MCP requests. Service health and an authorized
+  empty-queue platform-boundary dispatch succeed. Those negative probes created
+  no user data; the later native MCP call created a transient proposal only.
+  No key, LLM call, task or schedule was created; readiness is not scheduled proof.
+- No AI binding/Groq credential is configured. Site scheduling remains false,
+  portable Cron is not deployed, and owner sign-in/CRUD/mobile visual QA could
+  not be checked without an enabled browser. The raw direct Worker origin is
+  not exposed and remains unverified.
+- Native Tatu tools are now available for this authenticated platform account:
+  `tatu_listar_tarefas` returned `[]`; `tatu_preparar_tarefa` returned an expiring
+  09:00 `America/Sao_Paulo`, quantity-three AI-news proposal with
+  `requiresAppConfirmation: true`. This created transient owner QA proposal data,
+  not a confirmed task. No LLM call, schedule, or provider key exists. Manual
+  OAuth/web cookie flows and entire online stages remain open; main publication,
+  remote CI remain pending. Final local verification is 186 passed/zero failed.
+
+Exact next action: open the private URL with the owner account, verify positive
+sign-in, connect an authorized Groq key only through the HTTPS form and verify
+the first real turn. Enable the platform browser for mobile visual QA; native
+MCP read/proposal already works, while broader confirmation/CRUD needs separate proof. Configure
+scheduling only after a real native bridge and actual due task are proved.
+
+## Later accepted outcomes — separate verification
+
+These product requirements do not become implemented merely because the PWA/cloud beta is published. Each remains unchecked with its own evidence and permission boundary.
+
+- [ ] Actual native mobile and desktop packages use the same online backend and pass build/install/sign-in/update/privacy tests; distinguish native packages from PWA installation.
+- [ ] An optional physical-device companion is visible, opt-in, revocable, and narrowly authorized; test cancellation and permission denial before claiming app control.
+- [ ] Connected accounts use official least-privilege OAuth/passkeys/API capabilities, with inspectable scopes and connection revocation.
+- [ ] Typed external-action proposals bind exact owner/account/target/effect/inputs to expiring one-use approval, with deterministic permissions, idempotency, sanitized audit, cancellation, and revoke tests.
+- [ ] Unsupported personal-account APIs use an explicitly user-assisted official settings/browser handoff; do not claim generic Play Store/YouTube Premium cancellation through the developer purchase API.
+- [ ] Verify the NotebookLM Audio Overviews handoff: cited text export/manual import and user-generated audio, without claiming consumer API access or automatic Tatu generation.
+- [ ] Replaceable audio port has explicit content/credential/permission/quota contracts, real audio/playback verification, and failure states separate from text delivery.
+- [ ] An optional authorized NotebookLM Enterprise adapter passes Cloud-project/IAM/notebook/source and availability tests; otherwise retain cited export/manual handoff. Browser/device TTS or Google Cloud TTS is a separately identified adapter, not NotebookLM.
+- [ ] A separate client-held-key E2EE/zero-knowledge private vault accepts passwords/private material only inside its ciphertext boundary; no password in chat/logs/models/plain SQL or server operational records.
+- [ ] Private-vault lock, recovery, export, owner isolation, key-loss, ciphertext tampering, and independent security tests pass; the server never receives its decryption key.
+- [ ] Any explicit narrow private-vault delegation states recipient, scope, expiration, and the temporary plaintext/runtime boundary; the unattended cloud agent cannot silently decrypt the zero-knowledge vault.
+
 ## Later roadmap
 
 ## Planning horizon
@@ -224,18 +387,20 @@ This horizon organizes confirmed needs without replacing or renumbering the veri
 
 | Need                                | Status                                                                                                                                                                                                                                                                    | Planned verification                                                                                                        |
 | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| Persistence and deployment decision | Individual local/self-hosted deployment and the local SQLite adapter are decided; remote/shared PostgreSQL remains conditional future work.                                                                                                                               | Record a remote deployment need and a PostgreSQL adapter ADR before any remote migration.                                   |
+| Persistence and deployment decision | Standard mobile path is authenticated online API/worker with owner-scoped D1; Sites is the private first lane and independent Workers/D1/Access is the second lane. Node/SQLite remains optional legacy self-hosting.                                                     | Verify identity issuer/subject mapping, internal owners, cross-owner denial, and each deployed lane separately.             |
 | Daily briefing end to end           | Scheduling, configurable RSS research, saved cited results, deterministic fallback, optional local model synthesis, selected default source, and live three-story acceptance run are implemented.                                                                         | Stage 5 is complete; future delivery and provider-health work continues in later stages.                                    |
 | Task monitoring and “Test now”      | A local `POST /api/tasks/:taskId/test` endpoint queues a distinct pending execution for an existing task, with a bounded `Idempotency-Key`; the Tasks UI exposes `Testar agora` and a bounded title/source briefing preview backed by the existing worker/event pipeline. | Manual runs are separate from scheduled occurrences; repeated requests with the same key return one execution.              |
 | Free limits and provider fallback   | The bounded local-model-to-deterministic-RSS fallback is implemented; quota-based multi-provider fallback is not implemented.                                                                                                                                             | Stage 6 distinguishes availability, rate limit, auth, temporary failure, capability compatibility, and authorized fallback. |
-| Editable personal memory            | Not implemented; development `brain/` is not product memory.                                                                                                                                                                                                              | Structured user memories are editable, selectable per task, and deletable without storing secrets or full transcripts.      |
+| Editable personal memory            | The owner-scoped cloud implementation passes fixture tests; positive deployed web CRUD remains open. Development `brain/` is not product memory.                                                                                                                          | Verify live owner edit/delete and context selection without treating full transcripts as permanent memory.                  |
 
 - OAuth and first connected account.
 - Conditional/event automations.
-- Plugin/tool ecosystem.
+- Broader plugin/tool ecosystem and public plugin directory submission.
 - Device executor.
 - Payment initiation with external wallet authorization.
-- Optional hosted convenience product.
+- Optional commercial hosted convenience product beyond the free-first private online beta.
+- Arbitrary sensitive payload/PII detection across future inputs.
+- Autonomous external messaging and broad OAuth integrations.
 
 These items do not enter the MVP unless `PROJECT.md` is explicitly updated.
 
@@ -247,9 +412,9 @@ for repeated task/key requests. A worker test proves that the existing
 scheduler consumes the manual row with the task topic, quantity, and distinct
 manual idempotency key. A SQLite fault-injection test proves that a failed
 `queued` event insert rolls back the execution row. The full `npm run ci` suite
-passes with 112 tests. This
-does not start the 30-day reliability trial or broaden the bounded redaction
-policy. The local Tasks UI now exposes `Testar agora`, URL-encodes the task ID,
+passed with 112 tests. This historical manual-run verification did not establish
+long-running reliability or broaden the bounded redaction policy. The local
+Tasks UI now exposes `Testar agora`, URL-encodes the task ID,
 reuses an in-memory per-task key for retries, and keeps the key and occurrence
 identifier out of the DOM; the page contract test and the same 112-test suite
 pass. The execution view also renders up to three validated briefing

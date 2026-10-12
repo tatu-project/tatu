@@ -9,10 +9,17 @@ import {
   redactTextSecrets,
   type SetupHealthStatus,
 } from '@tatu/shared';
-import { parseBriefing, type BriefingDraft } from '@tatu/shared';
-import { renderHealthPage } from '@tatu/web';
+import { parseBriefing } from '@tatu/shared';
+import { renderHealthPage, pwaAssets } from '@tatu/web';
 import { SqliteTaskStore } from '@tatu/storage';
 import type { TatuStore } from '@tatu/shared';
+import { readWorkerHealth } from './runtime-health.js';
+import {
+  createAssistantApi,
+  assistantFailure,
+  proposalRequestKey,
+  type AssistantOptions,
+} from './assistant-api.js';
 import {
   listenLocally,
   localListenOptions,
@@ -115,7 +122,6 @@ const publicBriefing = (
   return publicResult;
 };
 
-const drafts = new Map<string, BriefingDraft>();
 export const getSetupHealthStatus = (
   repository: TatuStore,
   environment: NodeJS.ProcessEnv = process.env,
@@ -131,6 +137,7 @@ export const getSetupHealthStatus = (
   }
 
   const modelConfigured = Boolean(environment.TATU_OLLAMA_MODEL?.trim());
+  const workerHealth = readWorkerHealth(environment);
   const feeds = environment.TATU_RSS_FEEDS;
   const researchDisabled =
     feeds !== undefined &&
@@ -176,14 +183,18 @@ export const getSetupHealthStatus = (
       {
         id: 'memory',
         label: 'Memory online',
-        state: 'not_implemented',
-        detail: 'Persistent memory is not implemented yet.',
+        state: 'configured',
+        detail:
+          'Explicit local memory is available through the memory controls.',
       },
       {
         id: 'scheduler',
         label: 'Scheduler online',
-        state: 'unknown',
-        detail: 'Worker liveness is not exposed by the API yet.',
+        state: workerHealth.status === 'healthy' ? 'healthy' : 'unavailable',
+        detail:
+          workerHealth.status === 'healthy'
+            ? 'A recent local worker heartbeat is present.'
+            : 'No valid recent local worker heartbeat is present.',
       },
     ],
     estimatedCost: { status: 'unknown' },
@@ -230,10 +241,43 @@ const readJson = async (request: import('node:http').IncomingMessage) => {
 export function createTatuServer(
   databasePath = process.env.TATU_DATABASE_PATH ?? 'data/tatu.sqlite',
   repository: TatuStore = new SqliteTaskStore(databasePath),
+  assistantOptions: AssistantOptions = {},
 ): Server {
+  const assistant = createAssistantApi(
+    databasePath,
+    repository,
+    assistantOptions,
+  );
   return createServer((request, response) => {
     if (!permitsLocalRequest(request)) {
       json(response, 403, { error: 'Local request denied.' });
+      return;
+    }
+    if (request.method === 'GET' && request.url === '/api/me') {
+      // UI compatibility for one local installation: no account identity or login session.
+      // The paths navigate locally; they do not sign in or sign out of a cloud account.
+      response.setHeader('cache-control', 'no-store');
+      json(response, 200, {
+        authenticated: true,
+        authMode: 'local-individual',
+        signinPath: '/',
+        signoutPath: '/',
+      });
+      return;
+    }
+    if (assistant.handles(request)) {
+      void assistant
+        .route(request, response)
+        .catch((error) => assistantFailure(response, error));
+      return;
+    }
+    if (request.method === 'GET' && request.url && pwaAssets[request.url]) {
+      const asset = pwaAssets[request.url];
+      response.writeHead(200, {
+        'content-type': asset.contentType,
+        'cache-control': 'no-store',
+      });
+      response.end(asset.body);
       return;
     }
     if (request.method === 'GET' && request.url === '/api/health') {
@@ -274,6 +318,12 @@ export function createTatuServer(
       const task = repository.list().find((item) => item.id === manual[1]);
       if (!task) {
         json(response, 404, { error: 'Tarefa não encontrada.' });
+        return;
+      }
+      if (!task.enabled) {
+        json(response, 409, {
+          error: 'Tarefa pausada. Retome antes de testar.',
+        });
         return;
       }
       const occurrenceKey = `manual:${createHash('sha256')
@@ -332,9 +382,22 @@ export function createTatuServer(
             });
             return;
           }
-          const draftId = crypto.randomUUID();
-          drafts.set(draftId, parsed.draft);
-          json(response, 201, { draftId, confirmation: parsed.draft });
+          if (!repository.propose) {
+            json(response, 503, {
+              error: 'Propostas indisponíveis nesta instalação.',
+            });
+            return;
+          }
+          const proposal = repository.propose(
+            parsed.draft,
+            undefined,
+            proposalRequestKey(request),
+          );
+          json(response, 201, {
+            draftId: proposal.id,
+            confirmation: proposal.draft,
+            expiresAt: proposal.expiresAt,
+          });
         })
         .catch((error: unknown) =>
           json(
@@ -351,20 +414,32 @@ export function createTatuServer(
       /^\/api\/briefing-drafts\/([^/]+)\/confirm$/,
     );
     if (request.method === 'POST' && confirm) {
-      const draft = drafts.get(confirm[1]);
-      if (!draft) {
-        json(response, 409, {
-          error: 'Rascunho inexistente ou já confirmado.',
-        });
-        return;
+      try {
+        if (!repository.confirmProposal) {
+          json(response, 503, {
+            error: 'Propostas indisponíveis nesta instalação.',
+          });
+          return;
+        }
+        const task = repository.confirmProposal(confirm[1]);
+        if (!task) {
+          json(response, 409, {
+            error: 'Rascunho inexistente ou já confirmado.',
+          });
+          return;
+        }
+        json(response, 201, publicTask(task));
+      } catch (error) {
+        assistantFailure(response, error);
       }
-      drafts.delete(confirm[1]);
-      json(response, 201, repository.create(draft));
       return;
     }
 
     if (request.method === 'GET' && request.url === '/') {
-      response.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
+      response.writeHead(200, {
+        'content-type': 'text/html; charset=utf-8',
+        'cache-control': 'no-store',
+      });
       response.end(renderHealthPage());
       return;
     }
@@ -373,7 +448,10 @@ export function createTatuServer(
       'content-type': 'application/json; charset=utf-8',
     });
     response.end(JSON.stringify({ error: 'Not found' }));
-  }).on('close', () => repository.close());
+  }).on('close', () => {
+    assistant.close();
+    repository.close();
+  });
 }
 
 function start(): void {

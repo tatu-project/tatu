@@ -1,4 +1,5 @@
 import { hasTextSecret } from './text-policy.js';
+import { validTimezone } from './assistant.js';
 
 export const healthStatus = {
   service: 'tatu',
@@ -50,7 +51,7 @@ export interface BriefingDraft {
 
 export interface BriefingTask extends BriefingDraft {
   id: string;
-  enabled: true;
+  enabled: boolean;
   createdAt: string;
 }
 
@@ -83,7 +84,9 @@ export type ExecutionEventType =
   | 'model_failed'
   | 'fallback_used'
   | 'delivered'
-  | 'delivery_failed';
+  | 'delivery_failed'
+  | 'skipped_task_paused'
+  | 'skipped_task_changed';
 
 export interface ExecutionEvent {
   id: string;
@@ -279,6 +282,7 @@ export type { BriefingDelivery, BriefingDeliveryReceipt } from './delivery.js';
 export { hasSensitiveUrlQuery } from './url-policy.js';
 export { hasTextSecret, redactTextSecrets } from './text-policy.js';
 export { hasExactKeys, hasOnlyKeys } from './object-policy.js';
+export * from './assistant.js';
 
 const normalize = (value: string) =>
   value
@@ -290,17 +294,55 @@ export function parseBriefing(
   message: string,
   timezone: string,
 ): { ok: true; draft: BriefingDraft } | { ok: false; clarification: string } {
-  const normalized = normalize(message);
-  if (!Intl.supportedValuesOf('timeZone').includes(timezone)) {
+  let normalized = normalize(message);
+  if (!validTimezone(timezone) || message.length > 4096) {
     return {
       ok: false,
       clarification:
         'Informe um fuso horário IANA válido, como America/Sao_Paulo.',
     };
   }
-  const match = normalized.match(
-    /todos os dias\s+as\s+(\d{1,2})(?::|h)(\d{2})?[,.]?\s*encontre as\s+(\d+|tres)\s+noticias mais importantes sobre\s+(.+?)\s+e me envie/,
+  if (hasTextSecret(message))
+    return {
+      ok: false,
+      clarification:
+        'O tema parece conter uma credencial; informe apenas o tema.',
+    };
+  normalized = normalized.replace(
+    /\bat\s+(\d{1,2})(?::(\d{2}))?\s*(am|pm)\b/u,
+    (
+      whole: string,
+      hour: string,
+      minute: string | undefined,
+      period: string,
+    ) => {
+      const h = Number(hour);
+      return h >= 1 && h <= 12
+        ? `at ${(h % 12) + (period === 'pm' ? 12 : 0)}:${minute ?? '00'}`
+        : whole;
+    },
   );
+  const clock = '(\\d{1,2})(?:(?=h)|(?=:\\d{2}))(?::|h)(\\d{2})?';
+  const recurrence = '(?:todos os dias|todo dia|diariamente)\\s+(?:as\\s+)?';
+  const count =
+    '(\\d+|um|uma|duas|dois|tres|quatro|cinco|one|two|three|four|five)';
+  const patterns = [
+    new RegExp(
+      `^${recurrence}${clock}[,.]?\\s*encontre (?:as\\s+)?${count}\\s+noticias(?: mais importantes)? sobre\\s+(.+?)\\s+e me envie[.!?]*$`,
+      'u',
+    ),
+    new RegExp(
+      `^${recurrence}${clock}[,.]?\\s*(?:me envie|envie[- ]me|mande[- ]me)\\s+(?:as\\s+)?${count}\\s+noticias(?: mais importantes)? sobre\\s+(.+?)[.!?]*$`,
+      'u',
+    ),
+    new RegExp(
+      `^(?:every day|daily)\\s+at\\s+${clock}[,.]?\\s*(?:send me|find)\\s+(?:the\\s+)?${count}\\s+(?:most important\\s+)?(?:news|stories|news stories)\\s+(?:about|on)\\s+(.+?)(?:\\s+and send (?:them )?to me)?[.!?]*$`,
+      'u',
+    ),
+  ];
+  const match = patterns
+    .map((pattern) => normalized.trim().match(pattern))
+    .find(Boolean);
   if (!match) {
     return {
       ok: false,
@@ -310,7 +352,21 @@ export function parseBriefing(
   }
   const hour = Number(match[1]);
   const minute = Number(match[2] ?? 0);
-  const quantity = match[3] === 'tres' ? 3 : Number(match[3]);
+  const words: Record<string, number> = {
+    um: 1,
+    uma: 1,
+    one: 1,
+    duas: 2,
+    dois: 2,
+    two: 2,
+    tres: 3,
+    three: 3,
+    quatro: 4,
+    four: 4,
+    cinco: 5,
+    five: 5,
+  };
+  const quantity = words[match[3]] ?? Number(match[3]);
   const normalizedTopic = match[4].replace(/[.!?]+$/, '').trim();
   if (hasTextSecret(normalizedTopic)) {
     return {
@@ -323,7 +379,14 @@ export function parseBriefing(
     normalizedTopic === 'inteligencia artificial'
       ? 'inteligência artificial'
       : normalizedTopic;
-  if (hour > 23 || minute > 59 || quantity < 1 || !topic) {
+  if (
+    hour > 23 ||
+    minute > 59 ||
+    quantity < 1 ||
+    quantity > 10 ||
+    !topic ||
+    new TextEncoder().encode(topic).byteLength > 512
+  ) {
     return {
       ok: false,
       clarification:

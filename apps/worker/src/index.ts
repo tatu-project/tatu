@@ -2,6 +2,7 @@ import { getHealthStatus } from '@tatu/shared';
 import { FileBriefingDelivery, LocalScheduler } from '@tatu/storage';
 import { createResearchExecutor } from './research-executor.js';
 import { workerPollFailureMessage } from './safe-log.js';
+import { writeHeartbeat } from './heartbeat.js';
 
 const status = getHealthStatus();
 const scheduler = new LocalScheduler(
@@ -19,9 +20,19 @@ const scheduler = new LocalScheduler(
   ),
 );
 let polling = false;
+let heartbeatState: 'idle' | 'polling' | 'error' = 'idle';
+const heartbeat = () => {
+  try {
+    writeHeartbeat(heartbeatState);
+  } catch {
+    console.error('Worker heartbeat unavailable.');
+  }
+};
 const poll = async () => {
   if (polling) return;
   polling = true;
+  heartbeatState = 'polling';
+  heartbeat();
   try {
     await scheduler.poll(
       new Date(),
@@ -29,10 +40,13 @@ const poll = async () => {
       Number(process.env.TATU_MAX_ATTEMPTS ?? 3),
       Number(process.env.TATU_EXECUTION_TIMEOUT_MS ?? 25_000),
     );
+    heartbeatState = 'idle';
   } catch {
+    heartbeatState = 'error';
     console.error(workerPollFailureMessage);
   } finally {
     polling = false;
+    heartbeat();
   }
 };
 void poll();
@@ -47,3 +61,4 @@ setInterval(
   () => void poll(),
   Number(process.env.TATU_WORKER_POLL_MS ?? 10_000),
 );
+setInterval(heartbeat, 5000);

@@ -1,28 +1,110 @@
-# 30-day reliability trial
+# Reproducible online release checks
 
-This protocol is a creator-run observation plan. It does not by itself claim
-that a reliability target has been met. The Stage 7 checklist remains
-unchecked until the creator records and reviews a real 30-calendar-day run.
+The October 12, 2026 direction is a mobile-first online assistant without an
+end-user PC, Ollama, local runtime, or model download. The 30-day pilot remains
+removed. October 12–18 in `America/Sao_Paulo` is a target, not verified delivery.
+[`PROJECT.md`, section 25](../PROJECT.md#25-mvp-the-first-useful-vertical-slice)
+defines scope; [`ROADMAP.md`](../ROADMAP.md) owns completion status.
 
-## Start checklist
+The first deployment lane is a private Sites managed auth/D1/MCP beta. Portable
+Cloudflare Workers/D1/Access configuration is a second lane and requires its
+own deployed verification. Historical Node/SQLite/RSS/Ollama evidence below is
+optional legacy/self-hosted evidence, not proof of the mobile backend.
 
-1. Pull the published `main` and confirm the worktree is clean.
-2. Install the documented dependencies with `npm ci`.
-3. Run `npm run ci` and save the result showing the current passing test count.
-4. Start the local API and standby worker with `npm run dev`.
-5. In Chat, create and confirm the daily AI-news task in the creator's local
-   timezone. Choose a start time that can be observed on the following day.
-6. Confirm Setup Health, the task row, and the delivery outbox before the first
-   scheduled occurrence.
+## Preparation
 
-The published baseline for this checklist is `npm run ci` with 112 passing
-tests. A later change must record its new verified count rather than reusing
-this baseline.
+1. Record the candidate revision, deployed HTTPS URL, hosting lane, authorized
+   test accounts, available bindings/credentials, and exact maintainer commands.
+2. Use dedicated non-sensitive test records/accounts; preserve existing user
+   data and credentials. Run developer installation and `npm run ci` and record
+   the actual passing checks rather than reusing historical counts.
+3. Verify server authentication and map the verified identity issuer/subject to
+   an internal owner ID. Deployment/identity migration requires reauthentication
+   and explicit remapping, never copying raw Site user IDs across Sites.
+4. Inspect actual remote AI, storage, and scheduler capabilities. Use a real
+   authorized inference binding/key only when available; label fixtures and
+   missing capabilities rather than inventing live success.
+5. For scheduled proof, let online Cron reach a confirmed task's due instant
+   without manual triggering or the user's phone/PC running. If unsupported,
+   leave that gate unchecked and disclose the gap before a limited beta release.
 
-The `Testar agora` control is useful for a local preflight, but it is not a
-scheduled-trial observation and must not be counted as a trial day.
+## Release checks
 
-## Latest release preflight
+Every check requires dated revision/environment evidence. All new checks start
+unchecked. No elapsed-day wait is required, and tests do not prove 24/7 uptime.
+
+- [ ] **Authentication and owner isolation:** unauthenticated, forged-owner,
+      and cross-owner reads/mutations fail before private access. A verified
+      issuer/subject maps to an internal owner; deletion and tools use that
+      owner. Migration requires reauthentication and explicit remapping.
+- [ ] **CSRF and rendering:** invalid origins/cross-site mutations are rejected;
+      cookie/token behavior is tested for the actual hosted lane. Untrusted
+      content renders safely and cited links are validated. Local Host checks
+      alone do not authenticate a remote user.
+- [ ] **Encrypted keys and privacy:** optional Groq API keys persist encrypted
+      and owner-scoped, with metadata-only status. Logs, model inputs, errors,
+      API/tool outputs, and another owner cannot retrieve key material. Publish
+      the actual owner-data retention/deletion and remote-provider data flow.
+- [ ] **Quotas and authorized remote AI:** global/per-user caps stop requests at
+      limits and remain enforceable under concurrent calls. Available Workers
+      AI bindings use a compatible capped sponsored route; Groq uses an
+      authorized optional official API key. No paid fallback, pooled accounts,
+      consumer-session scraping, or quota bypass is permitted.
+- [ ] **Live inference or honest gap:** demonstrate actual remote inference only
+      with authorized available bindings/credentials. Label fixture tests,
+      missing routes, exhausted quota, timeouts, and provider failures. Manual
+      ChatGPT/Grok/Gemini redirects are explicit user actions, not API access
+      granted by consumer login. Unpaid Gemini is not default personal context.
+- [ ] **Mobile personal-assistant flows:** a real deployed HTTPS URL passes phone
+      browser chat/reopen/delete, preference/note create/edit/delete, task
+      pause/edit/resume, and full cited-reader smoke under the authenticated
+      owner. Context selection and unavailable-provider states are visible.
+- [ ] **Hosted scheduling and delivery:** an actual remote scheduled occurrence
+      produces a cited result/trace independently of the user's device. Repeated
+      Cron/request keys, retries, provider/network outages, and recovery retain
+      one intended delivery and owner scope. A manual run/fixture does not prove
+      Cron; unsupported scheduling remains an explicitly unchecked capability.
+- [ ] **PWA and offline behavior:** deployed mobile/desktop layouts are usable
+      and installable shell assets are served. Internet failure explains the
+      unavailable online service, disables mutations, and does not cache
+      personal API responses or imply offline assistant execution.
+- [ ] **Remote MCP and private package:** an authenticated real remote client
+      initializes, lists implemented tools, and exercises bounded reads and
+      permitted mutations. Malformed/unknown/cross-owner operations fail safely.
+      Private package instructions match deployed tools. Live ChatGPT connection
+      and public directory approval require separate account-supported proof.
+- [ ] **Quality and publication:** formatting, lint, typecheck, relevant unit/
+      integration/security/quota tests, build, remote CI, and deployed mobile
+      smoke pass. First-lane verification does not mark portable second-lane
+      deployment as live-tested. Release notes distinguish live capabilities,
+      fixtures, missing bindings, and any limited-beta scheduler/inference gap.
+
+## Evidence and completion
+
+Record safe execution IDs, fixed events, command outcomes, URL reachability,
+and result presence. Do not publish keys, credentials, raw provider payloads,
+identity tokens, database rows, private conversations, notes, or personal full
+briefings. A safe failure remains a failure, with its recovery recorded honestly.
+
+Private publication requires reviewed evidence for the capabilities advertised;
+missing inference or scheduling stays unchecked and is disclosed before any
+limited beta. A deployed page or package alone proves neither inference nor
+scheduled execution. Free hosting/AI/account eligibility, unlimited quotas,
+parity with Grok/Muse/Dots, and continuous uptime are not guaranteed. Native
+payments, computer/device control, marketplace, broad multi-agent workflows,
+and an OAuth catalog remain later work. Optional legacy self-hosting retains
+separate installation/container verification.
+
+## Historical evidence retained
+
+The September 16, 2026 start used a confirmed daily 08:00 task in
+`America/Sao_Paulo`. Its manual preflight exhausted three research attempts and
+produced no artifact because outbound HTTPS was unavailable. It was excluded
+from the historical observation count.
+
+| Date       | Execution status            | Public event types                                                  | Delivery artifact present | Restart/recovery note                                                                                             | Safe failure note                                                                                               |
+| ---------- | --------------------------- | ------------------------------------------------------------------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| 2026-09-17 | failed (`research_failure`) | `queued`, `claimed`, `research_failed`, `retry_scheduled`, `failed` | no                        | The local process had stopped; restart recovery created one occurrence for the missed 08:00 run and no duplicate. | Outbound HTTPS to the configured public feed was unavailable; the occurrence ended safely after three attempts. |
 
 On October 3, 2026, a separate temporary installation passed ordinary Windows
 dependency installation and the full 116-test quality suite. Its manual
@@ -31,40 +113,7 @@ queue after API restart, delivered three distinct cited stories/facts in one
 Markdown artifact, and recorded `queued`, `claimed`, `delivered`, `succeeded`.
 Repeating the same manual request key did not create another execution.
 
-The helper processes were stopped afterward. This preflight adds no scheduled
-trial days and does not fill any gap after the September 17 observation.
-Resume observations on a continuously running owner installation and record
-the actual dates; unobserved calendar days do not count.
-
-## Daily observation
-
-For each calendar day, record only public, non-sensitive evidence:
-
-| Date       | Execution status            | Public event types                                                  | Delivery artifact present | Restart/recovery note                                                                                             | Safe failure note                                                                                               |
-| ---------- | --------------------------- | ------------------------------------------------------------------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| 2026-09-17 | failed (`research_failure`) | `queued`, `claimed`, `research_failed`, `retry_scheduled`, `failed` | no                        | The local process had stopped; restart recovery created one occurrence for the missed 08:00 run and no duplicate. | Outbound HTTPS to the configured public feed was unavailable; the occurrence ended safely after three attempts. |
-|            |                             |                                                                     |                           |                                                                                                                   |                                                                                                                 |
-
-Use the execution ID and the public event endpoint for correlation. Do not
-copy occurrence keys, `Idempotency-Key` values, raw provider responses, local
-database rows, credentials, or full briefing content into the log.
-
-If the worker or machine restarts, record the restart window and whether the
-same scheduled occurrence was recovered without a duplicate public delivery.
-If research, model, or delivery fails, record the fixed public failure category
-and preserve the corresponding timeline; do not convert a safe failure into a
-success claim.
-
-## Completion criteria
-
-The creator may request the Stage 7 checkbox to be reviewed only after:
-
-- 30 consecutive calendar days have been observed from the chosen start date;
-- every expected occurrence has a public status and event timeline, including
-  safe failures;
-- delivery artifacts and any restart/recovery observations are accounted for;
-- the evidence contains no secrets, raw keys, or unrestricted provider payloads;
-- the creator and both founders review the resulting notes.
-
-Until those conditions are met, this document is preparation only and the
-roadmap item remains unchecked.
+The helper processes were stopped afterward. That manual preflight did not
+verify a new scheduled occurrence or fill unobserved calendar days after
+September 17. These dated records remain historical; neither is evidence that
+the expanded October 12 release scope has passed.

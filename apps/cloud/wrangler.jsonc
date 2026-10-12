@@ -1,0 +1,24 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "tatu",
+  "main": "dist/server/index.js",
+  "compatibility_date": "2026-10-12",
+  "workers_dev": false,
+  "triggers": { "crons": ["* * * * *"] },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "tatu",
+      "database_id": "REPLACE_WITH_YOUR_D1_DATABASE_ID",
+      "migrations_dir": "migrations",
+    },
+  ],
+  "ai": { "binding": "AI" },
+  "vars": {
+    "AUTH_MODE": "cloudflare-access",
+    "SITE_ORIGIN": "https://REPLACE_WITH_YOUR_HOST",
+    "ACCESS_TEAM_DOMAIN": "REPLACE_WITH_YOUR_TEAM.cloudflareaccess.com",
+    "ACCESS_AUDIENCE": "REPLACE_WITH_YOUR_ACCESS_AUDIENCE",
+    "SCHEDULER_ENABLED": "true",
+  },
+}

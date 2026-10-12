@@ -166,6 +166,9 @@ CREATE TABLE IF NOT EXISTS tasks (id TEXT PRIMARY KEY, cadence TEXT NOT NULL, ti
 CREATE TABLE IF NOT EXISTS executions (id TEXT PRIMARY KEY, task_id TEXT NOT NULL, occurrence_key TEXT NOT NULL UNIQUE, scheduled_for TEXT NOT NULL, status TEXT NOT NULL, attempt INTEGER NOT NULL, max_attempts INTEGER NOT NULL, available_at TEXT NOT NULL, lease_expires_at TEXT, claimed_by TEXT, result TEXT, failure TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS execution_events (id TEXT PRIMARY KEY, execution_id TEXT NOT NULL, type TEXT NOT NULL, at TEXT NOT NULL, detail TEXT);
 INSERT OR IGNORE INTO schema_migrations VALUES (1);`);
+    this.db.exec(
+      'CREATE TABLE IF NOT EXISTS task_schedule_state (task_id TEXT PRIMARY KEY,active_since TEXT NOT NULL); CREATE TABLE IF NOT EXISTS execution_inputs (execution_id TEXT PRIMARY KEY,topic TEXT NOT NULL,quantity INTEGER NOT NULL)',
+    );
     this.db.pragma('journal_mode = WAL');
     this.db.pragma('foreign_keys = ON');
     this.db.pragma('busy_timeout = 5000');
@@ -290,7 +293,14 @@ INSERT OR IGNORE INTO schema_migrations VALUES (1);`);
               }
               continue;
             }
-            const taskCreatedAt = new Date(task.createdAt).getTime();
+            const state = this.db
+              .prepare(
+                'SELECT active_since as activeSince FROM task_schedule_state WHERE task_id=?',
+              )
+              .get(task.id) as { activeSince: string } | undefined;
+            const taskCreatedAt = new Date(
+              state?.activeSince ?? task.createdAt,
+            ).getTime();
             if (
               scheduled.getTime() > now.getTime() ||
               scheduled.getTime() < now.getTime() - recoveryWindowMs ||
@@ -320,6 +330,19 @@ INSERT OR IGNORE INTO schema_migrations VALUES (1);`);
             }
           }
         }
+        const paused = this.db
+          .prepare(
+            "SELECT executions.id FROM executions JOIN tasks ON tasks.id=executions.task_id WHERE executions.status='pending' AND tasks.enabled=0",
+          )
+          .all() as { id: string }[];
+        for (const execution of paused) {
+          this.db
+            .prepare(
+              "UPDATE executions SET status='skipped',failure='task_paused',updated_at=? WHERE id=? AND status='pending'",
+            )
+            .run(stamp, execution.id);
+          this.event(execution.id, 'skipped_task_paused', stamp, 'task_paused');
+        }
         const row = this.db
           .prepare(
             "SELECT id FROM executions WHERE status='pending' AND available_at <= ? ORDER BY scheduled_for LIMIT 1",
@@ -337,6 +360,11 @@ INSERT OR IGNORE INTO schema_migrations VALUES (1);`);
             row.id,
           );
         if (!claimed.changes) return undefined;
+        this.db
+          .prepare(
+            'INSERT OR IGNORE INTO execution_inputs SELECT executions.id,tasks.topic,tasks.quantity FROM executions JOIN tasks ON tasks.id=executions.task_id WHERE executions.id=?',
+          )
+          .run(row.id);
         this.event(row.id, 'claimed', stamp, eventDetail.claimed);
         return row.id;
       });
@@ -351,7 +379,7 @@ INSERT OR IGNORE INTO schema_migrations VALUES (1);`);
       );
       const occurrence = this.db
         .prepare(
-          'SELECT executions.occurrence_key as occurrenceKey,tasks.topic as topic,tasks.quantity as quantity FROM executions JOIN tasks ON tasks.id=executions.task_id WHERE executions.id=?',
+          'SELECT executions.occurrence_key as occurrenceKey,execution_inputs.topic as topic,execution_inputs.quantity as quantity FROM executions JOIN execution_inputs ON execution_inputs.execution_id=executions.id WHERE executions.id=?',
         )
         .get(candidate) as {
         occurrenceKey: string;

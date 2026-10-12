@@ -44,8 +44,8 @@ test('serves a secret-free setup health contract', async (context) => {
       ['storage', 'healthy'],
       ['ai-route', 'configured'],
       ['research', 'configured'],
-      ['memory', 'not_implemented'],
-      ['scheduler', 'unknown'],
+      ['memory', 'configured'],
+      ['scheduler', 'unavailable'],
     ],
   );
   assert.deepEqual(body.estimatedCost, { status: 'unknown' });
@@ -93,29 +93,16 @@ test('serves the Tatu Health page', async (context) => {
 
   assert.equal(response.status, 200);
   const page = await response.text();
-  assert.match(page, /Tatu Health/);
-  assert.match(page, /Setup Health/);
-  assert.match(page, /fetch\('\/api\/setup-health'\)/);
+  assert.match(page, /lang="pt-BR"/);
+  assert.match(page, /Seu espaço pessoal/);
+  assert.match(page, /Configuração/);
   assert.match(page, /id="executions-title"/);
-  assert.match(page, /fetch\('\/api\/executions'\)/);
   assert.match(page, /Testar agora/);
-  assert.match(
-    page,
-    /fetch\('\/api\/tasks\/'.*encodeURIComponent\(taskId\).*\/test'/,
-  );
-  assert.match(page, /'Idempotency-Key': key/);
-  assert.match(page, /safeBriefingPreview/);
-  assert.match(page, /Briefing preview/);
-  assert.match(
-    page,
-    /\/api\/executions\/.*encodeURIComponent\(execution\.id\).*\/events/,
-  );
-  assert.match(
-    page,
-    /\/api\/executions\/.*encodeURIComponent\(execution\.id\).*\/briefing/,
-  );
-  assert.match(page, /function safeBriefingPreview\(value\)/);
-  assert.match(page, /safeBriefingPreview\(briefing\)/);
-  assert.match(page, /Estimated cost: unknown/);
-  assert.match(page, /Measured latency:/);
+  assert.match(page, /api\/chat\/messages/);
+  assert.match(page, /api\/assistant\/status/);
+  assert.match(page, /api\/setup-health/);
+  assert.match(page, /id="memory-editor"/);
+  assert.match(page, /id="note-editor"/);
+  assert.match(page, /manifest.webmanifest/);
+  assert.equal(response.headers.get('cache-control'), 'no-store');
 });

@@ -1,90 +1,79 @@
 # Open-source maintainer support
 
-Prepared October 3, 2026. Program rules can change; confirm the official pages
-when applying. This document prepares an application, but does not submit one,
-establish eligibility, or claim funding. Finish a usable public release and
-collect real maintenance/use evidence while development continues independently
-of these programs.
+Prepared October 12, 2026. This is application preparation, not a submission,
+approval, eligibility finding, funding promise, or runtime dependency. Confirm
+current official forms/terms before applying and keep personal account details
+private.
 
-## Public evidence to assemble
+## Honest Tatu evidence
 
-- A tested release/tag and reproducible installation instructions.
-- Passing public CI runs, release notes, and links to maintained issues/PRs.
-- Portuguese and English documentation and a short demonstration recorded
-  from the working product.
-- Real external-user feedback, installations/downloads where measurable,
-  and external contributions. Keep observations attributable and dated.
-- The applicant's maintainer role and relevant public work in other projects.
+The preceding public baseline is `803e1e6`, with historical local scheduled-RSS
+acceptance; public repository publication of the online candidate is pending at
+this October 12 record. The final local suite passed 186 tests and build, with
+zero known production vulnerabilities and no blocking static-review findings.
+The private QA Site is published: real negative HTTPS guards and live private
+MCP task-list/proposal calls are verified. The transient proposal required app
+confirmation and created no task. Web login/CRUD/mobile visual QA, real AI, and
+unattended scheduling remain open. Private QA evidence is not external adoption,
+competitor parity, or approval by a support program.
 
-Tatu currently implements scheduled, cited RSS briefings with local storage
-and file delivery. General AI conversation and MCP are future work. Do not
-present the broader product vision as implemented or the incomplete reliability
-trial as a passed acceptance test. No adoption figures have been established
-for this dossier.
+Do not describe the vision, native apps, account/device actions, password-vault
+E2EE, NotebookLM automation/audio, real inference without credentials, or scheduled
+execution without a verified dispatcher as implemented public capability. No
+external adoption metrics are established for this dossier. Removing the old
+30-day gate does not claim that historical trial passed.
+
+Collect links to:
+
+- The final public commit/release/tag, relevant CI, and reproducible independent
+  deployment instructions, after they exist.
+- Maintained issues/PRs, reviewed security decisions, release notes, and a short
+  demonstration of the actual verified product.
+- Real attributable external users/contributors/dependents or measurable
+  installation/download evidence; label limitations and dates.
+- The applicant's actual maintainer role and qualifying contributions in Tatu
+  or other projects. Replace placeholders only with evidence.
 
 ## Codex for Open Source
 
-Use the [official application](https://openai.com/form/codex-for-oss/),
-[program overview](https://developers.openai.com/community/codex-for-oss), and
-[terms](https://learn.chatgpt.com/docs/codex-for-oss-terms).
+Read the [official program](https://developers.openai.com/community/codex-for-oss),
+[application](https://openai.com/form/codex-for-oss/), and
+[terms](https://learn.chatgpt.com/docs/codex-for-oss-terms). The program considers
+meaningful use, maintenance, and ecosystem importance; support is discretionary.
+API support is for eligible OSS maintainer workflows, not a promise to finance
+Tatu end-user inference. Official OpenAI documentation was checked October 12;
+confirm the current form fields, limits, and personal eligibility when applying.
 
-Prepare your name, ChatGPT-account email, public GitHub profile/repository,
-primary/core maintainer role, OpenAI Organization ID, qualification explanation,
-and intended API-credit use. The qualification and API-use fields each allow
-500 characters. The program evaluates meaningful usage, maintenance, and
-ecosystem importance without publishing a numeric star minimum. Pro/Codex,
-API support, and Security benefits are discretionary; API credits are for
-eligible OSS-maintenance workflows.
+Draft qualification, to fit the live form after inserting verified links:
 
-Draft qualification text, to replace with verified personal/public evidence:
+> I am Tatu's [verified maintainer role]. Tatu is an early-stage MIT Brazilian personal-assistant project with a published local briefing baseline and an online prototype under review. Public evidence: [commit/release], [CI], [maintenance work]. External adoption is not yet established; I will not present the private founder beta as proven traction.
 
-> Tatu is an MIT-licensed, self-hosted project for scheduled, cited news briefings. I am its [primary/core] maintainer. Automated tests cover persistence, restart recovery, retries, idempotent delivery, and bounded credential redaction. The project is early-stage; adoption is not yet established. Public evidence: [release], [CI], [maintenance links].
+Draft intended support use:
 
-Draft API-use text:
+> I would use support for repository maintenance: coding, regression/security review, tests, documentation, and release workflows. Current work focuses on authenticated owner isolation, safe remote-provider quotas, and reliable scheduled delivery. Support would help maintain the open-source project, not guarantee hosted capacity or public-user inference.
 
-> I would use credits for coding, pull-request review, regression analysis, documentation, and release automation in Tatu's public repository. Work will focus on reliable scheduled briefings and safe local installation. Credits would support maintainer workflows, not public-user inference.
-
-Replace placeholders, verify the role and every assertion, and recount
-characters after inserting URLs. Use only public evidence in these fields.
-Do not invent traction to fill the qualification gap.
+Recount text after adding evidence. Do not submit private emails, organization
+IDs, account credentials, or provider keys to repository documents.
 
 ## Claude for Open Source
 
-Consult the [program page](https://claude.com/contact-sales/claude-for-oss) and
-[terms](https://www.anthropic.com/claude-for-oss-terms). The terms point to
-[the application](https://claude.com/open-source-max): GitHub sign-in, email,
-intended subscription use, and a qualification explanation of at most
-500 words. The interactive form was not inspected; these steps come from the
-published terms.
+Read the [program page](https://claude.com/contact-sales/claude-for-oss),
+[application](https://claude.com/open-source-max), and
+[terms](https://www.anthropic.com/claude-for-oss-terms). Review the current account,
+activity, residency, project/license, contribution, and ecosystem-impact criteria
+rather than assuming that MIT or a new repository qualifies automatically.
 
-Check the general requirements, including GitHub account age of at least two
-years, public OSS activity within the previous 90 days, legal age/supported
-residency, and participation in an OSI-licensed project. MIT meets the license
-condition, but does not establish overall eligibility.
+Prepare the evidenced eligibility route, maintainer/contributor responsibilities,
+actual users/dependents, and intended coding/review/test/documentation use.
+Qualifying work may include other OSS projects. Subscription support is not an
+API balance or guaranteed free inference for Tatu users; inspect the benefit's
+current duration, renewal, and extra-usage terms before accepting it.
 
-Identify one evidenced route: dependent repositories/packages or downloads;
-recognized foundation/language maintenance; merged PRs in repositories you do
-not own; external merged-PR contributors; OpenSSF criticality; or the
-discretionary ecosystem-impact route. Check the current numeric thresholds in
-the official terms. Qualifying work may include projects beyond Tatu.
+## Account-dependent handoff
 
-For the explanation, prepare these facts before writing:
-
-1. Your qualifying route and the public links supporting it.
-2. Your actual maintenance/contribution responsibilities.
-3. Who uses or depends on the work, with verifiable measurements.
-4. How Claude would help with coding, review, tests, or documentation.
-
-If those facts do not establish a route, keep developing and collecting
-evidence. The advertised six-month Max 20x subscription is personal;
-overages may be charged and an existing paid plan can resume afterward.
-It is not an API balance for Tatu users.
-
-## Before submitting
-
-The applicant must review the current terms, their personal/account details,
-and all public evidence. Neither application requires complete competitor
-feature parity, and neither guarantees selection. Record the submission date
-privately; do not publish email, organization IDs, credentials, or application
-responses in this repository. The project must remain usable when the support
-period ends.
+The applicant personally reviews their real maintainer role, GitHub/ChatGPT or
+Claude account, email, requested organization details, current terms, and the
+completed evidence text in the official form. GitHub/provider sign-in and terms
+acceptance remain account actions; no application has been submitted in this
+work. Record any later submission privately and keep the project usable without
+program approval or an ongoing support benefit.

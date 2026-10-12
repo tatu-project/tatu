@@ -5,11 +5,20 @@ import type {
   ExecutionEvent,
   ExecutionRecord,
 } from './index.js';
+import type { BriefingProposal, TaskPatch } from './assistant.js';
 
 /** Database-independent persistence ports. Production storage remains undecided. */
 export interface TaskStore {
   create(draft: BriefingDraft): BriefingTask;
   list(): BriefingTask[];
+  update?(id: string, patch: TaskPatch): BriefingTask | undefined;
+  propose?(
+    draft: BriefingDraft,
+    now?: Date,
+    requestKey?: string,
+  ): BriefingProposal;
+  proposals?(now?: Date): BriefingProposal[];
+  confirmProposal?(id: string, now?: Date): BriefingTask | undefined;
 }
 
 export interface ExecutionStore {

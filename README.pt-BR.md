@@ -1,93 +1,89 @@
 # Tatu
 
-Um projeto brasileiro de assistente pessoal gratuito, open source e
-auto-hospedável, com licença MIT.
+Assistente pessoal brasileiro, open source MIT, com backend online e aplicativo
+web instalável no celular e no computador. [Read in English](README.md).
 
-[Read in English](README.md).
+**Estado atual:** [beta privada de QA publicada](https://tatu-brasil-beta-vitti.craftystar18.chatgpt.site).
+A verificação local final passou com 186 testes; sondas HTTPS reais confirmaram
+bloqueios de acesso indevido. Leitura/proposta pelo MCP nativo autenticado funciona
+para a conta verificada. Ainda faltam login/CRUD no navegador, IA real, visual no
+celular e tarefa agendada. A publicação no
+repositório está pendente neste registro de 12 de outubro; `803e1e6` é a base
+pública anterior. Não há espera obrigatória de 30 dias. Veja o [roadmap](ROADMAP.md).
 
-**Estado atual:** desenvolvimento inicial. A primeira entrega é um briefing
-diário de notícias com fontes. O teste real de confiabilidade de 30 dias ainda
-está aberto; o Tatu ainda não está pronto para uso em produção.
+## Usar a beta privada
 
-## O que funciona hoje
+Abra o endereço privado e entre com a conta dona do Site; o acesso é só do dono.
+Esse login ainda precisa de verificação em navegador. Use o Tatu no celular ou computador.
+A instalação como PWA é opcional. Você não precisa deixar um PC ligado, instalar
+Ollama, baixar modelos, usar Node.js ou abrir um terminal.
 
-- Preparar e confirmar um pedido diário, como “Todos os dias às 8h, encontre
-  as três notícias mais importantes sobre inteligência artificial e me envie”.
-- Salvar a tarefa e executar as ocorrências com histórico, tentativas e
-  recuperação após reiniciar o processo.
-- Buscar notícias em feeds RSS públicos HTTPS, selecionar fontes e gerar
-  um resultado com citações.
-- Usar síntese por Ollama local quando configurada. O resultado padrão do RSS
-  é determinístico e não chama um modelo de IA.
-- Entregar o briefing em Markdown na pasta local `data/deliveries`.
-- Consultar tarefas, testar uma execução e acompanhar seu histórico no navegador.
+A versão candidata reúne conversas, notas, preferências escolhidas pelo usuário,
+tarefas diárias, pausa/edição/retomada, histórico, leitor com fontes, conexões de
+IA e MCP autenticado. Os recursos têm testes de implementação/cliente; o fluxo
+autenticado completo no serviço publicado continua aberto. Não há promessa de
+paridade completa com outros assistentes.
 
-O campo Chat hoje prepara pedidos de briefing diário. Conversa geral com IA,
-memória pessoal editável, notificações externas, PWA instalável e integração
-MCP/ChatGPT ainda precisam ser construídos.
+Não há conexão Workers AI nem chave Groq configurada: a conversa com IA está
+indisponível agora. Após entrar, conecte sua própria chave Groq autorizada pelo
+formulário HTTPS do aplicativo e verifique a primeira resposta real. Nunca cole
+a chave no chat. Sem conexão, cota ou internet, o Tatu informa a indisponibilidade.
 
-## Instalar e usar
+O pedido inicial é receber notícias de IA às **09:00, America/Sao_Paulo**. A busca
+atual consulta feeds públicos selecionados sobre IA e aceita de 1 a 10 notícias.
+Os fatos são trechos citados do RSS, sem afirmar que uma IA os escreveu. A entrega
+é dentro do aplicativo. O agendamento no Site continua desativado até conectar e
+verificar seu disparo automático; a configuração independente de Cron tem teste
+separado. O teste real do despachante com fila vazia passou, mas nenhuma tarefa
+nova ou agenda foi criada; isso não comprova uma execução sem intervenção.
 
-Instale Git, Node.js `>=24.11.0 <25` e npm `>=11.6.0 <12`. Docker e Ollama são
-opcionais. Em um terminal:
+O objetivo confirmado é gerar **resumos em áudio no NotebookLM**. O Tatu exporta
+texto com fontes para importação manual no [NotebookLM](https://notebooklm.google.com/),
+onde você gera o Audio Overview. A integração automática de áudio pela API do
+Tatu não está implementada; uma conta gratuita não concede esse acesso de API.
+Entregar só o texto não conclui o objetivo de áudio.
 
-```sh
-git clone https://github.com/tatu-project/tatu.git
-cd tatu
-npm ci
-npm run ci
-npm run dev
-```
+O MCP privado nativo funciona para a conta da plataforma verificada: listar
+tarefas retornou `[]`; preparar tarefa retornou uma proposta às 09:00, com três
+notícias de IA e confirmação obrigatória no aplicativo. Isso não criou tarefa
+nem agenda. OAuth manual independente e login por cookie no navegador ainda
+precisam de verificação separada.
 
-No PowerShell, use `npm.cmd` se a execução do arquivo `npm.ps1` estiver bloqueada.
+## Dados e limites
 
-Abra `http://127.0.0.1:3000`, prepare o pedido e confirme a tarefa. Use
-**Testar agora** para conferir o fluxo sem esperar pelo horário agendado.
-Leia o arquivo gerado em `data/deliveries`; a página mostra uma prévia das
-notícias e o histórico da execução.
+| Informação                                           | Tratamento na versão candidata                                                    |
+| ---------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Conversas, notas, preferências, tarefas e resultados | D1 online, separados pela conta autenticada                                       |
+| Chave Groq                                           | Criptografia que o servidor pode abrir para chamar a API; não é E2EE              |
+| Contexto escolhido para a conversa                   | Enviado ao provedor de IA autorizado                                              |
+| Histórico de execução                                | Até 500 execuções finalizadas por conta; pendentes e em andamento são preservadas |
 
-Mantenha o computador e os processos ligados para os próximos agendamentos.
-Se a rede ou a fonte estiver indisponível, a execução registra a falha.
-O comando de desenvolvimento não instala um serviço de inicialização automática.
+Mensagens, notas e preferências ficam em texto legível para a aplicação, embora
+o armazenamento da plataforma seja criptografado. Apagar dados do Tatu não apaga
+as cópias eventualmente retidas pelo provedor. O cofre privado com chave somente
+do usuário ainda é trabalho separado, assim como apps nativos, controle de
+aplicativos/dispositivos e ações em contas conectadas. Veja a
+[arquitetura de segurança](docs/SECURITY-ARCHITECTURE.md).
 
-A configuração npm do repositório desativa scripts de instalação de
-dependências. O SQLite usa o binário incluído no pacote para as plataformas
-suportadas. Novas dependências que precisem desses scripts exigem revisão.
+As cotas atuais por conta são 8 pedidos de IA/minuto, 30/dia na rota patrocinada
+ou 100/dia com BYOK, contexto de 4.096 bytes, até 1.024 tokens de saída e 2 pedidos
+simultâneos. Limites compartilhados/do provedor podem ser menores; a cota externa
+é desconhecida. A API limita 240 leituras e 60 alterações/minuto por conta.
 
-Para configuração, backup e resolução de problemas, consulte o
-[guia de instalação](docs/DEPLOYMENT.md). Para observar execuções diárias,
-siga o [protocolo de confiabilidade](docs/RELIABILITY-TRIAL.md).
+O projeto prioriza caminhos gratuitos legítimos. Isso não garante hospedagem,
+elegibilidade, IA ilimitada ou disponibilidade contínua. Não existe troca
+automática para uma rota paga nem contorno de cotas.
 
-## Dados e custos
+## Desenvolver ou hospedar por conta própria
 
-| Dado ou operação               | Onde acontece                                         |
-| ------------------------------ | ----------------------------------------------------- |
-| Tarefas, execuções e histórico | SQLite na instalação do usuário                       |
-| Briefings entregues            | Pasta local `data/deliveries`                         |
-| Busca RSS                      | Requisições às fontes públicas configuradas           |
-| Síntese opcional por Ollama    | Endpoint local, com o tema e as notícias selecionadas |
+Os comandos de Node/npm são para mantenedores, não para usar a beta online.
+Consulte [desenvolvimento](docs/DEVELOPMENT.md) e
+[hospedagem](docs/DEPLOYMENT.md). O caminho independente Workers/D1/Access precisa
+de conta, configuração e verificação próprias; não depende da conta do fundador.
+O backend Node/SQLite anterior continua como opção local separada.
 
-O caminho padrão não exige conta de provedor de IA, chave de API, VPS ou banco
-remoto. Ele usa os recursos e a conexão do computador do usuário; isso não
-significa ausência de consumo de energia ou de requisitos de hardware.
+Para contribuir, leia [CONTRIBUTING.md](CONTRIBUTING.md) e [PROJECT.md](PROJECT.md).
+Os [programas de apoio open source](docs/OPEN_SOURCE_SUPPORT.md) ajudam o
+mantenedor; a beta privada não comprova adoção ou aprovação de candidatura.
 
-As fontes RSS recebem as requisições e seus metadados de rede. No fluxo atual,
-o tema é filtrado localmente; não há envio do histórico de conversa a um
-provedor remoto de IA. Se futuramente houver um provedor remoto, o Tatu deverá
-explicar os dados enviados antes da conexão.
-
-Proteja a máquina e seus backups. Não coloque credenciais no tema, nas URLs
-dos feeds ou em arquivos versionados. A validação atual reconhece padrões
-limitados de credenciais; não detecta todos os dados pessoais. O serviço é
-individual e local, sem autenticação para acesso remoto.
-
-## Contribuir
-
-Comece pelo [roadmap](ROADMAP.md) e pelo
-[guia de contribuição](CONTRIBUTING.md). Correções, testes, documentação e
-relatos de uso ajudam a fechar a primeira entrega. O projeto acompanha
-evidências reais de manutenção e adoção; ainda não afirma ter uma base de
-usuários validada.
-
-[MIT](LICENSE). Modelos, dependências e integrações mantêm suas próprias
-licenças e condições de uso.
+[MIT](LICENSE). Modelos, provedores e dependências mantêm suas próprias condições.

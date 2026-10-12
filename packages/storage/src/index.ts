@@ -4,6 +4,7 @@
  */
 export { SqliteTaskStore } from './sqlite-task-store.js';
 export { LocalScheduler } from './sqlite-scheduler.js';
+export { SqliteAssistantStore } from './sqlite-assistant-store.js';
 export {
   BYOK_ENCRYPTION_ALGORITHM,
   BYOK_MAX_SECRET_BYTES,
