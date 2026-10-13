@@ -463,3 +463,24 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
   This is a manual experiment, not production Tatu activation. The protected
   Cloudflare account remains untouched; isolated free-inference entitlement,
   online AI, scheduler and browser CRUD gates remain open.
+
+## 2026-10-13 - First user-reported manual Colab answer
+
+- User output reports `Qwen/Qwen3-8B`, revision
+  `b968826d9c46dd6066d109eabc6255188de91218`, with one public Portuguese answer:
+  49 input/69 output tokens, 10.37 s, peak allocated 5.79 GiB/reserved 5.89 GiB,
+  and free VRAM 8.54 GiB. This is attributed user evidence, not an agent GPU
+  run, repeated benchmark or 27B test; earlier T4/install logs remain above.
+- Recovery print/CUDA-tensor placement evidence was not supplied; independent
+  device-placement audit remains open. The earlier diagnostic failure remains
+  history rather than a pending first-answer blocker. Root confirmed notebook
+  fix `3e18a5b6405cc38f0e69b74ffdb53a6f1b4435c4` and [CI38480527225](https://github.com/tatu-project/tatu/actions/runs/38480527225)
+  completed success on Windows/Ubuntu; prior local 189-test evidence is unchanged.
+  For this doc update, root reran `python scripts/check_colab_notebook.py -v`
+  (8/8), `npm run format:check` and `git diff --check` (exit 0), and confirmed
+  runtime code/metadata/later cells match HEAD. No new GPU execution or full
+  application suite was run.
+- No provider credential/Tatu connection, schedule, unattended delivery or
+  production-company resource change resulted. Next actual Tatu action remains
+  legitimate isolated free-inference entitlement outside protected resources;
+  online AI/scheduler/browser CRUD gates remain unchecked.

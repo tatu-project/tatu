@@ -6,15 +6,17 @@ resposta curta em português usando uma GPU do **Colab hospedado**. O padrão é
 128 de saída. O ramo `Qwen/Qwen3.8-27B` é opcional e fica desativado até o usuário
 confirmá-lo explicitamente.
 
-**Estado: o usuário relatou instalação concluída e carregamento 399/399 em uma
-T4, com Python 3.13.15 e PyTorch 2.11+cu130.** A célula antiga falhou ao imprimir
-`hf_device_map`; a colocação real dos tensores e a inferência ainda não foram
-verificadas. O artefato corrigido foi verificado estaticamente, sem execução de
-GPU pelo agente. Isto não ativa um provedor nem altera a implantação do Tatu.
+**Estado em 13 de outubro de 2026: o usuário relatou uma inferência curta em
+português concluída no Colab com Qwen3-8B.** Antes, relatou instalação e carga
+399/399 em T4, Python 3.13.15 e PyTorch 2.11+cu130. O agente não executou nem
+verificou independentemente essa sessão. Isto não ativa um provedor nem altera
+a implantação do Tatu; os limites dessa evidência estão registrados abaixo.
 
 ## Recuperar o modelo já carregado
 
-Na cópia antiga ainda aberta, adicione uma célula com **+ Código** e cole o
+Use esta recuperação somente se uma cópia antiga falhar ao imprimir
+`hf_device_map` após carregar o modelo. Quem já obteve a resposta não precisa
+repeti-la. Na cópia antiga ainda aberta, adicione uma célula com **+ Código** e cole o
 bloco abaixo. Ele usa os objetos existentes; não reinstala nem recarrega pesos.
 Não execute novamente a célula de carregamento. Se o runtime foi desconectado
 ou os objetos foram liberados, esta recuperação não pode restaurá-los.
@@ -154,8 +156,18 @@ efêmero.
 A validação local lê apenas o JSON do notebook e analisa a sintaxe Python das
 células; não executa imports, instalação, download ou inferência. As células
 estão sem saídas e com `execution_count: null` para não inventar evidência.
-O próximo resultado verificável é uma execução manual no Colab com hardware,
-versões, saída e memória registrados pelo próprio notebook.
+
+Em **13 de outubro de 2026**, o usuário apresentou uma resposta em português e
+as métricas de uma execução manual de `Qwen/Qwen3-8B`, revisão
+`b968826d9c46dd6066d109eabc6255188de91218`: **49 tokens de entrada, 69 de saída,
+10,37 segundos, pico alocado de 5,79 GiB, memória reservada de 5,89 GiB e VRAM
+livre de 8,54 GiB**. São valores relatados de uma única pergunta curta, sem
+execução independente pelo agente. Não constituem benchmark, garantia de
+capacidade geral, teste do 27B ou integração com o Tatu em produção/agendamento.
+Não foi apresentada a saída `tensors_cuda0` da recuperação; a auditoria
+independente da colocação real de todos os tensores permanece sem comprovação.
+O texto completo da resposta não foi copiado para este repositório, para saídas
+salvas do notebook nele ou para fixtures.
 
 Para repetir as verificações estáticas e regressões com objetos simulados,
 execute opcionalmente `python scripts/check_colab_notebook.py`. O script usa

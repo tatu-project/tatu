@@ -40,14 +40,14 @@ updated: 2026-10-13
   open. Public API candidates produced no verified model output. These are
   current-session limitations, not permanent impossibility claims.
 - The [manual Colab experiment](../docs/COLAB-EXPERIMENT.md) defaults to 8B with
-  optional 27B/GPU preflight. User-pasted October 13 logs report T4 GPU/package
-  setup, 16.4 GB downloaded (5/5), and loading 399/399, then `AttributeError`
-  at the final `model.hf_device_map.items()` diagnostic. Actual device placement
-  and inference are unconfirmed; diagnostic/cleanup correction passes root
-  static/mock/local CI and reviewer checks. Actual guarded in-session GPU
-  recovery awaits fresh output. Ideal 27B four-bit
-  weights are about 13.5 GB plus overhead,
-  not dependable T4 fit; Colab is not an unattended Tatu backend.
+  optional untested 27B. Fresh user output reports one public Portuguese 8B
+  answer: 49 input/69 output tokens, 10.37 s; peak allocated/reserved VRAM
+  5.79/5.89 GiB, free 8.54 GiB. Earlier T4/download/loading logs and diagnostic
+  failure remain in the session history. Root static checks, eight mock tests, local CI/review
+  and [fix CI for 3e18a5b](https://github.com/tatu-project/tatu/actions/runs/38480527225)
+  pass. Recovery/device-placement diagnostics were not supplied; independent
+  placement audit remains open. This is a manual user result, not Tatu
+  activation, a repeated benchmark, or an unattended backend.
 - Native automations are empty and have no verified code-dispatch bridge/free
   cadence guarantee. Dispatch trusts the single-owner private platform boundary,
   not service-only identity; wider sharing requires independent dispatch authority.
@@ -68,8 +68,8 @@ updated: 2026-10-13
 
 Next action: verify legitimate isolated free-inference entitlement outside the
 protected production resources, then prove an authorized real turn. For the
-manual Colab experiment, apply the reviewed guarded recovery in the existing
-session and capture placement inspection plus the first real short answer.
+manual Colab experiment, the first answer is captured; obtain the guarded
+device-placement diagnostic before claiming independent placement verification.
 Independently verify browser CRUD/mobile QA; native
 MCP read/proposal is already verified, while broader confirmation/CRUD, actual
 scheduling and portable deployment remain unchecked.
