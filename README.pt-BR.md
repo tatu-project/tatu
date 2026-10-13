@@ -4,12 +4,12 @@ Assistente pessoal brasileiro, open source MIT, com backend online e aplicativo
 web instalável no celular e no computador. [Read in English](README.md).
 
 **Estado atual:** [beta privada de QA publicada](https://tatu-brasil-beta-vitti.craftystar18.chatgpt.site).
-A verificação local final passou com 186 testes; sondas HTTPS reais confirmaram
+A verificação local final passou com 189 testes; sondas HTTPS reais confirmaram
 bloqueios de acesso indevido. Leitura/proposta pelo MCP nativo autenticado funciona
 para a conta verificada. Ainda faltam login/CRUD no navegador, IA real, visual no
-celular e tarefa agendada. A publicação no
-repositório está pendente neste registro de 12 de outubro; `803e1e6` é a base
-pública anterior. Não há espera obrigatória de 30 dias. Veja o [roadmap](ROADMAP.md).
+celular e tarefa agendada. O [commit de implementação d2a8bc2](https://github.com/tatu-project/tatu/commit/d2a8bc22e9ecb6a990852ca38c8dc8fb596ab680)
+foi publicado no `main`; o [CI remoto](https://github.com/tatu-project/tatu/actions/runs/38336981415)
+passou no Windows e no Linux para a [revisão verificada 4323d45](https://github.com/tatu-project/tatu/commit/4323d4584c0e8a9cce9857ff521ae1f5f27beafe), conforme o [CI 38336981415](https://github.com/tatu-project/tatu/actions/runs/38336981415). Não há espera obrigatória de 30 dias. Veja o [roadmap](ROADMAP.md).
 
 ## Usar a beta privada
 

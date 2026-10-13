@@ -6,11 +6,11 @@ session, not a PC, Node.js, Ollama, or a model download. This guide separates th
 private Sites beta from independent hosting and the optional legacy runtime.
 
 **Current handoff:** the [private QA beta is published](https://tatu-brasil-beta-vitti.craftystar18.chatgpt.site).
-Real HTTPS negative-access probes and native authenticated MCP read/proposal pass.
-Web owner cookie sign-in/CRUD, mobile visual QA, live AI and unattended scheduling
-remain open. The final local suite passed 186 tests. Public repository publication is
-pending at this October 12 evidence record. This is a bounded QA beta, not full
-assistant acceptance.
+Native authenticated MCP read/proposal and negative HTTPS guards are verified.
+Local format/lint/types/189 tests/build pass; [app revision 4323d45](https://github.com/tatu-project/tatu/commit/4323d4584c0e8a9cce9857ff521ae1f5f27beafe)
+is pushed and [remote CI 38336981415](https://github.com/tatu-project/tatu/actions/runs/38336981415)
+passed Windows and Linux. Positive web cookie login/CRUD/mobile visuals, real AI
+and unattended scheduling remain open; this is a QA beta, not full acceptance.
 
 ## Private Sites beta: first deployment lane
 
@@ -88,7 +88,7 @@ deployment and allowance requirement.
 | Published version                              | `appgprj_6acd251e58c48191b7ac239888ce8062~appgver_70f5aaee17388191b1f6b5d13b216a9c`                                                                                               |
 | Access and database                            | Custom private access: one owner, no other groups/external access; native `DB` overview has 12 applied tables                                                                     |
 | Artifact                                       | 173,003-byte ESM Worker with `fetch`/`scheduled`, two immutable SQL migrations, zero native/external imports                                                                      |
-| Local final verification                       | Clean ordinary install: 157 locked packages, Windows Node 24.13.0/npm 11.6.2; `npm run ci` passed format/lint/types/186 tests/build; production audit: zero known vulnerabilities |
+| Local final verification                       | Clean ordinary install: 157 locked packages, Windows Node 24.13.0/npm 11.6.2; `npm run ci` passed format/lint/types/189 tests/build; production audit: zero known vulnerabilities |
 | Review                                         | Final static review after export/quota/key-rotation/context fixes: no blocking findings                                                                                           |
 
 The private-site CLI probe exited 0: anonymous root and `/api/me` returned 401;
@@ -107,16 +107,22 @@ plugin is installed. Actual native `tatu_listar_tarefas` returned `[]`, and
 AI proposal with `requiresAppConfirmation: true`. The proposal is transient owner
 QA data, not a confirmed task. Native platform-authenticated tool exposure and
 these calls are verified for this account; standalone/manual OAuth and browser
-cookies are not. No provider key, LLM call, task or schedule was created. This record is not
-public GitHub publication: its preceding public baseline is `803e1e6`, pending
-the orchestrator's final integrated commit/push.
+cookies are not. No provider key, LLM call, task or schedule was created. Public implementation and its fixes are now verified at
+[app revision 4323d45](https://github.com/tatu-project/tatu/commit/4323d4584c0e8a9cce9857ff521ae1f5f27beafe).
+Root confirmed [Actions run 38336981415](https://github.com/tatu-project/tatu/actions/runs/38336981415)
+completed successfully: [Ubuntu job](https://github.com/tatu-project/tatu/actions/runs/38336981415/job/115099178993)
+and [Windows job](https://github.com/tatu-project/tatu/actions/runs/38336981415/job/115099179203).
+Local proof is 189 passed/zero failed/zero skipped, plus format/lint/types/build;
+all eight export tests pass. The owned temporary SUBST regression was reproduced,
+its physical target verified before unmapping, and root's final inventory is
+empty. Later canonical/lstat/symlink/whitelist/preflight safeguards remain.
+Earlier failed runs are retained only as dated session history.
 
-After the Node local-session regression fix, the final root suite passed with
-186 tests and zero failures, plus formatting/lint/types/build. The 173,003-byte
-Worker and two migrations are unchanged; its SHA-256 exactly matches the
-published bundle:
+The 173,003-byte Worker/two migrations and private Site are unchanged. The
+current bundle exactly matches the published SHA-256:
 `20E0CD6119DBC07E2F977ACA13C16F8FA7DF775772521B29627A3D96D9C7D6CC`.
-No cloud redeployment or new live AI/scheduling acceptance is implied.
+Root reverified the one-owner/no-other-groups/no-external audience and native
+empty task list, without new tasks, keys, schedules or browser acceptance.
 
 ## Independent Workers/D1/Access: second deployment lane
 

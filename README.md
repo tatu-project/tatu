@@ -4,12 +4,12 @@ A Brazilian, MIT-licensed personal assistant with an online backend and an
 installable mobile/desktop web app. [Leia em português](README.pt-BR.md).
 
 **Status:** [private QA beta published](https://tatu-brasil-beta-vitti.craftystar18.chatgpt.site).
-The final local suite passed 186 tests and real HTTPS probes verified negative
+The final local suite passed 189 tests and real HTTPS probes verified negative
 access guards. Authenticated native MCP read/proposal works for the checked
 account; web owner sign-in/CRUD, real AI, mobile visual QA and scheduling remain
-open. Repository publication is
-pending at this October 12 evidence snapshot; `803e1e6` is the preceding public
-baseline. No mandatory 30-day wait remains. [ROADMAP.md](ROADMAP.md) records proof.
+open. The [implementation commit d2a8bc2](https://github.com/tatu-project/tatu/commit/d2a8bc22e9ecb6a990852ca38c8dc8fb596ab680)
+is published on `main`; [remote CI](https://github.com/tatu-project/tatu/actions/runs/38336981415)
+passed on Windows and Linux for [verified app revision 4323d45](https://github.com/tatu-project/tatu/commit/4323d4584c0e8a9cce9857ff521ae1f5f27beafe), confirmed by [CI run 38336981415](https://github.com/tatu-project/tatu/actions/runs/38336981415). No mandatory 30-day wait remains. [ROADMAP.md](ROADMAP.md) records proof.
 
 ## Use the private beta
 

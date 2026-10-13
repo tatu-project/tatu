@@ -369,3 +369,57 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
   endpoint, with 15-minute expiry and app confirmation; code/tests prove this,
   not visual or live confirmation. Repository publication/remote CI and positive
   web/mobile/AI/scheduling acceptance remain open.
+
+## 2026-10-12 - Implementation pushed; Windows CI gate remains open
+
+- Root pushed `d2a8bc22e9ecb6a990852ca38c8dc8fb596ab680` to remote main and
+  verified the exact hash; the four founder `.codex` changes are preserved.
+- [Actions run 38313089529](https://github.com/tatu-project/tatu/actions/runs/38313089529)
+  completed with Linux success and Windows failure. Root/recon are diagnosing
+  the failure; no passing remote-CI/final-release claim is made. The local
+  186-pass proof and native Site/MCP evidence remain distinct from this gate.
+- No whole online stage is complete; web/mobile/AI/scheduling and independent
+  hosting remain separately verified future outcomes.
+
+## 2026-10-12 - Windows export correction pushed; remote rerun pending
+
+- Old Actions run38313089529 passed Linux186/186; Windows182/186 failed four
+  export cases at the lexical workspace/tmp guard. Root reproduced the guard
+  failure before the platform-aware native-path correction; all seven export
+  tests and full format/lint/types/188-pass/zero-fail/zero-skip/build now pass.
+- Review retains canonical/symlink/preflight checks. Root pushed correction
+  `a56eede20a45021c3bb58de9b666dbbdd5b759b6`; new
+  [CI run38335970031](https://github.com/tatu-project/tatu/actions/runs/38335970031)
+  is in progress. No remote success/final full-release claim is made.
+- The 173,003-byte cloud artifact remains unchanged; no new deployment, model,
+  schedule or browser acceptance was added.
+
+## 2026-10-12 - Second Windows namespace correction; latest CI pending
+
+- Run38335970031 failed: Linux188 passed, Windows183 passed/five failed. The
+  first case correction did not resolve the remaining remote guard failure.
+- Root/executor reproduced the old guard with an owned temporary SUBST drive,
+  verified the physical target and unmapped it in finally. Root inventory is
+  empty after the full suite. The minimal caller-workspace guard correction
+  retains component/canonical/symlink/whitelist/preflight protections; all eight
+  export tests and full format/lint/types/189-pass/zero-fail/zero-skip/build pass.
+- Root pushed `4323d4584c0e8a9cce9857ff521ae1f5f27beafe`; [latest run38336981415](https://github.com/tatu-project/tatu/actions/runs/38336981415)
+  is in progress. Remote-CI gate remains unchecked. Cloud173003-byte bundle,
+  one-owner private audience, no task/schedule/model and open browser gates are
+  unchanged; native task-list read was reverified.
+
+## 2026-10-12 - Windows and Linux remote CI verified
+
+- Root confirmed app revision `4323d4584c0e8a9cce9857ff521ae1f5f27beafe` on main
+  and [run38336981415](https://github.com/tatu-project/tatu/actions/runs/38336981415)
+  completed SUCCESS for both ubuntu-latest and windows-latest (jobs115099178993
+  and115099179203). Local format/lint/types/build/189 tests pass with zero
+  failures/skips; all eight export cases pass and SUBST inventory is empty.
+- Checked only the Stage11 combined repository/remote-CI item. The prior two
+  Windows failures remain the dated historical entries above; no whole online
+  stage is complete. Web cookie/mobile visuals, real AI and actual scheduling
+  remain open, with no new keys/tasks/automation/audience change.
+- Cloud173003-byte bundle/hash remains the published artifact. Root reverified
+  the single-owner private audience and native MCP empty task read. The four
+  user `.codex` edits remain unchanged/excluded; documentation publication is
+  separate from this verified app revision.

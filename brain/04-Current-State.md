@@ -11,12 +11,13 @@ updated: 2026-10-12
 - Private QA beta published: https://tatu-brasil-beta-vitti.craftystar18.chatgpt.site
   with one owner and no other groups/external access. Native `DB` has 12 applied
   tables. Positive owner login/CRUD and full assistant acceptance remain open.
-- At this record, public repository publication is pending; the preceding GitHub
-  baseline is `803e1e6`. Private Site source/deployment/version records are in
+- Verified app [4323d45](https://github.com/tatu-project/tatu/commit/4323d4584c0e8a9cce9857ff521ae1f5f27beafe)
+  is published on main; [CI 38336981415](https://github.com/tatu-project/tatu/actions/runs/38336981415)
+  passed Windows and Linux. Private Site source/deployment records are in
   [deployment evidence](../docs/DEPLOYMENT.md#october-12-private-publication-evidence).
   The founder's four `.codex` edits remain unchanged outside the intended commit.
 - Root final checks: ordinary install of 157 locked packages, Windows Node
-  24.13.0/npm 11.6.2; format/lint/types/186 tests/build passed; production audit
+  24.13.0/npm 11.6.2; format/lint/types/189 tests/build passed; production audit
   has zero known vulnerabilities; final static review has no blocking findings.
 - Fixture SQL/API and ten client tests cover scoped identity/data, encrypted keys,
   quotas, scheduler/MCP boundaries, and reviewed public cited-text NotebookLM
@@ -50,7 +51,7 @@ Next action: owner opens the private URL and signs in; verify CRUD, connect thei
 Groq key securely, and prove the first real AI turn. Enable the platform browser
 for mobile visual QA. Native MCP read/proposal is already verified; broader
 confirmation/CRUD, actual scheduling and portable deployment remain unchecked.
-The local-session regression fix is included in the verified 186-pass/zero-fail final suite; the cloud bundle matches the published artifact.
+The local-session regression fix is included in the verified 189-pass/zero-fail final suite; the cloud bundle matches the published artifact.
 
 Authoritative scope/status: [PROJECT.md](../PROJECT.md), [ROADMAP.md](../ROADMAP.md).
 Security: [SECURITY-ARCHITECTURE.md](../docs/SECURITY-ARCHITECTURE.md).

@@ -1,14 +1,20 @@
 # Security architecture and agent boundaries
 
 Status: accepted architecture and private QA beta published on October 12, 2026.
-The dated 186-test suite, fixture/SQL boundaries, real HTTPS negative guards and
+The dated 189-test suite, fixture/SQL boundaries, real HTTPS negative guards and
 authenticated native MCP read/proposal pass. Web owner cookie sign-in/CRUD,
 real inference, scheduled task runs, mobile visual QA and manual/standalone OAuth
-remain open. The final 186-pass/zero-fail suite includes the local-session
+remain open. The final 189-pass/zero-fail suite includes the local-session
 regression fix; the cloud bundle matches the published artifact. Neither these
 checks nor publication prove full release acceptance, native control, audio, or E2EE. Completion
 belongs to [`ROADMAP.md`](../ROADMAP.md). [ADR-0024](decisions/ADR-0024-mobile-cloud-security-and-agent-boundaries.md)
 records the decision and alternatives. No 100%-secure claim is made.
+
+[Verified app revision 4323d45](https://github.com/tatu-project/tatu/commit/4323d4584c0e8a9cce9857ff521ae1f5f27beafe)
+has [successful Windows/Linux CI](https://github.com/tatu-project/tatu/actions/runs/38336981415).
+The final local 189 tests/eight export cases pass with no failures/skips; the
+cloud bundle remains unchanged. This closes the repository/CI gate only, not
+the remaining web/mobile/AI/scheduling or planned privacy guarantees.
 
 ## Current protection versus planned privacy
 

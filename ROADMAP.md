@@ -1,6 +1,6 @@
 # Tatu Roadmap
 
-> Current status: private QA beta published; dated 186-test suite, fixture implementation, live negative guards and authenticated native MCP read/proposal verified. Positive web owner login/CRUD, inference, scheduling, mobile visual QA and independent/manual OAuth remain open. Public repository publication is pending at this October 12 record; its preceding baseline is `803e1e6`.
+> Current status: private QA beta and implementation commit `d2a8bc2` published; local 189-test suite, fixture implementation, live negative guards and native MCP read/proposal verified. Remote CI passed on Windows and Linux for [verified app revision 4323d45](https://github.com/tatu-project/tatu/commit/4323d4584c0e8a9cce9857ff521ae1f5f27beafe), confirmed by [CI run 38336981415](https://github.com/tatu-project/tatu/actions/runs/38336981415). Positive web cookie login/CRUD, inference, scheduling, mobile visual QA and independent/manual OAuth remain open.
 > Rule: check an item only after its acceptance criterion has been verified.
 > Compact session context: [`brain/04-Current-State.md`](brain/04-Current-State.md).
 
@@ -310,16 +310,28 @@ Outcome: a verified authenticated online beta can be shared privately with its t
 
 - [x] Bounded MCP protocol/tools and permission behavior pass fixture tests; real identity-free initialize/list/call requests fail at the private gateway.
 - [x] Private Site and native MCP endpoint/plugin published/installed; authenticated native Tatu tools are exposed for the checked account.
-- [x] Clean ordinary install and final local format/lint/typecheck/186-test/build suite pass; production audit reports zero known vulnerabilities and final static review has no blocking findings.
+- [x] Clean ordinary install and final local format/lint/typecheck/189-test/build suite pass; production audit reports zero known vulnerabilities and final static review has no blocking findings.
 - [x] Real private HTTPS publication and CLI negative-access/system-readiness probes pass; exact deployment evidence is recorded below.
 - [x] Live native `tatu_listar_tarefas` returns `[]`, and `tatu_preparar_tarefa` returns an expiring 09:00/three-story AI proposal requiring app confirmation; no task is created.
-- [ ] Public repository publication and its remote CI verified for the final integrated revision.
+- [x] Public implementation/app revision `4323d45` pushed and remote CI run 38336981415 passed on both Windows and Linux.
 - [ ] Positive owner sign-in/mobile visual/PWA smoke and first real inference/scheduled task run satisfy the full online acceptance.
+
+Verified app revision [4323d4584c0e8a9cce9857ff521ae1f5f27beafe](https://github.com/tatu-project/tatu/commit/4323d4584c0e8a9cce9857ff521ae1f5f27beafe)
+is pushed to `origin/main`. Root confirmed
+[run 38336981415](https://github.com/tatu-project/tatu/actions/runs/38336981415)
+completed successfully on both Ubuntu and Windows, so only the combined
+publication/remote-CI item is now checked. Local formatting/lint/types/build and
+189 tests pass with zero failures/skips, including eight secure-export tests.
+The owned SUBST-drive regression was reproduced and cleaned up; root's mapping
+inventory is empty. Canonical/lstat/symlink/whitelist/preflight checks remain.
+The cloud bundle is unchanged, and four user `.codex` edits remain excluded.
+Earlier failed runs are retained as dated history in the session log.
+No whole online stage is complete: web/mobile/AI/scheduling gates remain open.
 
 The positive native-tool connection is verified for this platform account.
 Standalone/manual OAuth setup, web cookie login, broader live CRUD/confirmation,
 and independent deployment remain unverified. The final suite includes the
-local-session regression fix: 186 passed, zero failed. The cloud bundle is
+local-session regression fix: 189 passed, zero failed. The cloud bundle is
 byte-identical to the published artifact; no cloud redeployment was needed.
 
 Acceptance test:
@@ -331,7 +343,7 @@ Acceptance test:
 ## October 12, 2026 — bounded private QA evidence
 
 - Clean ordinary `npm ci` installed 157 locked packages on Windows Node
-  24.13.0/npm 11.6.2. Final `npm run ci` passed format, lint, types, 186 tests,
+  24.13.0/npm 11.6.2. Final `npm run ci` passed format, lint, types, 189 tests,
   and build; production audit reports zero known vulnerabilities. Final static
   review after export/quota/key-rotation/context fixes has no blocking findings.
 - Private owner-only Sites publication succeeded at
@@ -354,8 +366,9 @@ Acceptance test:
   09:00 `America/Sao_Paulo`, quantity-three AI-news proposal with
   `requiresAppConfirmation: true`. This created transient owner QA proposal data,
   not a confirmed task. No LLM call, schedule, or provider key exists. Manual
-  OAuth/web cookie flows and entire online stages remain open; main publication,
-  remote CI remain pending. Final local verification is 186 passed/zero failed.
+  OAuth/web cookie flows and entire online stages remain open. Implementation
+  app revision `4323d45` is pushed; remote CI passed Windows and Linux. Final local verification
+  is 189 passed/zero failed.
 
 Exact next action: open the private URL with the owner account, verify positive
 sign-in, connect an authorized Groq key only through the HTTPS form and verify

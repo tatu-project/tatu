@@ -7,15 +7,16 @@ private.
 
 ## Honest Tatu evidence
 
-The preceding public baseline is `803e1e6`, with historical local scheduled-RSS
-acceptance; public repository publication of the online candidate is pending at
-this October 12 record. The final local suite passed 186 tests and build, with
-zero known production vulnerabilities and no blocking static-review findings.
-The private QA Site is published: real negative HTTPS guards and live private
-MCP task-list/proposal calls are verified. The transient proposal required app
-confirmation and created no task. Web login/CRUD/mobile visual QA, real AI, and
-unattended scheduling remain open. Private QA evidence is not external adoption,
-competitor parity, or approval by a support program.
+Public [verified app revision 4323d45](https://github.com/tatu-project/tatu/commit/4323d4584c0e8a9cce9857ff521ae1f5f27beafe)
+has a final local 189-pass/zero-fail/zero-skip suite and
+[passing Windows/Linux CI 38336981415](https://github.com/tatu-project/tatu/actions/runs/38336981415).
+Production audit reports zero known vulnerabilities and static review has no
+blocking findings. The private QA Site, negative HTTPS guards and live native
+MCP task-list/proposal calls are verified. The proposal required app confirmation
+and created no task. Positive web/mobile, real AI and unattended scheduling
+remain open. Earlier failed CI runs are dated history, not present blockers.
+Private QA and green CI do not establish external adoption, competitor parity,
+program eligibility or approval.
 
 Do not describe the vision, native apps, account/device actions, password-vault
 E2EE, NotebookLM automation/audio, real inference without credentials, or scheduled
@@ -25,8 +26,8 @@ external adoption metrics are established for this dossier. Removing the old
 
 Collect links to:
 
-- The final public commit/release/tag, relevant CI, and reproducible independent
-  deployment instructions, after they exist.
+- The actual public app revision and passing CI above; a release tag still needs
+  separate publication and must not be invented.
 - Maintained issues/PRs, reviewed security decisions, release notes, and a short
   demonstration of the actual verified product.
 - Real attributable external users/contributors/dependents or measurable

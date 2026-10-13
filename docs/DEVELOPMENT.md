@@ -20,11 +20,18 @@ npm run build
 ```
 
 The final root verification on October 12, 2026 passed formatting, lint,
-TypeScript, 186 tests, and build on Windows Node 24.13.0/npm 11.6.2 after a clean
-ordinary install of 157 locked packages. Production audit reports zero known
-vulnerabilities; final static review has no blocking findings. This proves those
-checks, not full web login/CRUD/mobile/AI/scheduling acceptance. Remote GitHub CI
-remains a separate check after the pending repository publication.
+TypeScript, build and 189 tests with zero failures/skips on Windows Node
+24.13.0/npm 11.6.2 after ordinary installation of 157 locked packages. All eight
+export tests pass, mapped-drive cleanup leaves no SUBST entries, and review
+retains canonical/symlink/preflight safeguards. Production audit reports zero
+known vulnerabilities; no blocking static finding remains.
+
+[Verified app revision 4323d45](https://github.com/tatu-project/tatu/commit/4323d4584c0e8a9cce9857ff521ae1f5f27beafe)
+is pushed to `origin/main`, and [CI run 38336981415](https://github.com/tatu-project/tatu/actions/runs/38336981415)
+completed successfully on Windows and Linux. The 173,003-byte cloud bundle is
+unchanged. Earlier failures remain dated session history. These checks do not
+prove web cookie login/CRUD/mobile visuals, real inference or unattended Cron;
+those acceptance gates remain open.
 
 `.npmrc` disables dependency install hooks. The legacy SQLite development/test
 adapter uses audited package prebuilds on supported platforms; do not override
@@ -93,7 +100,7 @@ machine. Do not erase the historical record or call it current cloud proof.
 The legacy local-individual `/api/me` projection has no remote account, session
 or logout; `/` sign-out navigation is only local navigation. Data is local SQLite.
 Shared UI settings retain cloud-oriented wording, so no full local-PWA or online
-D1 acceptance is claimed for this Node developer/API profile. Its local-session boundary regression test passes in the final 186-test suite; no separate visual check passed.
+D1 acceptance is claimed for this Node developer/API profile. Its local-session boundary regression test passes in the final 189-test suite; no separate visual check passed.
 
 ## Coordinated development
 

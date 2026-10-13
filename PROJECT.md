@@ -1,6 +1,6 @@
 # Tatu — Project Source of Truth
 
-> Status: private online QA beta published; dated 186-test suite and live MCP read/proposal verified. Web cookie login/CRUD, mobile visual QA, real AI and scheduling remain open. Public repository publication is pending at this October 12 record.
+> Status: private QA beta and implementation commit `d2a8bc2` published; local 189-test suite and live native MCP read/proposal verified. Remote CI passed on Windows and Linux for [verified app revision 4323d45](https://github.com/tatu-project/tatu/commit/4323d4584c0e8a9cce9857ff521ae1f5f27beafe), confirmed by [CI run 38336981415](https://github.com/tatu-project/tatu/actions/runs/38336981415). Web cookie login/CRUD, mobile visual QA, real AI and scheduling remain open.
 > Project name: Tatu (decided)
 > License: MIT (decided)
 > Project start: August 26, 2026
@@ -22,7 +22,7 @@ The product philosophy is:
 
 The user describes an outcome in natural language. The system plans the work, selects available models and tools, executes it within explicit permissions, records a trace, and delivers the result.
 
-The preceding public baseline at `803e1e6` accepts a bounded daily-briefing request through local Node/SQLite/RSS and a filesystem inbox. It remains an optional historical self-hosted path, not the mobile backend. The online QA candidate is now privately published at [the Tatu beta](https://tatu-brasil-beta-vitti.craftystar18.chatgpt.site), with final local format/lint/types/186 tests/build and bounded live HTTPS/MCP evidence. Public GitHub publication remains pending at this record; private QA publication is not full assistant acceptance.
+The historical baseline at `803e1e6` accepts a bounded daily-briefing request through local Node/SQLite/RSS and a filesystem inbox. It remains an optional self-hosted path, not the mobile backend. The online QA beta is privately published at [the Tatu beta](https://tatu-brasil-beta-vitti.craftystar18.chatgpt.site), and its [implementation commit d2a8bc2](https://github.com/tatu-project/tatu/commit/d2a8bc22e9ecb6a990852ca38c8dc8fb596ab680) is pushed to `origin/main`. Local format/lint/types/189 tests/build and bounded live HTTPS/MCP evidence are verified; [remote CI](https://github.com/tatu-project/tatu/actions/runs/38336981415) passed on Windows and Linux for verified app revision `4323d45`. Publication is not full assistant acceptance.
 
 Live private MCP `tatu_listar_tarefas` returned an empty list, and `tatu_preparar_tarefa` returned an expiring 09:00 `America/Sao_Paulo` AI-news proposal for three stories with `requiresAppConfirmation: true`. The proposal is transient owner QA data; it did not confirm or create a task. No AI binding/Groq key or schedule is configured. Web cookie sign-in/CRUD, mobile visual QA, actual inference, and unattended scheduled execution remain unverified. Exact source/deployment records are in [DEPLOYMENT.md](docs/DEPLOYMENT.md#october-12-private-publication-evidence).
 
