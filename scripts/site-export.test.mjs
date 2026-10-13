@@ -9,8 +9,12 @@ import {
   rm,
   symlink,
   rename,
+  lstat,
+  realpath,
 } from 'node:fs/promises';
-import { join, win32, posix } from 'node:path';
+import { join, win32, posix, relative } from 'node:path';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 import { tmpdir } from 'node:os';
 import process from 'node:process';
 import {
@@ -221,6 +225,71 @@ test('platform path casing aliases preserve a declared-only checkout and Git met
     await readFile(join(checkout, 'dist/server/index.js'), 'utf8'),
     await readFile(join(artifact, 'server/index.js'), 'utf8'),
   );
+});
+test('owned mapped-drive workspace keeps caller namespace and preserves checkout metadata', async (context) => {
+  const { workspace, artifact } = await fixture(context);
+  let drive;
+  const execute = promisify(execFile);
+  if (process.platform === 'win32') {
+    assert.equal(
+      isStrictDescendant(await realpath(tmpdir()), await realpath(workspace)),
+      true,
+    );
+    for (const letter of 'ZYXWVUTSRQPONMLKJIHGFED') {
+      try {
+        await lstat(`${letter}:\\`);
+      } catch (error) {
+        if (error.code === 'ENOENT') {
+          drive = `${letter}:`;
+          break;
+        }
+        throw error;
+      }
+    }
+    assert.ok(
+      drive,
+      'A free drive letter is required for the owned alias regression.',
+    );
+    await execute('subst', [drive, workspace]);
+  }
+  try {
+    const callerWorkspace = drive ? `${drive}\\` : workspace;
+    if (drive)
+      assert.equal(
+        relative(await realpath(callerWorkspace), await realpath(workspace)),
+        '',
+      );
+    const snapshot = await createSiteSnapshot(
+      drive ? join(callerWorkspace, 'artifact') : artifact,
+      callerWorkspace,
+    );
+    const checkout = join(callerWorkspace, 'tmp/cloudsite-subst');
+    await mkdir(join(checkout, '.git'), { recursive: true });
+    await writeFile(join(checkout, '.git/config'), 'owned-subst-preserved');
+    const copied = await copySiteSnapshot(
+      snapshot.directory,
+      checkout,
+      callerWorkspace,
+    );
+    assert.equal(copied.projectId, 'appgprj_test1234567890');
+    assert.equal(
+      await readFile(join(checkout, '.git/config'), 'utf8'),
+      'owned-subst-preserved',
+    );
+    assert.equal(
+      await readFile(join(checkout, 'dist/server/index.js'), 'utf8'),
+      await readFile(join(artifact, 'server/index.js'), 'utf8'),
+    );
+  } finally {
+    if (drive) {
+      assert.equal(
+        relative(await realpath(`${drive}\\`), await realpath(workspace)),
+        '',
+        'Refusing to unmap a drive no longer owned by this test.',
+      );
+      await execute('subst', [drive, '/D']);
+    }
+  }
 });
 test('artifact and checkout directory symlinks are rejected without writing through them', async (context) => {
   const { workspace, artifact } = await fixture(context);

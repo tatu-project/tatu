@@ -171,9 +171,9 @@ export async function createSiteSnapshot(artifactRoot, workspaceRoot) {
   };
 }
 export async function copySiteSnapshot(snapshot, checkout, workspaceRoot) {
-  const canonicalWorkspace = await realpath(await checkedPath(workspaceRoot));
+  const callerWorkspace = await checkedPath(workspaceRoot);
   for (const target of [snapshot, checkout]) {
-    if (!isStrictDescendant(join(canonicalWorkspace, 'tmp'), target))
+    if (!isStrictDescendant(join(callerWorkspace, 'tmp'), target))
       throw new Error('Site source paths must remain inside workspace/tmp.');
     await checkedPath(
       workspaceRoot,
