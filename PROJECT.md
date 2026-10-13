@@ -4,7 +4,7 @@
 > Project name: Tatu (decided)
 > License: MIT (decided)
 > Project start: August 26, 2026
-> Last updated: October 12, 2026
+> Last updated: October 13, 2026
 
 ## 1. Executive summary
 
@@ -48,6 +48,8 @@ If a reliable setup requires seven free steps instead of three paid steps, the p
 The standard mobile path uses an authenticated online deployment with owner-scoped data and remote execution. Minimal hosted account isolation and authentication are now first-release requirements; the earlier individual-local-only restriction is superseded by the user's October 12 correction. The initial private founder beta may use Sites managed authentication, D1, and MCP. Independent Cloudflare Workers/D1/Access configuration must preserve a portable deployment path; open-source adoption must not require the founder's hosted account.
 
 Legitimate free quotas and strict global/per-user caps bound sponsored infrastructure and AI usage. A missing binding, exhausted allowance, unavailable provider, or absent credential must produce an honest unavailable state; no paid fallback, quota bypass, or account pooling is permitted. Free hosting, inference, and account eligibility are not guaranteed. Optional independent self-hosting remains supported as a separate path, without making an end-user PC or local model a mobile prerequisite.
+
+Operational constraint (October 13): the founder expressly prohibits changes to any existing Cloudflare rules/resources in their production business account. Account ownership and authenticated tooling do not authorize activation there. Any sponsored route must first establish a legitimate isolated entitlement without production-business impact or unverified billing exposure. Colab may support a [manual model experiment](docs/COLAB-EXPERIMENT.md), not the production backend, an unattended service, or a UI-restriction bypass; its GPU and inference remain unexecuted.
 
 The creator's ChatGPT/Codex subscription is a personal development expense and is not considered an operating dependency of the product.
 

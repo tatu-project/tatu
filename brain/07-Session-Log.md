@@ -423,3 +423,24 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
   the single-owner private audience and native MCP empty task read. The four
   user `.codex` edits remain unchanged/excluded; documentation publication is
   separate from this verified app revision.
+
+## 2026-10-13 - Production account protected; free inference deferred
+
+- The user reports ChatGPT sign-in worked, not full browser CRUD/mobile QA.
+  They expressly prohibit changes to existing Cloudflare rules/resources in
+  the production business account. Root made no Cloudflare/Site changes or
+  inference calls; authenticated Wrangler 4.149/account/model metadata are
+  available, while billing-plan lookup returned 403. Standard usage is not
+  proof of a Free plan; shared account-wide free Neurons do not guarantee
+  zero billing or no production impact. No provider key/AI binding was enabled.
+- The [manual Colab experiment](../docs/COLAB-EXPERIMENT.md) defaults to 8B
+  with optional 27B and conservative GPU preflight. Ideal 27B four-bit weights
+  are about 13.5 GB plus overhead, not dependable T4 fit. Actual GPU/loading/
+  inference remain unexecuted; Colab restrictions exclude an unattended Tatu
+  backend or UI bypass. No usable browser session is available: the browser/app
+  inventory was empty and opening the in-app browser failed. Live browser QA
+  remains open; tested public API candidates yielded no verified model response.
+- Next verify a legitimate isolated free-inference entitlement outside the
+  protected production resources, then an authorized real turn. Colab stays
+  manual-only; real AI/scheduling/browser CRUD gates remain unchecked. No
+  account identifiers, credentials, or private tooling paths enter these docs.

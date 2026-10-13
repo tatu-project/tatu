@@ -3,16 +3,17 @@ title: Current State
 tags:
   - tatu
   - current-state
-updated: 2026-10-12
+updated: 2026-10-13
 ---
 
 # Current State
 
 - Private QA beta published: https://tatu-brasil-beta-vitti.craftystar18.chatgpt.site
   with one owner and no other groups/external access. Native `DB` has 12 applied
-  tables. Positive owner login/CRUD and full assistant acceptance remain open.
+  tables. The user reports ChatGPT sign-in worked on October 13; independent
+  browser CRUD/mobile QA and full assistant acceptance remain open.
 - Verified app [4323d45](https://github.com/tatu-project/tatu/commit/4323d4584c0e8a9cce9857ff521ae1f5f27beafe)
-  is published on main; [CI 38336981415](https://github.com/tatu-project/tatu/actions/runs/38336981415)
+  is published on main; root synchronized `664b648`. [CI 38336981415](https://github.com/tatu-project/tatu/actions/runs/38336981415)
   passed Windows and Linux. Private Site source/deployment records are in
   [deployment evidence](../docs/DEPLOYMENT.md#october-12-private-publication-evidence).
   The founder's four `.codex` edits remain unchanged outside the intended commit.
@@ -29,6 +30,19 @@ updated: 2026-10-12
 - No AI binding/Groq key is configured: live chat is unavailable until the owner
   connects their authorized key in the HTTPS form, never chat. Site scheduling
   is false; no schedule/new task or LLM call was created by publication probes.
+- October 13: the founder prohibits any existing Cloudflare rules/resources
+  changes in the production business account. Wrangler 4.149 is installed and
+  authenticated; root read only account/model metadata, with no Cloudflare/Site
+  changes or inference. Billing-plan lookup returned 403; a standard usage label
+  does not prove a Free plan. The shared account-wide 10,000 daily free Neurons
+  do not guarantee zero billing or no business impact; activation is deferred.
+- No usable browser session is available in this session; live browser QA remains
+  open. Public API candidates produced no verified model output. These are
+  current-session limitations, not permanent impossibility claims.
+  The [manual Colab experiment](../docs/COLAB-EXPERIMENT.md)
+  defaults to 8B with optional 27B/GPU preflight; GPU/model loading/inference
+  remain unexecuted. Ideal 27B four-bit weights are about 13.5 GB plus overhead,
+  not dependable T4 fit; Colab is not an unattended Tatu backend.
 - Native automations are empty and have no verified code-dispatch bridge/free
   cadence guarantee. Dispatch trusts the single-owner private platform boundary,
   not service-only identity; wider sharing requires independent dispatch authority.
@@ -47,10 +61,11 @@ updated: 2026-10-12
   approximately 3.66 GiB Ollama verification was removed after correction; no
   local service/process or downloaded model assets remain.
 
-Next action: owner opens the private URL and signs in; verify CRUD, connect their
-Groq key securely, and prove the first real AI turn. Enable the platform browser
-for mobile visual QA. Native MCP read/proposal is already verified; broader
-confirmation/CRUD, actual scheduling and portable deployment remain unchecked.
+Next action: verify legitimate isolated free-inference entitlement outside the
+protected production resources, then prove an authorized real turn. A Colab run
+is only a manual experiment. Independently verify browser CRUD/mobile QA; native
+MCP read/proposal is already verified, while broader confirmation/CRUD, actual
+scheduling and portable deployment remain unchecked.
 The local-session regression fix is included in the verified 189-pass/zero-fail final suite; the cloud bundle matches the published artifact.
 
 Authoritative scope/status: [PROJECT.md](../PROJECT.md), [ROADMAP.md](../ROADMAP.md).

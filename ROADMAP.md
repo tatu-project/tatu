@@ -257,6 +257,8 @@ Outcome: remote conversation uses a legitimate authorized route and stops safely
 - [ ] Live connection removal/provider revocation and auditable operational access verified with the owner's actual credential.
 - [ ] Manual ChatGPT/Grok/Gemini redirect flow verified in the browser; no consumer-session scraping, implicit API entitlement, paid fallback, account pooling, or quota bypass.
 
+October 13 blocker: authenticated Wrangler 4.149 is available, but the founder prohibits any existing Cloudflare rules/resources changes in the production business account. Billing-plan lookup returned 403; a standard usage label does not prove a Free plan. The [10,000 daily free Neurons](https://developers.cloudflare.com/workers-ai/platform/pricing/) are shared account-wide and do not establish zero billing or business isolation. No Cloudflare/Site change or inference occurred; AI provider key/binding remain absent, while the master encryption key stays configured privately. Next verify a legitimate isolated free-inference entitlement outside those production resources. The [manual Colab experiment](docs/COLAB-EXPERIMENT.md) defaults to 8B, makes 27B opt-in, and is not a production route; actual GPU/inference remain unexecuted.
+
 Acceptance test:
 
 - Keys remain encrypted in durable storage and cannot be exposed through another owner, model input, logs, API projections, or errors.
@@ -370,11 +372,12 @@ Acceptance test:
   app revision `4323d45` is pushed; remote CI passed Windows and Linux. Final local verification
   is 189 passed/zero failed.
 
-Exact next action: open the private URL with the owner account, verify positive
-sign-in, connect an authorized Groq key only through the HTTPS form and verify
-the first real turn. Enable the platform browser for mobile visual QA; native
-MCP read/proposal already works, while broader confirmation/CRUD needs separate proof. Configure
-scheduling only after a real native bridge and actual due task are proved.
+Exact next action: verify a legitimate isolated free-inference entitlement outside
+the protected production account/resources, then prove a real authorized turn.
+The user reports ChatGPT sign-in worked; full browser CRUD/mobile QA remains open
+with no usable browser session available in this session. Colab is a manual experiment
+only, not Tatu activation. Native MCP read/proposal already works; scheduling
+requires a verified native bridge and actual due task.
 
 ## Later accepted outcomes — separate verification
 
