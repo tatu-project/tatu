@@ -6,9 +6,57 @@ resposta curta em português usando uma GPU do **Colab hospedado**. O padrão é
 128 de saída. O ramo `Qwen/Qwen3.8-27B` é opcional e fica desativado até o usuário
 confirmá-lo explicitamente.
 
-**Estado: artefato verificado estaticamente; instalação, GPU, carregamento e
-inferência no Colab ainda não executados.** Isto não ativa um provedor nem altera
-a implantação do Tatu.
+**Estado: o usuário relatou instalação concluída e carregamento 399/399 em uma
+T4, com Python 3.13.15 e PyTorch 2.11+cu130.** A célula antiga falhou ao imprimir
+`hf_device_map`; a colocação real dos tensores e a inferência ainda não foram
+verificadas. O artefato corrigido foi verificado estaticamente, sem execução de
+GPU pelo agente. Isto não ativa um provedor nem altera a implantação do Tatu.
+
+## Recuperar o modelo já carregado
+
+Na cópia antiga ainda aberta, adicione uma célula com **+ Código** e cole o
+bloco abaixo. Ele usa os objetos existentes; não reinstala nem recarrega pesos.
+Não execute novamente a célula de carregamento. Se o runtime foi desconectado
+ou os objetos foram liberados, esta recuperação não pode restaurá-los.
+
+```python
+def require_model_cuda0(model):
+    parameters = 0
+    tensors = 0
+    for kind, values in (("parameter", model.parameters()), ("buffer", model.buffers())):
+        for tensor in values:
+            device = tensor.device
+            if device.type != "cuda" or device.index != 0:
+                raise RuntimeError("Offload recusado: todos os tensores devem estar em cuda:0.")
+            if kind == "parameter":
+                parameters += 1
+            tensors += 1
+    if parameters == 0:
+        raise RuntimeError("Modelo vazio: nenhum parametro encontrado.")
+    return tensors
+
+require_hosted_colab()
+if globals().get("model") is None or globals().get("tokenizer") is None:
+    raise RuntimeError("Modelo/tokenizer ausentes; esta recuperacao exige o runtime original.")
+tensor_count = require_model_cuda0(model)
+model.eval()
+print({
+    "tensors_cuda0": tensor_count,
+    "model_footprint_gib": round(model.get_memory_footprint() / (1024 ** 3), 2),
+    "free_vram_gib": round(torch.cuda.mem_get_info(0)[0] / (1024 ** 3), 2),
+})
+print("Validacao aprovada. Execute apenas a celula da pergunta publica.")
+```
+
+Somente se a célula terminar sem erro, execute a célula existente sob
+**“Uma pergunta pública, curta e sem ferramentas”**. Não libere os recursos
+antes dessa pergunta. Se a validação recusar CPU, `meta`, outra GPU ou modelo
+vazio, interrompa e use a célula final de liberação; não force offload.
+
+O atributo `hf_device_map` é opcional em carregamentos com uma única GPU.
+A versão corrigida verifica todos os parâmetros e buffers reais antes de
+`eval()` e novamente antes da inferência, exigindo ao menos um parâmetro.
+O mapa, quando presente, serve apenas para exibição e não autoriza execução.
 
 ## Como usar
 
@@ -108,3 +156,9 @@ células; não executa imports, instalação, download ou inferência. As célul
 estão sem saídas e com `execution_count: null` para não inventar evidência.
 O próximo resultado verificável é uma execução manual no Colab com hardware,
 versões, saída e memória registrados pelo próprio notebook.
+
+Para repetir as verificações estáticas e regressões com objetos simulados,
+execute opcionalmente `python scripts/check_colab_notebook.py`. O script usa
+somente a biblioteca padrão, extrai apenas os dois helpers puros via AST e
+não executa as células, imports de ML, downloads ou inferência. Python não é
+um requisito da instalação do produto Tatu.

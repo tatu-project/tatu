@@ -444,3 +444,22 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
   protected production resources, then an authorized real turn. Colab stays
   manual-only; real AI/scheduling/browser CRUD gates remain unchecked. No
   account identifiers, credentials, or private tooling paths enter these docs.
+
+## 2026-10-13 - First user-reported Colab load; inference unconfirmed
+
+- User-pasted logs report a T4 with 14.56 GiB total/14.46 GiB free VRAM and
+  9.47 GiB free RAM; Python 3.13.15, torch 2.11.0+cu130/CUDA 13.0,
+  transformers 5.19.0, accelerate 1.15.0, and bitsandbytes 0.50.0. Download
+  reconstructed 16.4 GB/fetched 5/5 files and model loading reached 399/399.
+- The final `model.hf_device_map.items()` diagnostic raised `AttributeError`
+  for `Qwen3ForCausalLM` outside cleanup. Single-device dispatch need not expose
+  that metadata; the model may remain available for guarded same-session
+  recovery. Actual GPU recovery, placement inspection and generated output are
+  unconfirmed. Root `python scripts/check_colab_notebook.py -v` passed 8/8;
+  notebook JSON/six Python AST cells/no outputs are verified. Root `npm run ci`
+  exited 0: format/lint/typecheck/189 tests/build. Reviewer found no old-session
+  recovery blocker; this static/mock proof does not establish a real GPU run.
+- Next capture placement and a real short answer after the reviewed recovery.
+  This is a manual experiment, not production Tatu activation. The protected
+  Cloudflare account remains untouched; isolated free-inference entitlement,
+  online AI, scheduler and browser CRUD gates remain open.

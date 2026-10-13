@@ -39,9 +39,14 @@ updated: 2026-10-13
 - No usable browser session is available in this session; live browser QA remains
   open. Public API candidates produced no verified model output. These are
   current-session limitations, not permanent impossibility claims.
-  The [manual Colab experiment](../docs/COLAB-EXPERIMENT.md)
-  defaults to 8B with optional 27B/GPU preflight; GPU/model loading/inference
-  remain unexecuted. Ideal 27B four-bit weights are about 13.5 GB plus overhead,
+- The [manual Colab experiment](../docs/COLAB-EXPERIMENT.md) defaults to 8B with
+  optional 27B/GPU preflight. User-pasted October 13 logs report T4 GPU/package
+  setup, 16.4 GB downloaded (5/5), and loading 399/399, then `AttributeError`
+  at the final `model.hf_device_map.items()` diagnostic. Actual device placement
+  and inference are unconfirmed; diagnostic/cleanup correction passes root
+  static/mock/local CI and reviewer checks. Actual guarded in-session GPU
+  recovery awaits fresh output. Ideal 27B four-bit
+  weights are about 13.5 GB plus overhead,
   not dependable T4 fit; Colab is not an unattended Tatu backend.
 - Native automations are empty and have no verified code-dispatch bridge/free
   cadence guarantee. Dispatch trusts the single-owner private platform boundary,
@@ -62,8 +67,10 @@ updated: 2026-10-13
   local service/process or downloaded model assets remain.
 
 Next action: verify legitimate isolated free-inference entitlement outside the
-protected production resources, then prove an authorized real turn. A Colab run
-is only a manual experiment. Independently verify browser CRUD/mobile QA; native
+protected production resources, then prove an authorized real turn. For the
+manual Colab experiment, apply the reviewed guarded recovery in the existing
+session and capture placement inspection plus the first real short answer.
+Independently verify browser CRUD/mobile QA; native
 MCP read/proposal is already verified, while broader confirmation/CRUD, actual
 scheduling and portable deployment remain unchecked.
 The local-session regression fix is included in the verified 189-pass/zero-fail final suite; the cloud bundle matches the published artifact.
