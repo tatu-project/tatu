@@ -10,10 +10,65 @@ import {
   symlink,
   rename,
 } from 'node:fs/promises';
-import { join } from 'node:path';
+import { join, win32, posix } from 'node:path';
 import { tmpdir } from 'node:os';
 import process from 'node:process';
-import { createSiteSnapshot, copySiteSnapshot } from './site-export.mjs';
+import {
+  createSiteSnapshot,
+  copySiteSnapshot,
+  isStrictDescendant,
+} from './site-export.mjs';
+
+test('containment uses platform path semantics without accepting parents, siblings or other roots', () => {
+  const windowsRoot = 'C:\\Workspace\\tmp';
+  for (const target of [
+    'c:\\workspace\\TMP\\snapshot',
+    'C:/WORKSPACE/tmp/snapshot',
+    '\\\\?\\C:\\Workspace\\tmp\\snapshot',
+  ])
+    assert.equal(isStrictDescendant(windowsRoot, target, win32), true, target);
+  for (const target of [
+    windowsRoot,
+    'C:\\Workspace',
+    'C:\\Workspace\\tmp-other\\snapshot',
+    'D:\\Workspace\\tmp\\snapshot',
+    'C:\\Workspace\\tmp\\..\\outside',
+    '\\\\server\\share\\snapshot',
+  ])
+    assert.equal(isStrictDescendant(windowsRoot, target, win32), false, target);
+  assert.equal(
+    isStrictDescendant(
+      '\\\\server\\share\\tmp',
+      '\\\\SERVER\\SHARE\\TMP\\snapshot',
+      win32,
+    ),
+    true,
+  );
+  assert.equal(
+    isStrictDescendant(
+      '\\\\server\\share\\tmp',
+      '\\\\server\\other\\tmp\\snapshot',
+      win32,
+    ),
+    false,
+  );
+  assert.equal(
+    isStrictDescendant('/Workspace/tmp', '/Workspace/tmp/snapshot', posix),
+    true,
+  );
+  for (const target of [
+    '/workspace/tmp/snapshot',
+    '/Workspace/tmp',
+    '/Workspace/tmp-other/snapshot',
+    '/Workspace/tmp/../outside',
+    '/Other/tmp/snapshot',
+  ])
+    assert.equal(
+      isStrictDescendant('/Workspace/tmp', target, posix),
+      false,
+      target,
+    );
+});
 
 async function fixture(context) {
   const workspace = await mkdtemp(join(tmpdir(), 'tatu-export-test-'));
@@ -138,6 +193,29 @@ test('declared-only checkout copy succeeds and leaves legitimate Git metadata un
   assert.equal(
     await readFile(join(checkout, '.git/config'), 'utf8'),
     'preserved',
+  );
+  assert.equal(
+    await readFile(join(checkout, 'dist/server/index.js'), 'utf8'),
+    await readFile(join(artifact, 'server/index.js'), 'utf8'),
+  );
+});
+test('platform path casing aliases preserve a declared-only checkout and Git metadata', async (context) => {
+  const { workspace, artifact } = await fixture(context);
+  const snapshot = await createSiteSnapshot(artifact, workspace);
+  const checkout = join(workspace, 'tmp/cloudsite-case-alias');
+  await mkdir(join(checkout, '.git'), { recursive: true });
+  await writeFile(join(checkout, '.git/config'), 'preserved-case-alias');
+  const alias = (value) =>
+    process.platform === 'win32' ? value.toUpperCase() : value;
+  const copied = await copySiteSnapshot(
+    alias(snapshot.directory),
+    alias(checkout),
+    alias(workspace),
+  );
+  assert.equal(copied.projectId, 'appgprj_test1234567890');
+  assert.equal(
+    await readFile(join(checkout, '.git/config'), 'utf8'),
+    'preserved-case-alias',
   );
   assert.equal(
     await readFile(join(checkout, 'dist/server/index.js'), 'utf8'),

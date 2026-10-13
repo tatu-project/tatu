@@ -8,12 +8,25 @@ import {
   writeFile,
 } from 'node:fs/promises';
 import { resolve, dirname, sep, join, relative } from 'node:path';
+import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import process from 'node:process';
 import console from 'node:console';
 
-const within = (root, target) =>
-  target === root || target.startsWith(`${root}${sep}`);
+const normalizedPath = (value, paths = path) =>
+  paths.toNamespacedPath(paths.resolve(value));
+export const isStrictDescendant = (root, target, paths = path) => {
+  const displacement = paths.relative(
+    normalizedPath(root, paths),
+    normalizedPath(target, paths),
+  );
+  return (
+    displacement !== '' &&
+    displacement !== '..' &&
+    !displacement.startsWith(`..${paths.sep}`) &&
+    !paths.isAbsolute(displacement)
+  );
+};
 const segmentsFor = (relative) => {
   const segments = relative.split('/');
   if (
@@ -42,7 +55,7 @@ export async function checkedPath(root, relative = '', allowMissing = false) {
     }
     if (info.isSymbolicLink())
       throw new Error('Symbolic links are forbidden in Site exports.');
-    if (!within(canonicalRoot, await realpath(current)))
+    if (!isStrictDescendant(canonicalRoot, await realpath(current)))
       throw new Error('Export path escaped its root.');
   }
   return current;
@@ -123,7 +136,7 @@ async function treeMatches(root, approvedFiles, allowGit = false) {
 export async function createSiteSnapshot(artifactRoot, workspaceRoot) {
   await checkedPath(
     workspaceRoot,
-    relative(resolve(workspaceRoot), resolve(artifactRoot))
+    relative(normalizedPath(workspaceRoot), normalizedPath(artifactRoot))
       .split(sep)
       .join('/'),
   );
@@ -160,11 +173,13 @@ export async function createSiteSnapshot(artifactRoot, workspaceRoot) {
 export async function copySiteSnapshot(snapshot, checkout, workspaceRoot) {
   const canonicalWorkspace = await realpath(await checkedPath(workspaceRoot));
   for (const target of [snapshot, checkout]) {
-    if (!within(join(canonicalWorkspace, 'tmp'), resolve(target)))
+    if (!isStrictDescendant(join(canonicalWorkspace, 'tmp'), target))
       throw new Error('Site source paths must remain inside workspace/tmp.');
     await checkedPath(
       workspaceRoot,
-      relative(resolve(workspaceRoot), resolve(target)).split(sep).join('/'),
+      relative(normalizedPath(workspaceRoot), normalizedPath(target))
+        .split(sep)
+        .join('/'),
     );
   }
   const { files, manifest } = await declaredArtifact(resolve(snapshot, 'dist'));
