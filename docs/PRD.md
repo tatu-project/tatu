@@ -72,8 +72,9 @@ checks are static/mock/interop, not an agent-run GPU session.
 
 An owner reported ChatGPT sign-in and one earlier short Qwen3-8B answer. Those
 are attributed observations, not current model-loading/pairing/browser CRUD or
-scheduled-delivery proof. New GitHub publication/remote CI remains separate until
-confirmed. Public source omits private install metadata, credentials and exact
+scheduled-delivery proof. Public [47bfc1e](https://github.com/tatu-project/tatu/commit/47bfc1e7de4e44a4bf9b074618df0d921db48b1b)
+and [CI38500459769](https://github.com/tatu-project/tatu/actions/runs/38500459769)
+are verified, with Windows/Linux success for that revision. Public source omits private install metadata, credentials and exact
 personal operational records.
 
 ## 4. Workspace requirements
@@ -263,8 +264,8 @@ contains the exact checks, not inferred completion from this PRD.
 
 Next: verify/load Qwen in the current Google VM, enter private installation
 configuration, pair and obtain the first Tatu answer. Then prove browser/mobile
-flows, live active behavior and hosted scheduled delivery. Root-owned public
-source/remote CI is separate from private deployment. Native packages/device
+flows, live active behavior and hosted scheduled delivery. Verified public
+source/remote CI remains separate from private deployment and owner live use. Native packages/device
 companion, connected accounts, automatic audio, private password vault and broad
 agent workflows require independent later acceptance.
 

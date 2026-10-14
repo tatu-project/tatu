@@ -1,6 +1,6 @@
 # Tatu — Project Source of Truth
 
-> Status: private Colab version 2 is published with 15 D1 tables, gateway guards and native MCP read verified. Historical version 2 proof is 205 tests; current public-source lint/types/210 tests/build and companion13/notebook8 checks pass. Google pairing/first Tatu answer, active behavior and browser/scheduling acceptance remain open; new GitHub publication/remote CI is pending. Earlier [4323d45](https://github.com/tatu-project/tatu/commit/4323d4584c0e8a9cce9857ff521ae1f5f27beafe)/[CI38336981415](https://github.com/tatu-project/tatu/actions/runs/38336981415) is historical proof.
+> Status: private Colab version 2 is published with 15 D1 tables, gateway guards and native MCP read verified. Historical version 2 proof is 205 tests; current public-source lint/types/210 tests/build and companion13/notebook8 checks pass. Public [47bfc1e](https://github.com/tatu-project/tatu/commit/47bfc1e7de4e44a4bf9b074618df0d921db48b1b)/[CI38500459769](https://github.com/tatu-project/tatu/actions/runs/38500459769) passed Windows/Linux. Google model loading/pairing/first Tatu answer, active behavior and browser/scheduling acceptance remain open. Earlier [4323d45](https://github.com/tatu-project/tatu/commit/4323d4584c0e8a9cce9857ff521ae1f5f27beafe)/[CI38336981415](https://github.com/tatu-project/tatu/actions/runs/38336981415) is historical proof.
 > Project name: Tatu (decided)
 > License: MIT (decided)
 > Project start: August 26, 2026

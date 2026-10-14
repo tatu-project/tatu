@@ -4,8 +4,9 @@ Status: private Colab version 2 published October 13, 2026. Historical version 2
 proof is 205 tests/Python11+8; current public-source checks are 210 tests/Python13+8.
 Static review and two 22-case gateway phases pass; native task read remains verified. Real owner Colab
 pairing/first Tatu answer, active behavior, browser CRUD/mobile QA, scheduled
-delivery and new GitHub/remote CI remain open. Historical October 12 proof is
-separate. Neither these
+delivery remain open. Public [47bfc1e](https://github.com/tatu-project/tatu/commit/47bfc1e7de4e44a4bf9b074618df0d921db48b1b)/
+[CI38500459769](https://github.com/tatu-project/tatu/actions/runs/38500459769)
+passed Windows/Linux. Historical October 12 proof is separate. Neither these
 checks nor publication prove full release acceptance, native control, audio, or E2EE. Completion
 belongs to [`ROADMAP.md`](../ROADMAP.md). [ADR-0024](decisions/ADR-0024-mobile-cloud-security-and-agent-boundaries.md)
 records the decision and alternatives. No 100%-secure claim is made.

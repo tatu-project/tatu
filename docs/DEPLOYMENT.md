@@ -17,8 +17,11 @@ and scheduled delivery remain unverified.
 Recorded version 2 code proof is 205 tests/build/format/lint/types, zero known
 production vulnerabilities and no blocking static finding. Current public-source
 checks pass lint/types/210 tests/build and companion13/original notebook8 checks;
-backend artifact remains identical to the verified private version. New public
-GitHub/remote-CI proof is separate until actually recorded.
+backend artifact remains identical to the verified private version. Public
+[47bfc1e](https://github.com/tatu-project/tatu/commit/47bfc1e7de4e44a4bf9b074618df0d921db48b1b)/
+[CI38500459769](https://github.com/tatu-project/tatu/actions/runs/38500459769)
+passed Windows/Linux; this does not complete owner model loading/pairing/first
+answer or the other live acceptance gates.
 
 The October 12 baseline and October 13 version 2 are historical release records,
 not a public install address or invitation. Exact identifiers/hash/configuration

@@ -1,6 +1,6 @@
 # Tatu Roadmap
 
-> Current status: private Colab version 2 published, with 15 D1 tables and gateway/MCP read proof. Version 2 proof is 205 tests; current public-source lint/types/210 tests/build and companion13/notebook8 checks pass. Actual Google pairing/first Tatu answer, active behavior, browser/scheduling and new GitHub/remote-CI gates remain open. Earlier [4323d45](https://github.com/tatu-project/tatu/commit/4323d4584c0e8a9cce9857ff521ae1f5f27beafe)/[CI38336981415](https://github.com/tatu-project/tatu/actions/runs/38336981415) remains historical proof.
+> Current status: private version 2 and public [47bfc1e](https://github.com/tatu-project/tatu/commit/47bfc1e7de4e44a4bf9b074618df0d921db48b1b) are published. Local format/lint/types/210 tests/build and Python13+8 pass; [CI38500459769](https://github.com/tatu-project/tatu/actions/runs/38500459769) passed Windows/Linux. Private gateway/MCP and 15-table evidence remain distinct from actual Google pairing/first Tatu answer, active behavior and browser/scheduling gates, which stay open.
 > Rule: check an item only after its acceptance criterion has been verified.
 > Compact session context: [`brain/04-Current-State.md`](brain/04-Current-State.md).
 
@@ -261,7 +261,7 @@ October 13 operating boundary: unrelated production resources remain protected. 
 
 Manual Colab status (October 13): an earlier short Portuguese Qwen3-8B answer was user-reported. Download/loading and the optional hf_device_map diagnostic failure remain technical history. Corrected static/mock checks passed; independent placement/current pairing is still unconfirmed. No personal resource/balance measurements or private installation details are published. This is not an agent-run benchmark, 27B proof or unattended Tatu delivery.
 
-Optional personal Colab adapter: historical release CI205/client18/audit0/static review pass; current public-source checks are lint/types/210 tests/build and companion13/original8. Version 2 is privately published at the same URL, with three migrations and 15 D1 tables. Two 22-case probe phases confirm gateway denial before/after the server-only service token was configured; native task read still returns `[]`. No live owner job/Google inference or scheduled execution was created by probes. Model loading, actual pairing/first Tatu answer and active behavior remain open, as does new GitHub/remote CI. Packaging is resolved; company resources/audience are preserved. [Deployment evidence](docs/DEPLOYMENT.md#october-13-private-colab-publication-evidence), [ADR-0025](docs/decisions/ADR-0025-personal-colab-connection.md).
+Optional personal Colab adapter: historical release CI205/client18/audit0/static review pass; current public-source checks are lint/types/210 tests/build and companion13/original8. Version 2 is privately published at the same URL, with three migrations and 15 D1 tables. Two 22-case probe phases confirm gateway denial before/after the server-only service token was configured; native task read still returns `[]`. No live owner job/Google inference or scheduled execution was created by probes. Model loading, actual pairing/first Tatu answer and active behavior remain open; public47bfc1e/CI38500459769 is now verified. Packaging is resolved; company resources/audience are preserved. [Deployment evidence](docs/DEPLOYMENT.md#october-13-private-colab-publication-evidence), [ADR-0025](docs/decisions/ADR-0025-personal-colab-connection.md).
 
 - [x] Manual one-shot implementation/static/mock checks enforce exact-context consent in Tatu and notebook `PROCESSAR` without private outputs; loaded-model reuse and no listener/tunnel/proxy/keepalive/unattended scheduler/third-party sharing/PC/Ollama are reviewed.
 - [x] Code/route fixtures require independent `SYSTEM_RUN_TOKEN`; platform bypass and Colab credentials cannot authorize system dispatch or ordinary owner APIs. Live gateway proof remains separate.
@@ -332,7 +332,7 @@ Outcome: a verified authenticated online beta can be shared privately with its t
 - [x] Live native `tatu_listar_tarefas` returns `[]`, and `tatu_preparar_tarefa` returns an expiring 09:00/three-story AI proposal requiring app confirmation; no task is created.
 - [x] Historical public baseline `4323d45` pushed and remote CI38336981415 passed Windows/Linux.
 - [x] New private Colab version 2 publication/gateway proof is verified separately from the earlier baseline.
-- [ ] New Colab GitHub source publication/remote CI verified separately from private Sites publication.
+- [x] Public source `47bfc1e` pushed; CI38500459769 passed Windows/Linux for that exact revision, separately from private Sites publication.
 - [ ] Positive owner sign-in/mobile visual/PWA smoke and first real inference/scheduled task run satisfy the full online acceptance.
 
 Historical October 12 baseline: app revision [4323d4584c0e8a9cce9857ff521ae1f5f27beafe](https://github.com/tatu-project/tatu/commit/4323d4584c0e8a9cce9857ff521ae1f5f27beafe)
@@ -352,7 +352,7 @@ Standalone/manual OAuth setup, web cookie login, broader live CRUD/confirmation,
 and independent deployment remain unverified. The October 12 suite included the
 local-session regression fix: 189 passed, zero failed, with the same published
 bundle. The new 205-pass Colab version has separate private-publication/gateway
-proof above; GitHub source/remote CI remains open.
+proof above; public source `47bfc1e`/CI38500459769 now passes Windows/Linux.
 
 Acceptance test:
 

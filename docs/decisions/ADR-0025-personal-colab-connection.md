@@ -4,8 +4,10 @@ Status: accepted, implemented and statically reviewed, October 13, 2026. Final
 post-collision root CI (205 tests), current public-source companion13/original notebook8,
 client checks and review pass; production audit has zero known vulnerabilities.
 Private version 2 publication/gateway probes pass with 15 applied D1 tables;
-real owner pairing/first Tatu chat, active behavior and new GitHub/remote CI remain
-pending. Exact records are in [deployment evidence](../DEPLOYMENT.md#october-13-private-colab-publication-evidence).
+real owner pairing/first Tatu chat and active behavior remain pending.
+Public [47bfc1e](https://github.com/tatu-project/tatu/commit/47bfc1e7de4e44a4bf9b074618df0d921db48b1b)/
+[CI38500459769](https://github.com/tatu-project/tatu/actions/runs/38500459769)
+passed Windows/Linux. Technical records are in [deployment evidence](../DEPLOYMENT.md#october-13-private-colab-publication-evidence).
 Eligible paid entitlement/positive Colab units were observed; active mode is their optional checkbox choice,
 not a permanent balance/availability guarantee. Model loading in the current runtime is
 unconfirmed; the prior manual answer remains historical. Gemini Pro alone would

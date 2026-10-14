@@ -13,9 +13,10 @@ updated: 2026-10-13
   task listing/proposal is verified. Owner-reported ChatGPT sign-in is separate
   from independent browser CRUD/mobile/PWA acceptance.
 - Published release proof is 205 application tests/static review/audit0. Current
-  public-source checks pass lint/types/210 tests/build and generic companion13/
-  original notebook8; no blocking code/privacy review finding remains. Public
-  source/remote CI still requires root publication/actual remote proof.
+  public-source format/lint/types/210 tests/build and companion13/original8 pass;
+  no blocking code/privacy review finding remains. [47bfc1e](https://github.com/tatu-project/tatu/commit/47bfc1e7de4e44a4bf9b074618df0d921db48b1b)
+  is public; [CI38500459769](https://github.com/tatu-project/tatu/actions/runs/38500459769)
+  passed Windows/Linux for that revision. Four user `.codex` edits stay excluded.
 - Standard path: Portuguese online app, owner D1 data and replaceable providers;
   no mandatory PC/Ollama. Optional Colab adapter reuses loaded Google-VM Qwen,
   encrypted pairing and bounded jobs. Exact context is reviewed in Tatu; manual
@@ -40,8 +41,8 @@ updated: 2026-10-13
   private outside Git; previous Git history has not been rewritten.
 
 Next: verify/load the model in Google VM, enter private installation configuration,
-pair and obtain the first Tatu answer. Root separately verifies/publishes public
-source and remote CI. Then prove browser/mobile, active behavior and actual
+pair and obtain the first Tatu answer. Public source/remote CI is verified;
+no new private deployment or root GPU run follows. Then prove browser/mobile, active behavior and actual
 scheduled delivery. No whole online stage is complete.
 
 Scope: [PROJECT.md](../PROJECT.md). Progress: [ROADMAP.md](../ROADMAP.md).

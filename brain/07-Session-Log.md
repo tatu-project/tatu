@@ -491,3 +491,15 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
 - Updated README EN/PT, complete current-state PRD, scope/roadmap, generic setup,
   ADRs and compact brain navigation. No new inference/pairing/schedule or whole
   online stage completion is claimed. Public publication/remote CI remains root-owned.
+
+## 2026-10-13 - Public release revision and remote CI verified
+
+- Root pushed [47bfc1e](https://github.com/tatu-project/tatu/commit/47bfc1e7de4e44a4bf9b074618df0d921db48b1b)
+  with generic automation identity, preserving the four user `.codex` edits.
+  [CI38500459769](https://github.com/tatu-project/tatu/actions/runs/38500459769)
+  completed success on Windows/Ubuntu for that exact revision. Local format/
+  lint/types/210 tests/build and Python13+8 pass; public privacy audit is clear.
+- Checked only public publication/remote CI. No new deployment, root GPU run,
+  model/pair/first Tatu answer, active behavior or scheduled proof was added.
+  Next real acceptance remains owner Google-VM loading/pairing/first response;
+  private handoff metadata stays outside public source and no full stage is done.
