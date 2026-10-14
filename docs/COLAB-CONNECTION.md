@@ -3,9 +3,15 @@
 O proprietário observou carregamento, pareamento e respostas Qwen no Tatu em
 14 de outubro de 2026, na versão privada 2. Isso é evidência de uso relatada pelo
 proprietário, não um teste independente de qualidade, segurança ou disponibilidade.
-Os controles de estado, teste e histórico descritos abaixo estão implementados
-na atualização em revisão; verificação final e publicação ainda dependem do
-responsável pela instalação. Este guia não publica endereço/ID privado.
+Os controles de estado, teste e histórico abaixo estão publicados na versão 3,
+com testes locais, visual com APIs simuladas e verificações limitadas do gateway.
+Ainda falta uma resposta controlada real nessa revisão e validação de histórico/
+parada/modo ativo/PWA. Este guia não publica endereço/ID privado.
+
+Se já estiver usando o Tatu, atualize a página do aplicativo. Mantenha o modelo
+carregado no Colab e confira o painel de estado. Refaça o pareamento se a sessão
+expirou; uma sessão válida não exige novo carregamento do modelo. Depois faça o
+teste público descrito abaixo e compare um pedido inofensivo com histórico desligado.
 
 ## Preparar o modelo na VM Google
 

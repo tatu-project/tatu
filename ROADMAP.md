@@ -1,6 +1,6 @@
 # Tatu Roadmap
 
-> Current status: private version 2 is published; on October 14 its owner reported loaded Qwen, pairing and real Tatu replies. The connection monitor/public probe/per-turn history candidate passes root format/lint/types/226 tests/build after the manual-tab fix; final browser/publication evidence is pending. Historical public [47bfc1e](https://github.com/tatu-project/tatu/commit/47bfc1e7de4e44a4bf9b074618df0d921db48b1b)/[CI38500459769](https://github.com/tatu-project/tatu/actions/runs/38500459769) passed Windows/Linux with 210 tests/Python13+8. Owner observations, controlled current-candidate live acceptance and browser/scheduling gates remain separate; no whole online stage is complete.
+> Current status: private version 3 is published with connection monitor/public probe/per-turn history controls; final root format/lint/types/226 tests/build, Python13+8, mocked desktop/mobile browser checks and 16 bounded live access/readiness checks pass. Direct-origin/positive owner-browser probes have explicit gaps. Public [78f5c2b](https://github.com/tatu-project/tatu/commit/78f5c2bf2816e12879cf41fa5732e54c33290dd9)/[CI38567151349](https://github.com/tatu-project/tatu/actions/runs/38567151349) passed Windows/Linux. October 14 owner-observed version 2 replies are separate from controlled version 3 inference/history/stop/active acceptance. Full browser/PWA, guardrails and scheduling remain open; no whole online stage is complete.
 > Rule: check an item only after its acceptance criterion has been verified.
 > Compact session context: [`brain/04-Current-State.md`](brain/04-Current-State.md).
 
@@ -261,24 +261,29 @@ October 13 operating boundary: unrelated production resources remain protected. 
 
 Manual Colab status (October 13): an earlier short Portuguese Qwen3-8B answer was user-reported. Download/loading and the optional hf_device_map diagnostic failure remain technical history. Corrected static/mock checks passed; independent placement/current pairing is still unconfirmed. No personal resource/balance measurements or private installation details are published. This is not an agent-run benchmark, 27B proof or unattended Tatu delivery.
 
-Optional personal Colab adapter: historical release CI205/client18/audit0/static review pass; October 13 public-source checks are lint/types/210 tests/build and companion13/original8. Version 2 is privately published at the same URL, with three migrations and 15 D1 tables. Two 22-case probe phases confirm gateway denial before/after the server-only service token was configured; native task read still returns `[]`. Those probes created no owner job/Google inference or scheduled execution. On October 14 the owner reported model loading, pairing and real Tatu replies on version 2; this is attributed use, not independent controlled current-candidate acceptance or stop/active proof. Historical public47bfc1e/CI38500459769 is verified. [Deployment evidence](docs/DEPLOYMENT.md#october-13-private-colab-publication-evidence), [ADR-0025](docs/decisions/ADR-0025-personal-colab-connection.md).
+Optional personal Colab adapter: historical release CI205/client18/audit0/static review pass; October 13 public-source checks are lint/types/210 tests/build and companion13/original8. Version 2 was privately published with three migrations/15 D1 tables, before current version 3. Its two 22-case phases confirmed gateway denial before/after the server-only service token was configured; native task read remains positive. Those probes created no owner job/Google inference or scheduled execution. On October 14 the owner reported model loading, pairing and real Tatu replies on version 2; this is attributed use, not independent controlled version 3 acceptance or stop/active proof. Historical public47bfc1e/CI38500459769 is verified. [Deployment evidence](docs/DEPLOYMENT.md#october-13-private-colab-publication-evidence), [ADR-0025](docs/decisions/ADR-0025-personal-colab-connection.md).
 
-October 14 usability/history candidate: responsive setup steps, complete PEM
+October 14 usability/history revision: responsive setup steps, complete PEM
 instructions, collapsed encrypted envelope, session monitor/countdown and explicit
 public arithmetic test are implemented. The test uses the existing bounded chat/
 job path in a separate saved conversation without history/notes/memories; actual
 receipt/model/time and expected-answer correctness are separate. Per-turn
 `includeHistory` defaults true; false omits previous messages without deletion.
 Colab trims oldest complete pairs to at most 12 total messages, preserving current
-input/system/selected context and existing byte/token caps. Root CI passed 226
-tests after correcting manual-mode tab switching. Initial actual-built browser
-checks with mocked APIs at 1440×1000 and 390×844 found no horizontal overflow;
-manual paid consent is hidden and active consent is aligned. Captured test POST
-omits conversation ID/history/selected IDs; mocked expected/divergent replies
-render their actual model/time and distinct correctness states. These are visual/
-fixture checks, not Google inference. The later expired-feedback correction has
-26 passing web tests; final browser retest/full CI/private/public publication and
-remote CI remain root-owned pending evidence.
+input/system/selected context and existing byte/token caps. Final root CI passed
+226 tests after manual-tab/expired-feedback fixes. Actual-built browser checks
+with mocked APIs at 1440×1000 and 390×844 found no horizontal overflow; manual
+paid consent is hidden and active consent is aligned. Captured test POST omits
+conversation ID/history/selected IDs; mocked expected/divergent replies show
+reported model/time and distinct correctness. Expiry clears stale success and
+bounded cancellation sends one DELETE with useful feedback. These are visual/
+fixture checks, not Google inference. Version 3 deployment succeeded at the
+existing private installation, preserving one-owner audience, secrets, three
+migrations/15 tables and disabled scheduling. Sixteen live access/readiness checks
+pass; direct-origin and positive browser-login gaps remain explicit. Public
+[78f5c2b](https://github.com/tatu-project/tatu/commit/78f5c2bf2816e12879cf41fa5732e54c33290dd9)/
+[CI38567151349](https://github.com/tatu-project/tatu/actions/runs/38567151349)
+passed Windows/Linux; native task listing still returns `[]`.
 Repeated refusal after a subject change is possible conversational carryover,
 not a demonstrated static guardrail defect. [Connection/test guide](docs/COLAB-CONNECTION.md).
 
@@ -292,7 +297,8 @@ not a demonstrated static guardrail defect. [Connection/test guide](docs/COLAB-C
 - [x] Final local CI/static/mock/security/reviewer checks pass after the last collision fix, including system/vault/Groq token collisions; this is not live owner acceptance.
 - [x] Private version 2 publication/two 22-case gateway probe phases preserve owner-only access, reject bypass-only/forged/invalid credentials and deny system dispatch before/after service-token configuration; no real Google job/inference was created.
 - [ ] Controlled current-revision same-owner pairing/response test verified; October 14 owner-observed version 2 replies are recorded separately, not equivalent to this acceptance.
-- [ ] Current usability/history revision passes final browser/deployment/public CI and an authorized live isolated probe, including cancellation/manual confirmation/history controls.
+- [x] Current usability/history implementation, mocked responsive browser checks, bounded gateway probes, private publication and public Windows/Linux CI pass; these limited gates do not prove owner inference/PWA/scheduling.
+- [ ] Authorized version 3 owner probe/history/stop/active checks pass with real compute, separately from mocked browser evidence.
 
 Acceptance test:
 
@@ -353,6 +359,7 @@ Outcome: a verified authenticated online beta can be shared privately with its t
 - [x] Historical public baseline `4323d45` pushed and remote CI38336981415 passed Windows/Linux.
 - [x] New private Colab version 2 publication/gateway proof is verified separately from the earlier baseline.
 - [x] Public source `47bfc1e` pushed; CI38500459769 passed Windows/Linux for that exact revision, separately from private Sites publication.
+- [x] October 14 private version 3/public `78f5c2b` and CI38567151349 pass limited publication/access/readiness/mock-browser checks; controlled owner inference and remaining full acceptance stay open.
 - [ ] Positive owner sign-in/mobile visual/PWA smoke and first real inference/scheduled task run satisfy the full online acceptance.
 
 Historical October 12 baseline: app revision [4323d4584c0e8a9cce9857ff521ae1f5f27beafe](https://github.com/tatu-project/tatu/commit/4323d4584c0e8a9cce9857ff521ae1f5f27beafe)
@@ -410,10 +417,11 @@ Acceptance test:
   app revision `4323d45` is pushed; remote CI passed Windows and Linux. Final local verification
   is 189 passed/zero failed.
 
-Exact next action: finish final browser checks and publish the reviewed connection/
-history revision, then verify its isolated public probe and next-turn history
-control through authorized owner compute. October 14 version 2 loading/pairing/
-replies are owner-observed evidence, not controlled current-candidate proof.
+Exact next action: refresh the Tatu app, re-pair only if the session expired,
+authorize its isolated public probe and compare an inoffensive next turn with
+history disabled using authorized owner compute. Keep a loaded Google model;
+refreshing the app does not require another model load. October 14 version 2
+loading/pairing/replies are owner-observed, not controlled version 3 proof.
 Eligible paid entitlement with positive units was previously observed, not
 guaranteed permanently. Hosted scheduling still needs entitlement outside
 protected production resources, independent dispatch and a real due task.

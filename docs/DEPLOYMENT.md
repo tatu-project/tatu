@@ -7,9 +7,12 @@ and exact operational release records are private and never shipped in source.
 
 ## Current verified state
 
-Private version 2 is published: three migrations/15 D1 tables, bounded Colab
-adapter, preserved owner-only audience and no automations. Two phases of 22
-negative gateway probes pass; native task listing returns an empty result.
+Private version 3 is published at the existing installation. Artifact/build
+checks confirm three immutable migration files; native metadata confirms 15 D1
+tables. The one-owner audience, no external/group
+access or automations, and existing server secrets are preserved. There is no
+new schema or enabled dispatcher. Native MCP task listing returns an empty result.
+The two 22-case version 2 negative gateway phases remain historical evidence.
 On October 14 the owner reported Qwen loading, pairing and real Tatu replies on
 version 2. This is owner-observed use, not a controlled current-revision probe,
 guardrail-quality test or independent full browser CRUD proof. Stop/active,
@@ -21,16 +24,32 @@ checks passed lint/types/210 tests/build and companion13/original notebook8;
 that backend artifact was identical to the verified private version. Historical public
 [47bfc1e](https://github.com/tatu-project/tatu/commit/47bfc1e7de4e44a4bf9b074618df0d921db48b1b)/
 [CI38500459769](https://github.com/tatu-project/tatu/actions/runs/38500459769)
-passed Windows/Linux. The October 14 connection/status/public-probe/history
-candidate passed root format/lint/types/226 tests/build after the manual-tab fix.
-Final browser, private/public publication and remote CI evidence are pending;
-the candidate is not the same artifact as historical version 2. No old
-deployment record or owner report satisfies the new controlled live test.
+passed Windows/Linux. October 14 version 3 passed final root format/lint/types/
+226 tests/build, companion13/original8 and nine private handoff checks. The Worker
+is 225,716 bytes with three migrations and no native imports. Final code/privacy
+review has no blocker. Actual-built desktop/mobile browser fixtures pass layout,
+manual/active consent visibility, isolated test payload, expected/divergent reply,
+expired-feedback and bounded-cancellation checks. Mocked APIs were used; these
+are not Google inference or latency measurements.
+
+Private deployment succeeded without changing the audience, existing two-secret
+configuration or disabled scheduling. Sixteen live access/readiness checks pass:
+bounded denial cases return 401/403 and public health returns 200. Direct Worker
+origin and positive browser owner-login tests are two explicit gaps, not passing
+cases. Public implementation [78f5c2b](https://github.com/tatu-project/tatu/commit/78f5c2bf2816e12879cf41fa5732e54c33290dd9)/
+[CI38567151349](https://github.com/tatu-project/tatu/actions/runs/38567151349)
+completed success on Windows/Ubuntu for that revision. Root created no Google
+inference, owner response probe or scheduled execution. No older deployment or
+owner report satisfies the new controlled live test.
 
 The October 12 baseline and October 13 version 2 are historical release records,
 not a public install address or invitation. Exact identifiers/hash/configuration
 are retained privately by the operator. Forward-source sanitation does not
 rewrite earlier Git history.
+
+Next, refresh the app and re-pair only if the session expired; reuse a loaded
+Google model, authorize the public probe and test a harmless turn with history
+disabled. The documentation-only reconciliation needs no additional Site redeploy.
 
 ## Generic public configuration
 

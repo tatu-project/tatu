@@ -62,13 +62,17 @@ derived managed export belongs in ignored `tmp/cloudsite`, not public source.
 Never commit actual origins, IDs or generated private metadata. See
 [ADR-0026](decisions/ADR-0026-public-source-private-installation-configuration.md).
 
-Private version 2 is published with three migrations and verified negative
+Private version 3 is published with three migrations/15 tables and verified negative
 gateway/MCP evidence. On October 14 the owner reported loaded Qwen, pairing and
 real replies on version 2; this is attributed use, not a controlled new-revision
 probe or guardrail-quality proof. Full browser CRUD/mobile/PWA, current-revision
 live response/history/stop/active checks and unattended scheduling remain open.
-Built-browser fixture checks validate candidate layout/status behavior separately
-from Google inference. Sites native scheduling
+Final format/lint/types/226 tests/build and Python13+8 pass. Actual-built browser
+fixtures validate desktop/mobile layout/status/probe/cancellation separately from
+Google inference. Sixteen live access/readiness checks pass, with direct-origin/
+positive browser-login gaps explicit; public [78f5c2b](https://github.com/tatu-project/tatu/commit/78f5c2bf2816e12879cf41fa5732e54c33290dd9)/
+[CI38567151349](https://github.com/tatu-project/tatu/actions/runs/38567151349)
+passed Windows/Linux. Owner audience/existing secrets remain preserved. Sites native scheduling
 must be connected and tested before `SCHEDULER_ENABLED` changes from false.
 `apps/cloud/wrangler.jsonc` is independent Workers/D1/Access configuration with a
 one-minute Cron; it requires its own account, hostname, Access policy, bindings,

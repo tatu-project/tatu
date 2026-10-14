@@ -529,3 +529,28 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
   Controlled current-revision live probe/history/stop/active acceptance and all
   whole online stages remain open. No production resource/audience change or
   new provider key, scheduled task, paid fallback or dependency is implied.
+
+## 2026-10-14 - Version 3 and public CI verified
+
+- Root final format/lint/types/226 tests/build and Python13+8 passed; nine private
+  single-cell handoff checks also passed. Reviewer and privacy audit have no
+  blockers. Actual-built browser fixtures at desktop/mobile widths verify layout,
+  isolated public probe payload, expected/divergent reply status,
+  expired-feedback cleanup and one bounded cancel DELETE. Web behavioral tests
+  cover manual tab switching. The browser fixtures are
+  mocked visual/client checks, not Google inference or model-latency evidence.
+- Root pushed public implementation [78f5c2b](https://github.com/tatu-project/tatu/commit/78f5c2bf2816e12879cf41fa5732e54c33290dd9);
+  [CI38567151349](https://github.com/tatu-project/tatu/actions/runs/38567151349)
+  completed success on Windows/Ubuntu. Private version 3 deployment succeeded
+  at the existing installation, preserving one-owner access, existing secrets,
+  three migrations/15 metadata-confirmed D1 tables and zero automations. Native
+  MCP task read remains positive. No table rows or private identities are logged here.
+- Sixteen live access/readiness checks passed; direct-origin and positive owner
+  browser-login tests are explicit gaps. These are distinct from historical v2
+  two 22-case probe phases. Root created no new Google inference, owner response
+  probe or scheduled execution, and read checks did not change retained history.
+- Limited implementation/mock-visual/publication checks are verified. Controlled
+  version 3 owner probe/history/stop/active, full browser/PWA, guardrail quality
+  and scheduling remain open; no whole online stage is complete. Next: refresh
+  the app, re-pair only if expired and use the isolated public probe/history-off
+  turn with authorized compute. Documentation reconciliation needs no redeploy.

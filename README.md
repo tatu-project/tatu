@@ -4,12 +4,13 @@ A Brazilian, MIT-licensed personal assistant with an online backend and a
 Portuguese mobile/desktop web app. Free-first, with replaceable providers and
 optional independent hosting. [Leia em português](README.pt-BR.md).
 
-**Current state:** private version 2 is published. On October 14 its owner
-reported loaded Qwen, pairing and real replies inside Tatu; native MCP task
-reads/proposals are independently verified. The connection monitor, isolated
-response test and per-turn history controls are implemented in the next
-revision, with final browser/publication evidence pending. Owner observations
-do not complete browser/PWA, guardrail or unattended scheduling acceptance.
+**Current state:** private version 3 is published with the connection monitor,
+isolated response test and per-turn history controls. Its predecessor's October
+14 Qwen loading/pairing/replies are owner-observed; native MCP task reads are
+independently verified. Local checks, mocked desktop/mobile visuals, bounded
+live gateway probes and public Windows/Linux CI pass. A controlled version 3
+owner response/history test, stop/active behavior, PWA installation, guardrail
+quality and unattended scheduling acceptance remain open.
 [ROADMAP.md](ROADMAP.md) tracks each kind of proof.
 
 Private installation URLs, IDs, account details, credentials and operational
@@ -47,14 +48,14 @@ selected notes/memories, so zero does not mean history is excluded.
 
 ## Implemented and remaining
 
-| Capability                                                   | Evidence                                                 | Remaining acceptance                                     |
-| ------------------------------------------------------------ | -------------------------------------------------------- | -------------------------------------------------------- |
-| Conversations, notes, memory, task controls and cited reader | SQL/API/client checks                                    | Positive authenticated browser CRUD/mobile smoke         |
-| Workers AI/Groq and encrypted optional keys                  | Adapters, quotas and failures tested                     | Real configured provider turn/lifecycle                  |
-| Personal Qwen/Colab                                          | Private v2 and owner-observed replies; crypto/job checks | Controlled current-revision probe and stop/active proof  |
-| MCP                                                          | Native listing/proposal calls verified                   | Broader confirmation, standalone OAuth/public directory  |
-| Daily AI briefing                                            | Curated RSS and durable execution code                   | Actual hosted due occurrence; managed bridge disabled    |
-| NotebookLM Audio Overviews                                   | Cited-text export/manual import handoff                  | User-generated audio; automatic Enterprise adapter later |
+| Capability                                                   | Evidence                                                    | Remaining acceptance                                     |
+| ------------------------------------------------------------ | ----------------------------------------------------------- | -------------------------------------------------------- |
+| Conversations, notes, memory, task controls and cited reader | SQL/API/client checks                                       | Positive authenticated browser CRUD/mobile smoke         |
+| Workers AI/Groq and encrypted optional keys                  | Adapters, quotas and failures tested                        | Real configured provider turn/lifecycle                  |
+| Personal Qwen/Colab                                          | Private v3; owner-observed v2 replies and crypto/job checks | Controlled current-revision probe and stop/active proof  |
+| MCP                                                          | Native listing/proposal calls verified                      | Broader confirmation, standalone OAuth/public directory  |
+| Daily AI briefing                                            | Curated RSS and durable execution code                      | Actual hosted due occurrence; managed bridge disabled    |
+| NotebookLM Audio Overviews                                   | Cited-text export/manual import handoff                     | User-generated audio; automatic Enterprise adapter later |
 
 The reference task is daily AI news at **09:00, America/Sao_Paulo**. Sources
 remain cited; RSS excerpts are distinct from model inference. MCP preparation
@@ -63,11 +64,16 @@ creates an expiring proposal that still requires confirmation in Tatu.
 Historical private version 2 proof includes 205 application tests, three
 migrations/15 D1 tables and two phases of 22 negative gateway probes. October 13
 public-source proof is 210 tests/build and Colab companion13/original notebook8;
-its production audit found zero known vulnerabilities. The October 14 candidate
-passes format/lint/types/226 tests/build after the manual-tab fix; browser and
-publication checks are tracked separately. Neither fixtures nor owner-reported
-replies prove full browser CRUD, guardrail quality or scheduled delivery. No
-30-day waiting period is required.
+its production audit found zero known vulnerabilities. October 14 version 3
+passes format/lint/types/226 tests/build and companion13/notebook8 checks.
+Desktop/mobile browser fixtures validate layout, expected/divergent replies,
+expiry and cancellation; they use mocked APIs, not Google inference. Public
+[78f5c2b](https://github.com/tatu-project/tatu/commit/78f5c2bf2816e12879cf41fa5732e54c33290dd9)/
+[CI38567151349](https://github.com/tatu-project/tatu/actions/runs/38567151349)
+passed Windows/Linux. Sixteen live access/readiness checks pass; direct-origin
+and positive browser owner-login gaps are explicit. These limited gates do not
+complete the remaining owner/PWA/guardrail/scheduling acceptance. No 30-day
+waiting period is required.
 
 ## Privacy and limits
 

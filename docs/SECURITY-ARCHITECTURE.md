@@ -1,11 +1,17 @@
 # Security architecture and agent boundaries
 
-Status: private Colab version 2 published October 13, 2026. Historical version 2
+Status: private Colab version 3 published October 14, 2026, preserving owner-only
+access, three migrations/15 D1 tables and existing secrets. Historical version 2
 proof is 205 tests/Python11+8; October 13 public-source checks are 210 tests/Python13+8.
 Static review and two 22-case gateway phases pass; native task read remains verified.
 On October 14 the owner observed Colab loading/pairing/replies on version 2.
-The connection/public-probe/history candidate passed root format/lint/types/226
-tests/build after the manual-tab fix; final browser/publication evidence is pending.
+The connection/public-probe/history revision passed final root format/lint/types/
+226 tests/build, Python13+8 and final mocked desktop/mobile browser checks.
+Sixteen current live access/readiness checks pass; direct-origin and positive
+owner-browser probes have explicit gaps. Private publication succeeded and public
+[78f5c2b](https://github.com/tatu-project/tatu/commit/78f5c2bf2816e12879cf41fa5732e54c33290dd9)/
+[CI38567151349](https://github.com/tatu-project/tatu/actions/runs/38567151349)
+passed Windows/Linux. No new Google inference or scheduled execution was created.
 Controlled current-revision live acceptance, guardrail quality, stop/active,
 browser CRUD/mobile/PWA and scheduled delivery remain open. Historical public
 [47bfc1e](https://github.com/tatu-project/tatu/commit/47bfc1e7de4e44a4bf9b074618df0d921db48b1b)/

@@ -4,12 +4,13 @@ Assistente pessoal brasileiro, open source sob licença MIT, com backend online
 e aplicativo web em português para celular e desktop. Prioriza opções gratuitas,
 provedores substituíveis e hospedagem própria opcional. [Read in English](README.md).
 
-**Estado atual:** a versão privada 2 está publicada. Em 14 de outubro, o
-proprietário relatou Qwen carregado, pareamento e respostas reais no Tatu;
-listagem/propostas MCP têm verificação independente. Monitor de conexão, teste
-de resposta separado e controle de histórico por envio estão implementados na
-próxima revisão, com validação de navegador/publicação ainda pendente. O relato
-não conclui aceitação de visual/PWA, guardrails ou agendamento.
+**Estado atual:** a versão privada 3 está publicada com monitor da conexão,
+teste de resposta separado e controle de histórico por envio. Qwen carregado,
+pareamento e respostas na versão 2 são relatos do proprietário; leitura MCP
+tem verificação independente. Testes locais, visual desktop/celular com APIs
+simuladas, verificações limitadas do gateway e CI Windows/Linux passam. Teste
+real controlado na versão 3, histórico/parada/modo ativo, instalação PWA,
+qualidade dos guardrails e agendamento continuam abertos.
 [ROADMAP.md](ROADMAP.md) separa as evidências.
 
 URLs, IDs, contas, credenciais e registros operacionais privados não entram no
@@ -44,14 +45,14 @@ zero não significa histórico desligado.
 
 ## Implementado e ainda pendente
 
-| Capacidade                                  | Evidência                                                | Validação restante                                    |
-| ------------------------------------------- | -------------------------------------------------------- | ----------------------------------------------------- |
-| Conversas, notas, memória, tarefas e leitor | Testes SQL/API/interface                                 | CRUD autenticado e visual no celular                  |
-| Workers AI/Groq e chaves opcionais          | Adapters, cotas e falhas testados                        | Resposta real e ciclo da conexão                      |
-| Qwen/Colab pessoal                          | Versão 2 e respostas relatadas; testes de segurança/jobs | Teste controlado da revisão atual e parada/modo ativo |
-| MCP                                         | Listagem e propostas nativas verificadas                 | Confirmação, OAuth independente/diretório público     |
-| Boletim diário                              | RSS e execução durável implementados                     | Ocorrência real; ponte gerenciada desativada          |
-| NotebookLM Audio Overviews                  | Exportação de texto/importação manual                    | Áudio pelo usuário; automação Enterprise futura       |
+| Capacidade                                  | Evidência                                          | Validação restante                                    |
+| ------------------------------------------- | -------------------------------------------------- | ----------------------------------------------------- |
+| Conversas, notas, memória, tarefas e leitor | Testes SQL/API/interface                           | CRUD autenticado e visual no celular                  |
+| Workers AI/Groq e chaves opcionais          | Adapters, cotas e falhas testados                  | Resposta real e ciclo da conexão                      |
+| Qwen/Colab pessoal                          | Versão 3; relatos da v2 e testes de segurança/jobs | Teste controlado da revisão atual e parada/modo ativo |
+| MCP                                         | Listagem e propostas nativas verificadas           | Confirmação, OAuth independente/diretório público     |
+| Boletim diário                              | RSS e execução durável implementados               | Ocorrência real; ponte gerenciada desativada          |
+| NotebookLM Audio Overviews                  | Exportação de texto/importação manual              | Áudio pelo usuário; automação Enterprise futura       |
 
 O caso de referência é notícias de IA às **09:00, America/Sao_Paulo**. Fontes
 são preservadas e trechos RSS não são apresentados como inferência. A proposta
@@ -60,11 +61,16 @@ MCP ainda exige confirmação no Tatu.
 A prova histórica da versão privada 2 inclui 205 testes, três migrações/15
 tabelas D1 e duas fases de 22 testes negativos no gateway. Em 13 de outubro,
 o código público passou 210 testes/build e conector13/notebook original8;
-auditoria de produção sem vulnerabilidades conhecidas. O candidato de 14 de
-outubro passa format/lint/types/226 testes/build após corrigir a troca de aba
-no modo manual; navegador e publicação têm verificações separadas. Testes e
-respostas relatadas não comprovam CRUD completo, qualidade dos guardrails ou
-entrega agendada. Não há espera obrigatória de 30 dias.
+auditoria de produção sem vulnerabilidades conhecidas. A versão 3 de 14 de
+outubro passa format/lint/types/226 testes/build e conector13/notebook8.
+Navegador desktop/celular valida layout, respostas esperadas/divergentes,
+expiração e cancelamento com APIs simuladas; não é inferência Google. O commit
+[78f5c2b](https://github.com/tatu-project/tatu/commit/78f5c2bf2816e12879cf41fa5732e54c33290dd9)/
+[CI38567151349](https://github.com/tatu-project/tatu/actions/runs/38567151349)
+passa Windows/Linux. Dezesseis verificações reais de acesso/estado passam;
+origem direta e login positivo pelo navegador são lacunas explícitas. Essas
+etapas limitadas não concluem validação real/PWA/guardrails/agendamento.
+Não há espera obrigatória de 30 dias.
 
 ## Privacidade e limites
 

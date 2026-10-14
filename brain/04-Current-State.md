@@ -8,9 +8,11 @@ updated: 2026-10-14
 
 # Current State
 
-- Private version 2 is published, owner-only, with three migrations/15 D1 tables
-  and zero automations. Two phases of 22 negative gateway probes pass; native
-  task listing/proposal is verified. October 14 owner reports show Qwen loaded,
+- Private version 3 is published at the existing owner-only installation,
+  preserving three migrations/15 D1 tables, existing secrets and zero automations.
+  Sixteen live access/readiness checks pass; direct-origin/positive owner-browser
+  tests have explicit gaps. Historical v2 had two 22-case gateway phases; native
+  task listing remains verified. October 14 owner reports show Qwen loaded,
   pairing and real Tatu replies on version 2; this is attributed use, not a
   controlled current-revision probe or full browser/mobile/PWA acceptance.
 - Historical v2 release proof is 205 tests/static review/audit0. October 13
@@ -18,12 +20,13 @@ updated: 2026-10-14
   [47bfc1e](https://github.com/tatu-project/tatu/commit/47bfc1e7de4e44a4bf9b074618df0d921db48b1b)
   is public; [CI38500459769](https://github.com/tatu-project/tatu/actions/runs/38500459769)
   passed Windows/Linux for that revision. Four user `.codex` edits stay excluded.
-- The next connection/history candidate passed root format/lint/types/226 tests/
-  build after the manual-tab fix. Initial built-browser fixtures at desktop/mobile
-  widths show no horizontal overflow and correct mode visibility/isolated POST/
-  response distinctions; these are mocked visuals, not Google inference. The
-  later expired-feedback fix passes 26 web tests. Final browser retest/full CI/
-  private/public publication/remote CI remain pending; no whole stage is complete.
+- Final connection/history format/lint/types/226 tests/build and Python13+8 pass;
+  private handoff checks pass separately. Built-browser desktop/mobile fixtures
+  verify no overflow, correct mode visibility/isolated POST/response distinctions,
+  expiry and bounded cancellation. These are mocked visuals, not Google inference.
+  Public [78f5c2b](https://github.com/tatu-project/tatu/commit/78f5c2bf2816e12879cf41fa5732e54c33290dd9)/
+  [CI38567151349](https://github.com/tatu-project/tatu/actions/runs/38567151349)
+  passed Windows/Linux; current publication has no blocker. No whole stage is complete.
 - Implemented connection steps, aligned consents, collapsed ciphertext,
   monitor/countdown and explicit public arithmetic probe separate pairing from
   receipt/model/time/correctness. The probe saves a separate conversation and
@@ -54,8 +57,8 @@ updated: 2026-10-14
   companion origin/project is entered in hidden VM prompts. Exact evidence stays
   private outside Git; previous Git history has not been rewritten.
 
-Next: finish browser checks and publish the reviewed connection/history revision;
-verify its isolated public probe and history controls with authorized owner
+Next: refresh the app and re-pair only if expired; keep a loaded Google model
+and verify the isolated public probe/history-off turn with authorized owner
 compute. Then prove full browser/mobile/PWA, stop/active and actual scheduled
 delivery. Historical source/CI and owner use are separate from those gates.
 

@@ -1,7 +1,7 @@
 # Tatu product requirements and current state
 
-Snapshot: October 14, 2026. Private version 2 is published; the next connection/
-context usability revision is implemented with final publication evidence pending.
+Snapshot: October 14, 2026. Private version 3 is published with the connection/
+context usability revision and verified limited implementation/publication gates.
 This PRD connects user needs to
 implemented behavior, evidence and remaining acceptance. [PROJECT.md](../PROJECT.md)
 owns product scope, [ROADMAP.md](../ROADMAP.md) owns progress, [ADRs](decisions/README.md)
@@ -56,20 +56,21 @@ Primary scenarios:
 
 ## 3. Current evidence and scope
 
-| Area                     | Implemented                                                       | Verified                                                          | Remaining                                                         |
-| ------------------------ | ----------------------------------------------------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------- |
-| Identity/D1              | Verified ingress mapped to internal owner, scoped SQL             | Auth/CSRF/cross-owner fixtures and private gateway denial         | Independently observed browser owner CRUD/session flow            |
-| Portuguese workspace/PWA | Chat, notes, memory, controls, reader; online-only actions        | Client checks and hosted code                                     | Mobile visuals, PWA installation and positive browser smoke       |
-| Conversations/context    | Persistent turns, per-request history selection, context/deletion | SQL/API/client checks; owner-observed v2 replies                  | Current-revision browser/history acceptance                       |
-| Workers AI/Groq          | Replaceable adapters, optional encrypted BYOK, quotas             | Provider/security fixtures                                        | Configured provider turn and credential lifecycle                 |
-| Colab                    | Sealed pairing/jobs, status monitor and isolated response probe   | Private v2, owner-observed pair/replies, crypto/SQL/client checks | Controlled current-revision probe, cancellation/stop/active proof |
-| Briefings                | Curated RSS, citations, scheduling/retry/results                  | Fixtures and earlier legacy delivery proof                        | New actual hosted due occurrence/delivery                         |
-| MCP                      | Bounded authenticated tools/private native connection             | Native task list/proposal calls                                   | Broader confirmation, standalone OAuth/public directory           |
-| Audio                    | Reviewed cited-text export/manual NotebookLM handoff              | Client checks                                                     | Actual user-generated audio; automatic Enterprise adapter         |
-| Private credentials      | Server operational encryption/bounded rotation                    | Crypto/owner/CAS/redaction checks                                 | Live lifecycle and future client-held password vault              |
-| Native/account actions   | Scope and permission boundaries                                   | Accepted architecture only                                        | Packages, companion and official action adapters                  |
+| Area                     | Implemented                                                       | Verified                                                                                | Remaining                                                          |
+| ------------------------ | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| Identity/D1              | Verified ingress mapped to internal owner, scoped SQL             | Auth/CSRF/cross-owner fixtures and private gateway denial                               | Independently observed browser owner CRUD/session flow             |
+| Portuguese workspace/PWA | Chat, notes, memory, controls, reader; online-only actions        | Client checks, hosted code and mocked connection desktop/mobile visuals                 | Full owner CRUD/mobile/PWA installation and positive browser smoke |
+| Conversations/context    | Persistent turns, per-request history selection, context/deletion | SQL/API/client checks; owner-observed v2 replies                                        | Current-revision browser/history acceptance                        |
+| Workers AI/Groq          | Replaceable adapters, optional encrypted BYOK, quotas             | Provider/security fixtures                                                              | Configured provider turn and credential lifecycle                  |
+| Colab                    | Sealed pairing/jobs, status monitor and isolated response probe   | Private v3/mock visuals/gateway; owner-observed v2 replies and crypto/SQL/client checks | Controlled current-revision probe, cancellation/stop/active proof  |
+| Briefings                | Curated RSS, citations, scheduling/retry/results                  | Fixtures and earlier legacy delivery proof                                              | New actual hosted due occurrence/delivery                          |
+| MCP                      | Bounded authenticated tools/private native connection             | Native task list/proposal calls                                                         | Broader confirmation, standalone OAuth/public directory            |
+| Audio                    | Reviewed cited-text export/manual NotebookLM handoff              | Client checks                                                                           | Actual user-generated audio; automatic Enterprise adapter          |
+| Private credentials      | Server operational encryption/bounded rotation                    | Crypto/owner/CAS/redaction checks                                                       | Live lifecycle and future client-held password vault               |
+| Native/account actions   | Scope and permission boundaries                                   | Accepted architecture only                                                              | Packages, companion and official action adapters                   |
 
-Private version 2 is published with three migrations and 15 D1 tables. Its
+Private version 3 preserves three migrations/15 D1 tables, independently checked
+through native metadata. Historical version 2's
 recorded release proof includes 205 application tests, static review without
 blocking findings, zero known production dependency vulnerabilities and two
 22-case negative gateway phases. October 13 public-source checks passed lint/types/
@@ -78,13 +79,19 @@ checks are static/mock/interop, not an agent-run GPU session.
 
 On October 14 the owner reported loaded Qwen3-8B, pairing and real replies inside
 the published version 2. Earlier ChatGPT sign-in and manual model output remain
-attributed history. The new candidate passed root format/lint/types/226 tests/
-build after the manual-tab fix. Initial actual-built browser checks use mocked
+attributed history. Version 3 passed final root format/lint/types/226 tests/
+build and companion13/original8; private handoff checks pass separately. Actual-built browser checks use mocked
 APIs at 1440×1000 and 390×844: no horizontal overflow, mode-specific consent
 visibility, isolated request capture and distinct expected/divergent reply states.
 These verify layout/client behavior, not real Google inference or model latency.
-The later expired-feedback correction passes 26 web tests; final browser retest/
-full CI/publication checks remain separate and pending.
+Final browser retests also clear stale success on expiry and send one bounded
+cancel DELETE with useful feedback. Private deployment succeeded, preserving
+existing audience/secrets/scheduling state. Sixteen live access/readiness checks
+pass; direct-origin and positive owner-browser tests have explicit gaps. Public
+[78f5c2b](https://github.com/tatu-project/tatu/commit/78f5c2bf2816e12879cf41fa5732e54c33290dd9)/
+[CI38567151349](https://github.com/tatu-project/tatu/actions/runs/38567151349)
+passed Windows/Linux. These are limited code/visual/publication proofs, not a new
+Google inference or scheduled run.
 The owner-observed replies do not prove a controlled current-revision probe,
 guardrail quality, full browser CRUD or scheduled delivery. A repeated refusal
 after a subject change suggests possible conversational carryover, not a proven
@@ -299,8 +306,9 @@ scheduling and MCP/private publication. Code/gateway/publication checks are
 verified; whole online stages are not complete. [ROADMAP.md](../ROADMAP.md)
 contains the exact checks, not inferred completion from this PRD.
 
-Next: publish the reviewed usability revision, then verify the explicit public
-probe and history selection on that deployed revision with authorized compute.
+Next: refresh the deployed app, re-pair only if expired and verify the explicit
+public probe/history selection with authorized compute; reuse a loaded Google
+model rather than reload it solely for an app refresh.
 Owner-observed version 2 replies are an initial integration observation, not
 completion of those checks. Then prove browser/mobile flows, live active behavior
 and hosted scheduled delivery. Historical public-source/remote CI remains
