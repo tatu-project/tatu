@@ -15,6 +15,8 @@ import {
 import type { CloudEnv, RemoteServices } from './types.js';
 import { PROVIDER_CONTEXT_MAX_BYTES } from './types.js';
 import type { StoredMessage } from './storage.js';
+import { ColabStore } from './colab-store.js';
+import { configuredColab, denyColabSecrets } from './colab.js';
 
 class ContextTooLargeError extends Error {}
 type ProviderMessage = Parameters<RemoteServices['reply']>[1][number];
@@ -152,7 +154,7 @@ export function failure(error: unknown): Response {
   }
   return json({ error: 'Não foi possível concluir a operação.' }, 500);
 }
-export async function body(request: Request): Promise<unknown> {
+export async function body(request: Request, env?: CloudEnv): Promise<unknown> {
   if (request.signal.aborted) throw new AssistantError('invalid_input');
   if (
     request.headers.get('content-type')?.split(';')[0].trim().toLowerCase() !==
@@ -188,9 +190,11 @@ export async function body(request: Request): Promise<unknown> {
       bytes.set(chunk, offset);
       offset += chunk.byteLength;
     }
-    return JSON.parse(
-      new TextDecoder('utf-8', { fatal: true }).decode(bytes),
-    ) as unknown;
+    const text = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+    const value: unknown = JSON.parse(text);
+    if (!new URL(request.url).pathname.startsWith('/api/colab/runtime/'))
+      denyColabSecrets(JSON.stringify(value), env ?? {});
+    return value;
   } catch {
     throw new AssistantError('invalid_input');
   } finally {
@@ -266,12 +270,19 @@ export async function handleWorkspace(
   if (path === '/api/me' && method === 'GET')
     return json({ authenticated: true });
   if (path === '/api/assistant/status' && method === 'GET')
-    return json(await services.status(store.ownerId));
+    return json({
+      ...(await services.status(store.ownerId)),
+      colab: env.DB
+        ? await new ColabStore(env.DB, store.ownerId).status(
+            configuredColab(env),
+          )
+        : { configured: false, connected: false, reason: 'unconfigured' },
+    });
   if (path === '/api/connections' && method === 'GET')
     return json(await services.connections(store.ownerId));
   if (path === '/api/connections' && method === 'POST')
     return json(
-      await services.connect(store.ownerId, await body(request)),
+      await services.connect(store.ownerId, await body(request, env)),
       201,
     );
   if (path === '/api/connections/groq' && method === 'DELETE') {
@@ -308,7 +319,7 @@ export async function handleWorkspace(
     (path === '/api/memories' && method === 'POST') ||
     (match?.[1] === 'memories' && method === 'PATCH')
   ) {
-    const input = await body(request);
+    const input = await body(request, env);
     if (
       !hasOnlyKeys(input, ['content', 'category']) ||
       !safeAssistantText(input.content, 4096) ||
@@ -340,7 +351,7 @@ export async function handleWorkspace(
     (path === '/api/notes' && method === 'POST') ||
     (match?.[1] === 'notes' && method === 'PATCH')
   ) {
-    const input = await body(request);
+    const input = await body(request, env);
     if (
       !hasOnlyKeys(
         input,
@@ -374,7 +385,7 @@ export async function handleWorkspace(
   if (path === '/api/tasks' && method === 'GET')
     return json(await store.listTasks());
   if (match?.[1] === 'tasks' && !match[3] && method === 'PATCH') {
-    const input = await body(request);
+    const input = await body(request, env);
     if (
       !hasOnlyKeys(input, ['time', 'timezone', 'topic', 'quantity', 'enabled'])
     )
@@ -394,7 +405,7 @@ export async function handleWorkspace(
     (path === '/api/proposals' || path === '/api/briefing-drafts') &&
     method === 'POST'
   ) {
-    const input = await body(request);
+    const input = await body(request, env);
     if (
       !hasOnlyKeys(input, ['message', 'timezone']) ||
       !safeAssistantText(input.message, 4096) ||
@@ -513,7 +524,7 @@ async function chat(
   store: WorkspaceStore,
   services: RemoteServices,
 ): Promise<Response> {
-  const input = await body(request);
+  const input = await body(request, env);
   if (
     !hasOnlyKeys(input, [
       'conversationId',
@@ -521,11 +532,16 @@ async function chat(
       'memoryIds',
       'noteIds',
       'timezone',
+      'provider',
+      'contextConsent',
     ]) ||
     !safeAssistantText(input.message, 16_384) ||
     (input.conversationId !== undefined &&
       !validLocalId(input.conversationId)) ||
-    (input.timezone !== undefined && !validTimezone(input.timezone))
+    (input.timezone !== undefined && !validTimezone(input.timezone)) ||
+    (input.provider !== undefined && input.provider !== 'colab') ||
+    (input.contextConsent !== undefined && input.contextConsent !== true) ||
+    (input.provider === 'colab' && input.contextConsent !== true)
   )
     throw new AssistantError('invalid_input');
   const memoryIds = ids(input.memoryIds),
@@ -583,6 +599,39 @@ async function chat(
           contextKey,
         )
       : undefined;
+  if (input.provider === 'colab' && messages) {
+    if (!env.DB || !configuredColab(env))
+      throw new AssistantError('unavailable');
+    denyColabSecrets(JSON.stringify(messages), env);
+    const colab = new ColabStore(env.DB, store.ownerId);
+    const session = await colab.ready();
+    if (!conversation)
+      conversation = await store.createConversation(
+        input.message.slice(0, 100),
+      );
+    const turnToken = await store.claimTurn(
+      conversation.id,
+      conversation.revision,
+    );
+    try {
+      return json(
+        await colab.enqueue(
+          session.id,
+          conversation,
+          turnToken,
+          input.message,
+          contextKey,
+          messages,
+        ),
+        202,
+      );
+    } catch (error) {
+      await store
+        .releaseTurn(conversation.id, turnToken)
+        .catch(() => undefined);
+      throw error;
+    }
+  }
   let token: string | undefined;
   let reply: string;
   let model: { provider: string; name: string } | null = null;

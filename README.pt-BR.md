@@ -1,89 +1,96 @@
 # Tatu
 
-Assistente pessoal brasileiro, open source MIT, com backend online e aplicativo
-web instalável no celular e no computador. [Read in English](README.md).
+Assistente pessoal brasileiro, open source sob licença MIT, com backend online
+e aplicativo web em português para celular e desktop. Prioriza opções gratuitas,
+provedores substituíveis e hospedagem própria opcional. [Read in English](README.md).
 
-**Estado atual:** [beta privada de QA publicada](https://tatu-brasil-beta-vitti.craftystar18.chatgpt.site).
-A verificação local final passou com 189 testes; sondas HTTPS reais confirmaram
-bloqueios de acesso indevido. Leitura/proposta pelo MCP nativo autenticado funciona
-para a conta verificada. Ainda faltam login/CRUD no navegador, IA real, visual no
-celular e tarefa agendada. O [commit de implementação d2a8bc2](https://github.com/tatu-project/tatu/commit/d2a8bc22e9ecb6a990852ca38c8dc8fb596ab680)
-foi publicado no `main`; o [CI remoto](https://github.com/tatu-project/tatu/actions/runs/38336981415)
-passou no Windows e no Linux para a [revisão verificada 4323d45](https://github.com/tatu-project/tatu/commit/4323d4584c0e8a9cce9857ff521ae1f5f27beafe), conforme o [CI 38336981415](https://github.com/tatu-project/tatu/actions/runs/38336981415). Não há espera obrigatória de 30 dias. Veja o [roadmap](ROADMAP.md).
+**Estado atual:** a versão privada 2 está publicada. O proprietário relatou login
+pelo ChatGPT funcionando; listagem/propostas MCP foram verificadas. O adaptador
+Qwen/Colab está implantado, mas pareamento e primeira resposta dentro do Tatu
+seguem sem comprovação. Visual/PWA no celular e entrega agendada também estão
+abertos. [ROADMAP.md](ROADMAP.md) separa as evidências.
 
-## Usar a beta privada
+URLs, IDs, contas, credenciais e registros operacionais privados não entram no
+código público. Receba acesso/configuração do responsável pela sua instalação.
 
-Abra o endereço privado e entre com a conta dona do Site; o acesso é só do dono.
-Esse login ainda precisa de verificação em navegador. Use o Tatu no celular ou computador.
-A instalação como PWA é opcional. Você não precisa deixar um PC ligado, instalar
-Ollama, baixar modelos, usar Node.js ou abrir um terminal.
+## Usar sua instalação
 
-A versão candidata reúne conversas, notas, preferências escolhidas pelo usuário,
-tarefas diárias, pausa/edição/retomada, histórico, leitor com fontes, conexões de
-IA e MCP autenticado. Os recursos têm testes de implementação/cliente; o fluxo
-autenticado completo no serviço publicado continua aberto. Não há promessa de
-paridade completa com outros assistentes.
+1. Abra o endereço HTTPS privado e entre com uma conta autorizada.
+2. Use Chat, Tarefas, notas, memória explícita e o leitor com fontes. O shell
+   PWA existe; instalação e visual no celular ainda precisam de validação.
+3. Escolha uma rota autorizada de IA. Groq opcional usa o formulário HTTPS,
+   nunca o chat. Workers AI exige binding; Colab usa sua própria VM Google.
 
-Não há conexão Workers AI nem chave Groq configurada: a conversa com IA está
-indisponível agora. Após entrar, conecte sua própria chave Groq autorizada pelo
-formulário HTTPS do aplicativo e verifique a primeira resposta real. Nunca cole
-a chave no chat. Sem conexão, cota ou internet, o Tatu informa a indisponibilidade.
+O caminho online padrão não exige PC ligado, Node.js, Ollama nem modelo local.
+O modelo Colab fica na VM Google. Rotas ausentes, computação parada, cotas e
+falhas são mostradas claramente; não há resposta inventada ou fallback pago.
 
-O pedido inicial é receber notícias de IA às **09:00, America/Sao_Paulo**. A busca
-atual consulta feeds públicos selecionados sobre IA e aceita de 1 a 10 notícias.
-Os fatos são trechos citados do RSS, sem afirmar que uma IA os escreveu. A entrega
-é dentro do aplicativo. O agendamento no Site continua desativado até conectar e
-verificar seu disparo automático; a configuração independente de Cron tem teste
-separado. O teste real do despachante com fila vazia passou, mas nenhuma tarefa
-nova ou agenda foi criada; isso não comprova uma execução sem intervenção.
+Para **Meu Qwen no Google Colab**, siga [o guia](docs/COLAB-CONNECTION.md).
+Receba origem/ID de forma privada e informe-os só nos campos ocultos do notebook.
+O pareamento usa chave efêmera e dados criptografados no Tatu. Revise o contexto
+exato no Tatu e confirme `PROCESSAR` no modo manual. Modo ativo é opcional, até
+20 minutos, e exige benefício pago elegível com unidades Colab positivas.
+Não é um backend gratuito permanente.
 
-O objetivo confirmado é gerar **resumos em áudio no NotebookLM**. O Tatu exporta
-texto com fontes para importação manual no [NotebookLM](https://notebooklm.google.com/),
-onde você gera o Audio Overview. A integração automática de áudio pela API do
-Tatu não está implementada; uma conta gratuita não concede esse acesso de API.
-Entregar só o texto não conclui o objetivo de áudio.
+## Implementado e ainda pendente
 
-O MCP privado nativo funciona para a conta da plataforma verificada: listar
-tarefas retornou `[]`; preparar tarefa retornou uma proposta às 09:00, com três
-notícias de IA e confirmação obrigatória no aplicativo. Isso não criou tarefa
-nem agenda. OAuth manual independente e login por cookie no navegador ainda
-precisam de verificação separada.
+| Capacidade                                  | Evidência                                | Validação restante                                |
+| ------------------------------------------- | ---------------------------------------- | ------------------------------------------------- |
+| Conversas, notas, memória, tarefas e leitor | Testes SQL/API/interface                 | CRUD autenticado e visual no celular              |
+| Workers AI/Groq e chaves opcionais          | Adapters, cotas e falhas testados        | Resposta real e ciclo da conexão                  |
+| Qwen/Colab pessoal                          | Implantação e limites de segurança/jobs  | Pareamento, primeira resposta e modo ativo real   |
+| MCP                                         | Listagem e propostas nativas verificadas | Confirmação, OAuth independente/diretório público |
+| Boletim diário                              | RSS e execução durável implementados     | Ocorrência real; ponte gerenciada desativada      |
+| NotebookLM Audio Overviews                  | Exportação de texto/importação manual    | Áudio pelo usuário; automação Enterprise futura   |
 
-## Dados e limites
+O caso de referência é notícias de IA às **09:00, America/Sao_Paulo**. Fontes
+são preservadas e trechos RSS não são apresentados como inferência. A proposta
+MCP ainda exige confirmação no Tatu.
 
-| Informação                                           | Tratamento na versão candidata                                                    |
-| ---------------------------------------------------- | --------------------------------------------------------------------------------- |
-| Conversas, notas, preferências, tarefas e resultados | D1 online, separados pela conta autenticada                                       |
-| Chave Groq                                           | Criptografia que o servidor pode abrir para chamar a API; não é E2EE              |
-| Contexto escolhido para a conversa                   | Enviado ao provedor de IA autorizado                                              |
-| Histórico de execução                                | Até 500 execuções finalizadas por conta; pendentes e em andamento são preservadas |
+A versão privada 2 tem prova de 205 testes, três migrações/15 tabelas D1 e duas
+fases de 22 testes negativos no gateway. O código público atual passa lint/types/
+210 testes/build e conector Colab13/notebook original8; auditoria de produção
+sem vulnerabilidades conhecidas e revisão estática sem bloqueios. Isso não
+comprova pareamento, CRUD ou entrega agendada. Não há espera obrigatória de 30 dias.
 
-Mensagens, notas e preferências ficam em texto legível para a aplicação, embora
-o armazenamento da plataforma seja criptografado. Apagar dados do Tatu não apaga
-as cópias eventualmente retidas pelo provedor. O cofre privado com chave somente
-do usuário ainda é trabalho separado, assim como apps nativos, controle de
-aplicativos/dispositivos e ações em contas conectadas. Veja a
-[arquitetura de segurança](docs/SECURITY-ARCHITECTURE.md).
+## Privacidade e limites
 
-As cotas atuais por conta são 8 pedidos de IA/minuto, 30/dia na rota patrocinada
-ou 100/dia com BYOK, contexto de 4.096 bytes, até 1.024 tokens de saída e 2 pedidos
-simultâneos. Limites compartilhados/do provedor podem ser menores; a cota externa
-é desconhecida. A API limita 240 leituras e 60 alterações/minuto por conta.
+- Chaves operacionais usam AES-GCM decifrável pelo servidor: **não é E2EE**.
+  Textos ficam em claro na camada da aplicação; contexto selecionado vai ao
+  provedor/VM Google. Apagar no Tatu não apaga cópias do provedor.
+- Credenciais Colab expiram/revogam e não autorizam APIs comuns/do sistema.
+  Expirar bloqueia acesso; limpeza física depende de acesso posterior configurado/
+  revogação/exclusão/retenção, sem promessa de apagamento por prazo ou de zerar
+  fisicamente a memória Python.
+- Entrada, resposta, requisições e orçamento são limitados. Cotas externas,
+  elegibilidade, hospedagem gratuita, GPU e disponibilidade não são garantidas.
+- Aplicativos nativos, ações em dispositivos/contas, cofre com chave do usuário
+  e áudio automático seguem como trabalho futuro. Paridade não é uma promessa.
 
-O projeto prioriza caminhos gratuitos legítimos. Isso não garante hospedagem,
-elegibilidade, IA ilimitada ou disponibilidade contínua. Não existe troca
-automática para uma rota paga nem contorno de cotas.
+Leia [segurança](docs/SECURITY-ARCHITECTURE.md), [implantação](docs/DEPLOYMENT.md)
+e [o PRD completo](docs/PRD.md).
 
 ## Desenvolver ou hospedar por conta própria
 
-Os comandos de Node/npm são para mantenedores, não para usar a beta online.
-Consulte [desenvolvimento](docs/DEVELOPMENT.md) e
-[hospedagem](docs/DEPLOYMENT.md). O caminho independente Workers/D1/Access precisa
-de conta, configuração e verificação próprias; não depende da conta do fundador.
-O backend Node/SQLite anterior continua como opção local separada.
+Use Node.js `>=24.11.0 <25` e npm `>=11.6.0 <12`:
 
-Para contribuir, leia [CONTRIBUTING.md](CONTRIBUTING.md) e [PROJECT.md](PROJECT.md).
-Os [programas de apoio open source](docs/OPEN_SOURCE_SUPPORT.md) ajudam o
-mantenedor; a beta privada não comprova adoção ou aprovação de candidatura.
+```sh
+npm ci
+npm run ci
+npm run build
+```
 
-[MIT](LICENSE). Modelos, provedores e dependências mantêm suas próprias condições.
+São comandos para mantenedores. `apps/cloud` é o backend principal. O template
+público é genérico; builds comuns não precisam de identidade privada. Exportação
+gerenciada exige `SITE_PROJECT_ID` válido, informado por processo, e falha sem
+ele. Não salve origens/IDs/segredos/capturas privadas em commits/outputs.
+[DEPLOYMENT.md](docs/DEPLOYMENT.md) explica Sites e Workers/D1/Access próprios.
+Node/SQLite é um perfil legado opcional; sua API sem autenticação fica em loopback.
+
+[PROJECT.md](PROJECT.md) define escopo; [ROADMAP.md](ROADMAP.md), progresso;
+[AGENTS.md](AGENTS.md) e [CONTRIBUTING.md](CONTRIBUTING.md), colaboração.
+[Programas para mantenedores](docs/OPEN_SOURCE_SUPPORT.md) não subsidiam a IA
+pública nem significam aprovação ou adoção.
+
+MIT: [LICENSE](LICENSE). Provedores/modelos/dependências mantêm seus termos.
+Vulnerabilidades: [SECURITY.md](SECURITY.md).

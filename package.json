@@ -22,7 +22,7 @@
     "test": "npm run build && node --test packages/*/dist/**/*.test.js apps/*/dist/**/*.test.js scripts/*.test.mjs",
     "build": "tsc -b --pretty false && node scripts/build-cloud.mjs",
     "build:cloud": "npm run build",
-    "export:site": "npm run build && node scripts/build-cloud.mjs --export-site",
+    "export:site": "node scripts/site-config.mjs && npm run build && node scripts/build-cloud.mjs --export-site",
     "check": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run build",
     "ci": "npm run check"
   },

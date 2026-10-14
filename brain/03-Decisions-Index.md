@@ -3,7 +3,7 @@ title: Decisions Index
 tags:
   - tatu
   - decisions
-updated: 2026-10-03
+updated: 2026-10-13
 ---
 
 # Decisions Index
@@ -12,6 +12,9 @@ Individual technical decisions are authoritative only when recorded under [`docs
 
 ## Accepted ADRs
 
+- [ADR-0026: Public/private configuration](../docs/decisions/ADR-0026-public-source-private-installation-configuration.md) — identity-neutral builds, private export input and hidden VM metadata.
+- [ADR-0025: Personal Colab connection](../docs/decisions/ADR-0025-personal-colab-connection.md) — encrypted owner pairing/scoped inference; actual pairing/answer remains open.
+- [ADR-0024: Mobile cloud security](../docs/decisions/ADR-0024-mobile-cloud-security-and-agent-boundaries.md) — operational encryption versus planned client-key vault/native/action boundaries.
 - [ADR-0023: Local HTTP boundary](../docs/decisions/ADR-0023-local-http-boundary.md) — loopback defaults and deterministic request checks.
 - [ADR-0022: Reproducible local installation](../docs/decisions/ADR-0022-reproducible-local-installation.md) — reviewed installation policy and portable line endings.
 - [Complete accepted-record index](../docs/decisions/README.md) — includes the research, routing, delivery, observability, and manual-execution decisions.

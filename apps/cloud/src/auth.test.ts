@@ -73,7 +73,25 @@ test('mutation and shared updater guards fail closed across origins and audience
     ),
     true,
   );
-  assert.equal(permitsSystemRun(make(), site), true);
+  assert.equal(permitsSystemRun(make(), site), false);
+  const strictSite = {
+    ...site,
+    SYSTEM_RUN_TOKEN: 'independent-system-secret-at-least-32-characters',
+  };
+  assert.equal(
+    permitsSystemRun(
+      make({ authorization: `Bearer ${strictSite.SYSTEM_RUN_TOKEN}` }),
+      strictSite,
+    ),
+    true,
+  );
+  assert.equal(
+    permitsSystemRun(
+      make({ 'OAI-Sites-Authorization': 'Bearer outer-platform-bypass-only' }),
+      strictSite,
+    ),
+    false,
+  );
   assert.equal(
     permitsSystemRun(make(), { ...site, SITES_OWNER_PRIVATE: '0' }),
     false,

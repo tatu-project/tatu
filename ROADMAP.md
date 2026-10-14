@@ -1,6 +1,6 @@
 # Tatu Roadmap
 
-> Current status: private QA beta and implementation commit `d2a8bc2` published; local 189-test suite, fixture implementation, live negative guards and native MCP read/proposal verified. Remote CI passed on Windows and Linux for [verified app revision 4323d45](https://github.com/tatu-project/tatu/commit/4323d4584c0e8a9cce9857ff521ae1f5f27beafe), confirmed by [CI run 38336981415](https://github.com/tatu-project/tatu/actions/runs/38336981415). Positive web cookie login/CRUD, inference, scheduling, mobile visual QA and independent/manual OAuth remain open.
+> Current status: private Colab version 2 published, with 15 D1 tables and gateway/MCP read proof. Version 2 proof is 205 tests; current public-source lint/types/210 tests/build and companion13/notebook8 checks pass. Actual Google pairing/first Tatu answer, active behavior, browser/scheduling and new GitHub/remote-CI gates remain open. Earlier [4323d45](https://github.com/tatu-project/tatu/commit/4323d4584c0e8a9cce9857ff521ae1f5f27beafe)/[CI38336981415](https://github.com/tatu-project/tatu/actions/runs/38336981415) remains historical proof.
 > Rule: check an item only after its acceptance criterion has been verified.
 > Compact session context: [`brain/04-Current-State.md`](brain/04-Current-State.md).
 
@@ -46,7 +46,7 @@ Acceptance test:
 - External contributors cannot push directly and must contribute through pull requests.
 - Codex can summarize the repository instructions from `AGENTS.md`.
 
-Verification note (September 2, 2026): the initial file set and repository-safe VS Code configuration were reviewed; Codex confirmed the `AGENTS.md` workflow; Git, Node.js, npm, and Docker were detected on the first founder's computer; and commit `9134593` containing the documentation foundation was pushed directly to `origin/main` using the configured founder bypass. After Codex and VS Code were restarted, the project-scoped `recon`, `executor`, and `reviewer` agents were each dispatched successfully. Their declared models, reasoning effort, sandbox modes, required fields, and Git restrictions were independently verified. Founder 2 attested that they accepted organization access, cloned the repository at `C:\Users\vitti\OneDrive\Desktop\tatu`, opened it in VS Code, and ran `git push --dry-run origin main` with `Everything up-to-date`; commit `844ed99` by Vittor Augusto Gomes is on `origin/main`. Founder 2 also reported Node.js `v24.13.0` and npm `11.6.2`.
+Verification note (September 2, 2026): the initial file set and repository-safe VS Code configuration were reviewed; Codex confirmed the `AGENTS.md` workflow; Git, Node.js, npm, and Docker were detected on the first founder's computer; and commit `9134593` containing the documentation foundation was pushed directly to `origin/main` using the configured founder bypass. After Codex and VS Code were restarted, the project-scoped `recon`, `executor`, and `reviewer` agents were each dispatched successfully. Their declared models, reasoning effort, sandbox modes, required fields, and Git restrictions were independently verified. Founder 2 attested that they accepted organization access, cloned the repository at `<local checkout>`, opened it in VS Code, and ran `git push --dry-run origin main` with `Everything up-to-date`; commit `844ed99` by a founding maintainer is on `origin/main`. Founder 2 also reported Node.js `v24.13.0` and npm `11.6.2`.
 
 Next action: Stage 1 is complete; its collaboration foundation supports the completed Stage 2 technical foundation.
 
@@ -233,7 +233,7 @@ release tag, adoption metrics, or program approval is claimed by this change.
 
 Outcome: an authenticated phone user accesses only their own online assistant records.
 
-- [x] Owner-private Sites HTTPS QA deployment published; native D1 overview confirms `DB` and 12 applied tables.
+- [x] Owner-private HTTPS version 2 published; native D1 confirms three migrations/15 applied tables. Earlier 12-table proof remains historical.
 - [x] Identity/internal-owner mapping, scoped SQL, projection/deletion and auth/CSRF behavior pass fixture tests; live unauthenticated/forged/forwarded-identity requests are rejected.
 - [x] Independent Workers/D1/Access configuration provided with separately tested adapters.
 - [ ] Positive owner sign-in and authenticated persistent CRUD verified on the deployed Site.
@@ -257,9 +257,22 @@ Outcome: remote conversation uses a legitimate authorized route and stops safely
 - [ ] Live connection removal/provider revocation and auditable operational access verified with the owner's actual credential.
 - [ ] Manual ChatGPT/Grok/Gemini redirect flow verified in the browser; no consumer-session scraping, implicit API entitlement, paid fallback, account pooling, or quota bypass.
 
-October 13 blocker: authenticated Wrangler 4.149 is available, but the founder prohibits any existing Cloudflare rules/resources changes in the production business account. Billing-plan lookup returned 403; a standard usage label does not prove a Free plan. The [10,000 daily free Neurons](https://developers.cloudflare.com/workers-ai/platform/pricing/) are shared account-wide and do not establish zero billing or business isolation. No Cloudflare/Site change or inference occurred; AI provider key/binding remain absent, while the master encryption key stays configured privately. Next verify a legitimate isolated free-inference entitlement outside those production resources.
+October 13 operating boundary: unrelated production resources remain protected. Account ownership does not prove provider entitlement, free billing or isolated shared quota. No default hosted AI binding/key is assumed. The optional personal Colab route has its own eligible entitlement; reliable hosted inference/scheduling remains separately verified.
 
-Manual Colab status (October 13): the [experiment](docs/COLAB-EXPERIMENT.md) now has one user-reported public Portuguese answer from `Qwen/Qwen3-8B`: 49 input/69 output tokens in 10.37 s; peak allocated/reserved VRAM 5.79/5.89 GiB, free 8.54 GiB. Earlier T4/install/download/loading logs and the final `hf_device_map` diagnostic failure remain history. Root verified the correction through static validation, eight mock tests, local 189-test CI and review; [fix CI for 3e18a5b](https://github.com/tatu-project/tatu/actions/runs/38480527225) passed Windows and Ubuntu. Recovery/device-placement diagnostics were not supplied, so independent placement audit remains open. This is one manual 8B result, not an agent-run benchmark, 27B proof, Tatu connection or unattended delivery; production entitlement remains blocked as above.
+Manual Colab status (October 13): an earlier short Portuguese Qwen3-8B answer was user-reported. Download/loading and the optional hf_device_map diagnostic failure remain technical history. Corrected static/mock checks passed; independent placement/current pairing is still unconfirmed. No personal resource/balance measurements or private installation details are published. This is not an agent-run benchmark, 27B proof or unattended Tatu delivery.
+
+Optional personal Colab adapter: historical release CI205/client18/audit0/static review pass; current public-source checks are lint/types/210 tests/build and companion13/original8. Version 2 is privately published at the same URL, with three migrations and 15 D1 tables. Two 22-case probe phases confirm gateway denial before/after the server-only service token was configured; native task read still returns `[]`. No live owner job/Google inference or scheduled execution was created by probes. Model loading, actual pairing/first Tatu answer and active behavior remain open, as does new GitHub/remote CI. Packaging is resolved; company resources/audience are preserved. [Deployment evidence](docs/DEPLOYMENT.md#october-13-private-colab-publication-evidence), [ADR-0025](docs/decisions/ADR-0025-personal-colab-connection.md).
+
+- [x] Manual one-shot implementation/static/mock checks enforce exact-context consent in Tatu and notebook `PROCESSAR` without private outputs; loaded-model reuse and no listener/tunnel/proxy/keepalive/unattended scheduler/third-party sharing/PC/Ollama are reviewed.
+- [x] Code/route fixtures require independent `SYSTEM_RUN_TOKEN`; platform bypass and Colab credentials cannot authorize system dispatch or ordinary owner APIs. Live gateway proof remains separate.
+- [x] Web Crypto/SQL/client fixtures validate owner pairing, ephemeral RSA and AES-GCM/RSA-OAEP/SHA-256 ciphertext; bootstrap secrets stay out of plaintext client projections/source/logs/output.
+- [x] SQL/API fixtures prove hashed owner-scoped, one-use/expiring/revocable pair/session credentials and deny foreign-owner/replay/expiry/revoke/ordinary-API use.
+- [x] Async job fixtures prove cancellation/revision, fenced short leases/TTL/quotas, rollback and duplicate/stale completion rejection without fallback or late answer append.
+- [x] Client/notebook mocks prove exact-context consent, private-output suppression, stopped/offline states and secret handling; Google plaintext is disclosed without E2EE claims.
+- [ ] Optional active interactive polling passes its 20-minute/owner-checkbox/stop checks under eligible paid entitlement with positive Colab units. Eligible paid entitlement/positive units were observed; active remains an owner choice, not permanent balance/availability or implicit consumer subscription access.
+- [x] Final local CI/static/mock/security/reviewer checks pass after the last collision fix, including system/vault/Groq token collisions; this is not live owner acceptance.
+- [x] Private version 2 publication/two 22-case gateway probe phases preserve owner-only access, reject bypass-only/forged/invalid credentials and deny system dispatch before/after service-token configuration; no real Google job/inference was created.
+- [ ] Actual private same-owner pairing/first Tatu answer verified; the manual Colab answer and fixtures do not satisfy this live integration item.
 
 Acceptance test:
 
@@ -289,7 +302,7 @@ Outcome: online scheduling produces owner-scoped cited results independently of 
 
 - [x] Durable owner-scoped scheduling/claim/retry/delivery implementation passes fixture SQL tests; Worker exports a `scheduled` handler.
 - [x] Curated AI RSS adapter and cited in-app result/text-export implementation pass bounded fixture/client tests.
-- [x] Owner-private platform-boundary dispatcher passes an empty-queue token-auth probe and rejects anonymous access; this does not prove service-only authority or a scheduled run.
+- [x] Historical October 12 owner-private dispatcher empty-queue probe passed; this is not the current candidate's independent-authority proof or a scheduled run.
 - [ ] Native Sites scheduling bridge configured and verified before enabling dispatch; `SCHEDULER_ENABLED=false` and no schedule exists now.
 - [ ] Independent one-minute Cron deployment verified live; portable configuration/tests alone do not satisfy this item.
 - [ ] Actual remote scheduled occurrence plus repeat/retry/provider-outage/recovery verification.
@@ -302,10 +315,10 @@ Acceptance test:
 - If the available deployment cannot run scheduled execution, retain an unchecked capability gap and disclose it before a limited beta publication; fixtures/manual runs are not proof.
 - Text scheduling/delivery and export are verified separately from manual NotebookLM Audio Overview generation. No consumer API entitlement or automatic Tatu audio generation is implied; completing only text delivery does not complete the audio goal.
 
-Sites dispatch accepts same-origin requests behind the single-owner private
-gateway and does not distinguish owner browser sessions from platform services.
-Require independently verifiable dispatch authority before wider/multi-owner
-sharing. Native automations are empty; prompt-based scheduling has no verified
+The published Colab version replaces the former private-gateway dispatch authority:
+`/api/system/run-due` requires independent `SYSTEM_RUN_TOKEN`, including Sites;
+without that live secret it stays disabled. Platform bypass alone grants no
+dispatch or ordinary user API authority. Native automations are empty; prompt-based scheduling has no verified
 code-dispatch bridge or entitlement/free-cadence guarantee. Keep disabled.
 
 ## Stage 11 — Remote MCP and private publication
@@ -314,13 +327,15 @@ Outcome: a verified authenticated online beta can be shared privately with its t
 
 - [x] Bounded MCP protocol/tools and permission behavior pass fixture tests; real identity-free initialize/list/call requests fail at the private gateway.
 - [x] Private Site and native MCP endpoint/plugin published/installed; authenticated native Tatu tools are exposed for the checked account.
-- [x] Clean ordinary install and final local format/lint/typecheck/189-test/build suite pass; production audit reports zero known vulnerabilities and final static review has no blocking findings.
-- [x] Real private HTTPS publication and CLI negative-access/system-readiness probes pass; exact deployment evidence is recorded below.
+- [x] Historical October 12 clean install/189-test suite/audit/review passed; latest Colab local 205-test proof is recorded in Stage 8.
+- [x] Historical private HTTPS publication/CLI negative-access/system-readiness probes passed; new candidate live proof remains separate.
 - [x] Live native `tatu_listar_tarefas` returns `[]`, and `tatu_preparar_tarefa` returns an expiring 09:00/three-story AI proposal requiring app confirmation; no task is created.
-- [x] Public implementation/app revision `4323d45` pushed and remote CI run 38336981415 passed on both Windows and Linux.
+- [x] Historical public baseline `4323d45` pushed and remote CI38336981415 passed Windows/Linux.
+- [x] New private Colab version 2 publication/gateway proof is verified separately from the earlier baseline.
+- [ ] New Colab GitHub source publication/remote CI verified separately from private Sites publication.
 - [ ] Positive owner sign-in/mobile visual/PWA smoke and first real inference/scheduled task run satisfy the full online acceptance.
 
-Verified app revision [4323d4584c0e8a9cce9857ff521ae1f5f27beafe](https://github.com/tatu-project/tatu/commit/4323d4584c0e8a9cce9857ff521ae1f5f27beafe)
+Historical October 12 baseline: app revision [4323d4584c0e8a9cce9857ff521ae1f5f27beafe](https://github.com/tatu-project/tatu/commit/4323d4584c0e8a9cce9857ff521ae1f5f27beafe)
 is pushed to `origin/main`. Root confirmed
 [run 38336981415](https://github.com/tatu-project/tatu/actions/runs/38336981415)
 completed successfully on both Ubuntu and Windows, so only the combined
@@ -334,9 +349,10 @@ No whole online stage is complete: web/mobile/AI/scheduling gates remain open.
 
 The positive native-tool connection is verified for this platform account.
 Standalone/manual OAuth setup, web cookie login, broader live CRUD/confirmation,
-and independent deployment remain unverified. The final suite includes the
-local-session regression fix: 189 passed, zero failed. The cloud bundle is
-byte-identical to the published artifact; no cloud redeployment was needed.
+and independent deployment remain unverified. The October 12 suite included the
+local-session regression fix: 189 passed, zero failed, with the same published
+bundle. The new 205-pass Colab version has separate private-publication/gateway
+proof above; GitHub source/remote CI remains open.
 
 Acceptance test:
 
@@ -351,7 +367,7 @@ Acceptance test:
   and build; production audit reports zero known vulnerabilities. Final static
   review after export/quota/key-rotation/context fixes has no blocking findings.
 - Private owner-only Sites publication succeeded at
-  [the QA URL](https://tatu-brasil-beta-vitti.craftystar18.chatgpt.site), with the
+  the QA URL (address supplied privately by the installation operator), with the
   native `DB` overview showing 12 applied tables. The published Worker is
   173,003 bytes with `fetch`/`scheduled`, two immutable SQL migrations, and zero
   native/external imports. Source/deployment/version IDs and probe details are
@@ -374,12 +390,13 @@ Acceptance test:
   app revision `4323d45` is pushed; remote CI passed Windows and Linux. Final local verification
   is 189 passed/zero failed.
 
-Exact next action: verify a legitimate isolated free-inference entitlement outside
-the protected production account/resources, then prove a real authorized turn.
-The user reports ChatGPT sign-in worked; full browser CRUD/mobile QA remains open
-with no usable browser session available in this session. Colab is a manual experiment
-only, not Tatu activation. Native MCP read/proposal already works; scheduling
-requires a verified native bridge and actual due task.
+Exact next action: verify the model is loaded in the current Google VM, then
+prove encrypted same-owner pairing/first Tatu answer. Eligible paid entitlement
+with positive units was observed; the owner may choose active mode
+without another eligibility question. Current model loading is unconfirmed;
+the historical manual answer is not a new-session result. Hosted scheduling still needs entitlement outside
+protected company resources, an independent dispatcher and a real due task.
+Browser CRUD/mobile QA remains open; native MCP read/proposal already works.
 
 ## Later accepted outcomes — separate verification
 

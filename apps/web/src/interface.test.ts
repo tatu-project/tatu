@@ -52,6 +52,8 @@ function browser() {
   const nodes = new Map<string, Node>();
   const calls: Array<{ path: string; options: RequestInit }> = [];
   const listeners: Record<string, () => void> = {};
+  const timers = new Map<number, () => void>();
+  let timerId = 0;
   let responder = (path: string): { status: number; body: unknown } => {
     if (path === '/api/me')
       return { status: 200, body: { authenticated: true } };
@@ -93,6 +95,13 @@ function browser() {
     AbortController,
     crypto: { randomUUID: () => 'fixed-key' },
     setInterval: () => 0,
+    setTimeout: (fn: () => void) => {
+      timers.set(++timerId, fn);
+      return timerId;
+    },
+    clearTimeout: (id: number) => {
+      timers.delete(id);
+    },
   });
   vm.runInContext(clientScript, context);
   return {
@@ -100,6 +109,11 @@ function browser() {
     nodes,
     calls,
     listeners,
+    tick: () => {
+      const pending = [...timers.values()];
+      timers.clear();
+      for (const fn of pending) fn();
+    },
     respond: (fn: typeof responder) => {
       responder = fn;
     },
@@ -557,4 +571,366 @@ test('oversized current context receives fixed guidance and preserves the draft 
     ),
     'Não foi possível concluir. Confira a conexão com o Tatu e tente novamente.',
   );
+});
+
+test('Colab pairing displays only a validated encrypted envelope, requires explicit eligibility, and clears on logout', async () => {
+  const app = browser();
+  await flush();
+  const envelope = {
+    version: 1,
+    algorithm: 'RSA-OAEP-256+A256GCM',
+    fingerprint: 'a'.repeat(64),
+    projectId: 'project_1',
+    origin: 'https://tatu.example',
+    wrappedKey: 'YWJjZA==',
+    nonce: 'YWJjZA==',
+    ciphertext: 'YWJjZA==',
+    serviceToken: 'DO_NOT_DISPLAY',
+    pairToken: 'DO_NOT_DISPLAY',
+  };
+  app.respond(() => ({
+    status: 200,
+    body: {
+      envelope,
+      pairExpiresAt: new Date(Date.now() + 60000).toISOString(),
+    },
+  }));
+  vm.runInContext(
+    `$('colab-public-key').value='-----BEGIN PUBLIC KEY-----\\nabc\\n-----END PUBLIC KEY-----';$('colab-mode').value='active';$('colab-connect-consent').checked=true;`,
+    app.context,
+  );
+  const count = app.calls.length;
+  await app.nodes.get('colab-form')!.onsubmit!({
+    preventDefault() {},
+    submitter: new Node(),
+  });
+  assert.equal(app.calls.length, count);
+  vm.runInContext(`$('colab-mode').value='manual';`, app.context);
+  await app.nodes.get('colab-form')!.onsubmit!({
+    preventDefault() {},
+    submitter: new Node(),
+  });
+  const call = app.calls.at(-1)!;
+  assert.equal(call.path, '/api/colab/connect');
+  assert.equal(JSON.parse(String(call.options.body)).paidUnitsConfirmed, false);
+  assert.equal(call.options.credentials, 'same-origin');
+  assert.equal(call.options.cache, 'no-store');
+  const displayed = app.nodes.get('colab-bootstrap')!.value;
+  assert.equal(JSON.parse(displayed).ciphertext, 'YWJjZA==');
+  assert.doesNotMatch(displayed, /serviceToken|pairToken|DO_NOT_DISPLAY/);
+  assert.equal(app.nodes.get('colab-public-key')!.value, '');
+  await app.nodes.get('signout')!.onclick!();
+  assert.equal(app.nodes.get('colab-bootstrap')!.value, '');
+  app.context.badEnvelope = { ...envelope, origin: 'https://other.example' };
+  assert.throws(() =>
+    vm.runInContext('sealedColabEnvelope(badEnvelope)', app.context),
+  );
+});
+
+test('Colab queued chat requires per-message consent, polls bounded state and renders one saved answer', async () => {
+  const app = browser();
+  await flush();
+  let polls = 0;
+  app.respond((path) => {
+    if (path === '/api/chat/messages')
+      return {
+        status: 202,
+        body: {
+          jobId: 'j/1',
+          conversationId: 'c',
+          status: 'queued',
+          expiresAt: new Date(Date.now() + 60000).toISOString(),
+        },
+      };
+    if (path === '/api/colab/jobs/j%2F1')
+      return {
+        status: 200,
+        body: { status: ++polls === 1 ? 'queued' : 'completed' },
+      };
+    if (path === '/api/conversations/c')
+      return {
+        status: 200,
+        body: {
+          id: 'c',
+          messages: [
+            { role: 'user', content: 'Olá' },
+            { role: 'assistant', content: '<script>Resposta</script>' },
+          ],
+        },
+      };
+    return {
+      status: 200,
+      body:
+        path === '/api/assistant/status'
+          ? { configured: false, available: false }
+          : [],
+    };
+  });
+  vm.runInContext(
+    `$('message').value='Olá';$('chat-provider').value='colab';selectedMemories.add('chosen');`,
+    app.context,
+  );
+  const count = app.calls.length;
+  await app.nodes.get('chat-form')!.onsubmit!({ preventDefault() {} });
+  assert.equal(app.calls.length, count);
+  vm.runInContext(`$('colab-chat-consent').checked=true`, app.context);
+  const request = app.nodes.get('chat-form')!.onsubmit!({
+    preventDefault() {},
+  });
+  await flush();
+  assert.equal(app.nodes.get('message')!.value, 'Olá');
+  assert.match(app.nodes.get('model-status')!.textContent, /execute a célula/);
+  const sent = app.calls.find((x) => x.path === '/api/chat/messages')!;
+  assert.deepEqual(JSON.parse(String(sent.options.body)).memoryIds, ['chosen']);
+  assert.equal(JSON.parse(String(sent.options.body)).contextConsent, true);
+  assert.equal(JSON.parse(String(sent.options.body)).provider, 'colab');
+  app.tick();
+  await request;
+  assert.equal(polls, 2);
+  assert.equal(app.nodes.get('messages')!.children.length, 2);
+  assert.equal(
+    app.nodes.get('messages')!.children[1].children[1].textContent,
+    '<script>Resposta</script>',
+  );
+  assert.equal(app.nodes.get('message')!.value, '');
+  assert.equal(app.nodes.get('colab-chat-consent')!.checked, false);
+});
+
+test('Colab cancellation stops polling, preserves the draft and rejects raw failure payloads', async () => {
+  const app = browser();
+  await flush();
+  app.respond((path) => ({
+    status: 200,
+    body:
+      path === '/api/chat/messages'
+        ? {
+            jobId: 'job',
+            conversationId: 'c',
+            status: 'queued',
+            expiresAt: new Date(Date.now() + 60000).toISOString(),
+          }
+        : path === '/api/colab/jobs/job'
+          ? { status: 'queued' }
+          : path === '/api/assistant/status'
+            ? { configured: false, available: false }
+            : [],
+  }));
+  vm.runInContext(
+    `$('message').value='Meu rascunho';$('chat-provider').value='colab';$('colab-chat-consent').checked=true`,
+    app.context,
+  );
+  const pending = app.nodes.get('chat-form')!.onsubmit!({
+    preventDefault() {},
+  });
+  await flush();
+  await app.nodes.get('cancel-chat')!.onclick!();
+  await pending;
+  const pollCount = app.calls.filter(
+    (x) => x.path === '/api/colab/jobs/job' && x.options.method !== 'DELETE',
+  ).length;
+  app.tick();
+  await flush();
+  assert.equal(
+    app.calls.filter(
+      (x) => x.path === '/api/colab/jobs/job' && x.options.method !== 'DELETE',
+    ).length,
+    pollCount,
+  );
+  assert.ok(
+    app.calls.some(
+      (x) => x.path === '/api/colab/jobs/job' && x.options.method === 'DELETE',
+    ),
+  );
+  assert.equal(app.nodes.get('message')!.value, 'Meu rascunho');
+  assert.equal(app.nodes.get('messages')?.children.length ?? 0, 0);
+  assert.doesNotMatch(
+    vm.runInContext(
+      `colabError({status:422,clarification:'RAW_SECRET'})`,
+      app.context,
+    ),
+    /RAW_SECRET/,
+  );
+});
+
+test('expired and revoked Colab state clears encrypted bootstrap and context edits revoke send consent', async () => {
+  const app = browser();
+  await flush();
+  app.respond(() => ({
+    status: 200,
+    body: {
+      reason: 'expired',
+      mode: 'manual',
+      expiresAt: new Date(Date.now() - 1).toISOString(),
+    },
+  }));
+  vm.runInContext(
+    `$('colab-bootstrap').value='encrypted';$('colab-bootstrap-review').hidden=false;$('colab-chat-consent').checked=true;updateContextCount();`,
+    app.context,
+  );
+  assert.equal(app.nodes.get('colab-chat-consent')!.checked, false);
+  await vm.runInContext('loadColabStatus()', app.context);
+  assert.equal(app.nodes.get('colab-bootstrap')!.value, '');
+  assert.match(app.nodes.get('colab-status')!.textContent, /expirou/);
+  const page = renderHealthPage();
+  assert.match(page, /id="colab-mode"><option value="manual"/);
+  assert.match(page, /saldo positivo/);
+  assert.equal((page.match(/id="colab-form"/g) || []).length, 1);
+  assert.equal((page.match(/id="chat-provider"/g) || []).length, 1);
+});
+
+test('leaving a queued Colab conversation aborts its poll and cannot overwrite a newer view', async () => {
+  const app = browser();
+  await flush();
+  app.respond((path) => ({
+    status: 200,
+    body:
+      path === '/api/chat/messages'
+        ? {
+            jobId: 'old',
+            conversationId: 'old-c',
+            status: 'queued',
+            expiresAt: new Date(Date.now() + 60000).toISOString(),
+          }
+        : path === '/api/colab/jobs/old'
+          ? { status: 'queued' }
+          : path === '/api/conversations/new-c'
+            ? {
+                id: 'new-c',
+                messages: [{ role: 'assistant', content: 'New conversation' }],
+              }
+            : path === '/api/assistant/status'
+              ? { configured: false, available: false }
+              : [],
+  }));
+  vm.runInContext(
+    `$('message').value='Old draft';$('chat-provider').value='colab';$('colab-chat-consent').checked=true`,
+    app.context,
+  );
+  const pending = app.nodes.get('chat-form')!.onsubmit!({
+    preventDefault() {},
+  });
+  await flush();
+  await vm.runInContext(`openConversation('new-c')`, app.context);
+  await pending;
+  app.tick();
+  await flush();
+  assert.equal(
+    app.nodes.get('messages')!.children[0].children[1].textContent,
+    'New conversation',
+  );
+  assert.equal(app.nodes.get('message')!.value, 'Old draft');
+  assert.equal(app.nodes.get('cancel-chat')!.hidden, true);
+  assert.ok(
+    app.calls.some(
+      (x) => x.path === '/api/colab/jobs/old' && x.options.method === 'DELETE',
+    ),
+  );
+  assert.equal(
+    app.calls.filter(
+      (x) => x.path === '/api/colab/jobs/old' && x.options.method !== 'DELETE',
+    ).length,
+    1,
+  );
+});
+
+test('Colab authentication expiry aborts polling and clears bootstrap without disclosing response errors', async () => {
+  const app = browser();
+  await flush();
+  app.respond((path) =>
+    path === '/api/chat/messages'
+      ? {
+          status: 202,
+          body: {
+            jobId: 'j',
+            conversationId: 'c',
+            status: 'queued',
+            expiresAt: new Date(Date.now() + 60000).toISOString(),
+          },
+        }
+      : { status: 401, body: { clarification: 'RAW_CREDENTIAL' } },
+  );
+  vm.runInContext(
+    `$('message').value='Preserved';$('colab-bootstrap').value='encrypted';$('chat-provider').value='colab';$('colab-chat-consent').checked=true`,
+    app.context,
+  );
+  await app.nodes.get('chat-form')!.onsubmit!({ preventDefault() {} });
+  app.tick();
+  await flush();
+  assert.equal(app.nodes.get('message')!.value, 'Preserved');
+  assert.equal(app.nodes.get('colab-bootstrap')!.value, '');
+  assert.equal(app.nodes.get('signin')!.hidden, false);
+  assert.doesNotMatch(app.nodes.get('notice')!.textContent, /RAW_CREDENTIAL/);
+  assert.equal(
+    app.calls.filter((x) => x.path === '/api/colab/jobs/j').length,
+    1,
+  );
+});
+
+test('expired queued Colab requests stop before polling and never manufacture an answer', async () => {
+  const app = browser();
+  await flush();
+  app.respond((path) => ({
+    status: 200,
+    body:
+      path === '/api/chat/messages'
+        ? {
+            jobId: 'expired',
+            conversationId: 'c',
+            status: 'queued',
+            expiresAt: new Date(Date.now() - 1000).toISOString(),
+          }
+        : path === '/api/assistant/status'
+          ? { configured: false, available: false }
+          : [],
+  }));
+  vm.runInContext(
+    `$('message').value='Preserved';$('chat-provider').value='colab';$('colab-chat-consent').checked=true`,
+    app.context,
+  );
+  await app.nodes.get('chat-form')!.onsubmit!({ preventDefault() {} });
+  assert.equal(
+    app.calls.filter((x) => x.path.includes('/api/colab/jobs/')).length,
+    0,
+  );
+  assert.equal(app.nodes.get('message')!.value, 'Preserved');
+  assert.equal(app.nodes.get('messages')?.children.length ?? 0, 0);
+});
+
+test('a pairing response arriving after signout cannot redisplay its encrypted bootstrap', async () => {
+  const app = browser();
+  await flush();
+  let finish: ((value: unknown) => void) | undefined;
+  app.context.fetch = async () => ({
+    ok: true,
+    status: 200,
+    json: () =>
+      new Promise((resolve) => {
+        finish = resolve;
+      }),
+  });
+  vm.runInContext(
+    `$('colab-public-key').value='-----BEGIN PUBLIC KEY-----\\nabc\\n-----END PUBLIC KEY-----';$('colab-mode').value='manual';$('colab-connect-consent').checked=true`,
+    app.context,
+  );
+  const pending = app.nodes.get('colab-form')!.onsubmit!({
+    preventDefault() {},
+    submitter: new Node(),
+  });
+  await flush();
+  await app.nodes.get('signout')!.onclick!();
+  finish!({
+    envelope: {
+      version: 1,
+      algorithm: 'RSA-OAEP-256+A256GCM',
+      fingerprint: 'a'.repeat(64),
+      projectId: 'project_1',
+      origin: 'https://tatu.example',
+      wrappedKey: 'YWJjZA==',
+      nonce: 'YWJjZA==',
+      ciphertext: 'YWJjZA==',
+    },
+  });
+  await pending;
+  assert.equal(app.nodes.get('colab-bootstrap')!.value, '');
+  assert.equal(app.nodes.get('colab-bootstrap-review')!.hidden, true);
 });

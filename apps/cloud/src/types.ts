@@ -27,6 +27,7 @@ export interface CloudEnv {
   SITE_PROJECT_ID?: string;
   SITES_OWNER_PRIVATE?: string;
   SYSTEM_RUN_TOKEN?: string;
+  TATU_COLAB_SITES_SERVICE_TOKEN?: string;
   [key: string]: unknown;
 }
 export interface CloudContext {

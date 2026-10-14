@@ -3,25 +3,31 @@ title: Architecture Map
 tags:
   - tatu
   - architecture
-updated: 2026-09-02
+updated: 2026-10-13
 ---
 
 # Architecture Map
 
-The conceptual flow is:
+Current runtime:
 
 ```text
-User / PWA / API
-  -> Agent Engine
-  -> Memory, planning, scheduling, and automation
-  -> Permission Engine
-  -> Capability / Tool Registry
-  -> Web/API, OAuth, and future device adapters
-  -> Model Router
-  -> Quota / Provider Router
-  -> Replaceable providers or local models
+Portuguese web/PWA or authenticated MCP client
+  -> Fetch Worker identity/ownership/quotas/domain services
+  -> D1 workspace/provider/task/result/Colab records
+  -> replaceable Workers AI/Groq or personal Colab adapter
+  -> curated RSS and durable scheduling/result pipeline
 ```
 
-Cross-cutting constraints are security, privacy, observability, reliability, tenancy boundaries, and cost accounting. Model suitability and provider availability remain separate decisions. Redis and paid infrastructure are not assumed for v0.1.
+Managed Sites is the verified private lane; independent Workers/D1/Access/Cron
+is configured but not live-verified. Legacy Node/SQLite remains optional developer/
+self-host behavior, not the mobile backend. Native packages/device/account actions
+and a client-key private vault remain planned. Model suitability and provider
+availability are separate; broad autonomous planning is not proven by a task parser.
 
-No initial application stack has been accepted yet. Consult [`PROJECT.md`](../PROJECT.md) for the full conceptual architecture and [[03-Decisions-Index]] for accepted technical decisions.
+Public source uses a generic template. Private identity/credentials are operator
+configuration, not defaults or public notes. Colab metadata is supplied through
+hidden VM prompts. Code/fixture proof is separate from actual model pairing,
+browser CRUD, active behavior and scheduled delivery.
+
+Full map: [PRD.md](../docs/PRD.md). Scope: [PROJECT.md](../PROJECT.md).
+Decisions: [[03-Decisions-Index]]. Status: [[04-Current-State]].

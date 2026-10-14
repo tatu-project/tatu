@@ -1,15 +1,23 @@
 import { build } from 'esbuild';
-import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, readdir, writeFile, unlink } from 'node:fs/promises';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import process from 'node:process';
 import console from 'node:console';
 import { Buffer } from 'node:buffer';
 import { createSiteSnapshot } from './site-export.mjs';
+import { siteManifest } from './site-config.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cloud = resolve(root, 'apps/cloud');
 const output = resolve(cloud, 'dist');
+const manifest = siteManifest(
+  JSON.parse(
+    await readFile(resolve(cloud, '.openai/hosting.template.json'), 'utf8'),
+  ),
+  process.env,
+  process.argv.includes('--export-site'),
+);
 await mkdir(resolve(output, 'server'), { recursive: true });
 await mkdir(resolve(output, '.openai/drizzle/meta'), { recursive: true });
 const result = await build({
@@ -31,19 +39,15 @@ for (const entry of Object.values(result.metafile.outputs)) {
       'Worker artifact must not have external or native Node imports.',
     );
 }
-const manifest = JSON.parse(
-  await readFile(resolve(cloud, '.openai/hosting.json'), 'utf8'),
-);
-if (
-  !manifest.project_id ||
-  manifest.d1 !== 'DB' ||
-  !manifest.capabilities.includes('mcp')
-)
-  throw new Error('Cloud identity/storage declaration is incomplete.');
-await writeFile(
-  resolve(output, '.openai/hosting.json'),
-  `${JSON.stringify(manifest, null, 2)}\n`,
-);
+if (manifest)
+  await writeFile(
+    resolve(output, '.openai/hosting.json'),
+    `${JSON.stringify(manifest, null, 2)}\n`,
+  );
+else
+  await unlink(resolve(output, '.openai/hosting.json')).catch((error) => {
+    if (error.code !== 'ENOENT') throw error;
+  });
 const migrations = (await readdir(resolve(cloud, 'migrations')))
   .filter((name) => /^\d{4}_[\w-]+\.sql$/u.test(name))
   .sort();

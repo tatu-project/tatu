@@ -52,16 +52,19 @@ npm run build:cloud
 npm run export:site
 ```
 
-Build generates `apps/cloud/dist/server/index.js` and supported metadata for the
-two SQL migrations under `apps/cloud/migrations`. The isolated managed export
-is ignored `tmp/cloudsite`; it is derived from `apps/cloud`, not a second source
-of truth. The verified private QA bundle is 173,003 bytes with zero native/external
-imports; record each later build's actual size rather than treating it as fixed.
+Normal build generates `apps/cloud/dist/server/index.js` and metadata for three
+immutable SQL migrations under `apps/cloud/migrations`. Public hosting metadata
+is `apps/cloud/.openai/hosting.template.json`, with no actual project identity;
+ordinary build/CI needs no private ID. Before managed export, privately supply
+a valid per-process `SITE_PROJECT_ID`. Missing/invalid identity fails preflight
+before build; existing checkout/realpath/archive guards remain enforced. The
+derived managed export belongs in ignored `tmp/cloudsite`, not public source.
+Never commit actual origins, IDs or generated private metadata. See
+[ADR-0026](decisions/ADR-0026-public-source-private-installation-configuration.md).
 
-Managed project metadata is `apps/cloud/.openai/hosting.json`. Its private QA Site
-is published, and real HTTPS negative guards plus private MCP read/proposal calls
-are verified. Positive web cookie login/CRUD, mobile visual QA, real inference,
-and unattended scheduled execution remain open. Sites native scheduling
+Private version 2 is published with three migrations and verified negative
+gateway/MCP evidence. Positive browser CRUD/mobile visuals, actual owner Colab
+pairing/first Tatu answer and unattended scheduling remain open. Sites native scheduling
 must be connected and tested before `SCHEDULER_ENABLED` changes from false.
 `apps/cloud/wrangler.jsonc` is independent Workers/D1/Access configuration with a
 one-minute Cron; it requires its own account, hostname, Access policy, bindings,

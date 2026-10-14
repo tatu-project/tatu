@@ -44,8 +44,8 @@ updated: 2026-09-15
 
 ## 2026-09-02 — Founder 2 collaboration verification
 
-- Founder 2 attested that organization access is active, the repository was cloned at `C:\Users\vitti\OneDrive\Desktop\tatu` and opened in VS Code, and `git push --dry-run origin main` returned `Everything up-to-date`.
-- Founder 2 reported Node.js `v24.13.0` and npm `11.6.2`; commit `844ed99` by Vittor Augusto Gomes is on `origin/main`.
+- Founder 2 attested that organization access is active, the repository was cloned at `<local checkout>` and opened in VS Code, and `git push --dry-run origin main` returned `Everything up-to-date`.
+- Founder 2 reported Node.js `v24.13.0` and npm `11.6.2`; commit `844ed99` by a founding maintainer is on `origin/main`.
 - The remaining Stage 1 collaboration checks are complete. Stage 2 has not started.
 
 ## 2026-09-02 — Stage 2 technical foundation
@@ -293,8 +293,8 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
 
 ## 2026-09-16 - Reliability trial started
 
-- Started the local observation with a dedicated `data/reliability-trial.sqlite`
-  database and `data/reliability-trial-deliveries` outbox. API and standby
+- Started the local observation with a dedicated dedicated trial storage
+  database and a dedicated outbox outbox. API and standby
   worker are running on the documented local path.
 - Confirmed one daily task at 08:00 in `America/Sao_Paulo`; the first scheduled
   occurrence is pending. The 30-day checklist remains open until 30 calendar
@@ -424,63 +424,70 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
   user `.codex` edits remain unchanged/excluded; documentation publication is
   separate from this verified app revision.
 
-## 2026-10-13 - Production account protected; free inference deferred
+## 2026-10-13 - Free route eligibility and protected resources
 
-- The user reports ChatGPT sign-in worked, not full browser CRUD/mobile QA.
-  They expressly prohibit changes to existing Cloudflare rules/resources in
-  the production business account. Root made no Cloudflare/Site changes or
-  inference calls; authenticated Wrangler 4.149/account/model metadata are
-  available, while billing-plan lookup returned 403. Standard usage is not
-  proof of a Free plan; shared account-wide free Neurons do not guarantee
-  zero billing or no production impact. No provider key/AI binding was enabled.
-- The [manual Colab experiment](../docs/COLAB-EXPERIMENT.md) defaults to 8B
-  with optional 27B and conservative GPU preflight. Ideal 27B four-bit weights
-  are about 13.5 GB plus overhead, not dependable T4 fit. Actual GPU/loading/
-  inference remain unexecuted; Colab restrictions exclude an unattended Tatu
-  backend or UI bypass. No usable browser session is available: the browser/app
-  inventory was empty and opening the in-app browser failed. Live browser QA
-  remains open; tested public API candidates yielded no verified model response.
-- Next verify a legitimate isolated free-inference entitlement outside the
-  protected production resources, then an authorized real turn. Colab stays
-  manual-only; real AI/scheduling/browser CRUD gates remain unchecked. No
-  account identifiers, credentials, or private tooling paths enter these docs.
+- Provider research did not establish a safely isolated free hosted inference
+  entitlement. Production resources were preserved; no provider inference was
+  performed. No consumer subscription or account metadata was treated as an API grant.
+- Manual Colab remained an interactive experiment, with optional larger-model
+  preflight and no listener/tunnel/keepalive/shared service. Browser QA was
+  unavailable in the session; public API candidates yielded no verified answer.
 
-## 2026-10-13 - First user-reported Colab load; inference unconfirmed
+## 2026-10-13 - First manual Colab load and diagnostic failure
 
-- User-pasted logs report a T4 with 14.56 GiB total/14.46 GiB free VRAM and
-  9.47 GiB free RAM; Python 3.13.15, torch 2.11.0+cu130/CUDA 13.0,
-  transformers 5.19.0, accelerate 1.15.0, and bitsandbytes 0.50.0. Download
-  reconstructed 16.4 GB/fetched 5/5 files and model loading reached 399/399.
-- The final `model.hf_device_map.items()` diagnostic raised `AttributeError`
-  for `Qwen3ForCausalLM` outside cleanup. Single-device dispatch need not expose
-  that metadata; the model may remain available for guarded same-session
-  recovery. Actual GPU recovery, placement inspection and generated output are
-  unconfirmed. Root `python scripts/check_colab_notebook.py -v` passed 8/8;
-  notebook JSON/six Python AST cells/no outputs are verified. Root `npm run ci`
-  exited 0: format/lint/typecheck/189 tests/build. Reviewer found no old-session
-  recovery blocker; this static/mock proof does not establish a real GPU run.
-- Next capture placement and a real short answer after the reviewed recovery.
-  This is a manual experiment, not production Tatu activation. The protected
-  Cloudflare account remains untouched; isolated free-inference entitlement,
-  online AI, scheduler and browser CRUD gates remain open.
+- A user reported hosted package/model loading completing, followed by
+  AttributeError at model.hf_device_map.items() outside cleanup. Optional
+  single-device metadata was not valid placement authority.
+- Root corrected the diagnostic/cleanup and verified eight static/mock checks;
+  original six experiment code cells and output-free notebook structure were
+  preserved. Guarded recovery used the existing model rather than PC downloads.
+  Actual placement remained unconfirmed until a real diagnostic is supplied.
 
-## 2026-10-13 - First user-reported manual Colab answer
+## 2026-10-13 - First user-reported manual answer
 
-- User output reports `Qwen/Qwen3-8B`, revision
-  `b968826d9c46dd6066d109eabc6255188de91218`, with one public Portuguese answer:
-  49 input/69 output tokens, 10.37 s, peak allocated 5.79 GiB/reserved 5.89 GiB,
-  and free VRAM 8.54 GiB. This is attributed user evidence, not an agent GPU
-  run, repeated benchmark or 27B test; earlier T4/install logs remain above.
-- Recovery print/CUDA-tensor placement evidence was not supplied; independent
-  device-placement audit remains open. The earlier diagnostic failure remains
-  history rather than a pending first-answer blocker. Root confirmed notebook
-  fix `3e18a5b6405cc38f0e69b74ffdb53a6f1b4435c4` and [CI38480527225](https://github.com/tatu-project/tatu/actions/runs/38480527225)
-  completed success on Windows/Ubuntu; prior local 189-test evidence is unchanged.
-  For this doc update, root reran `python scripts/check_colab_notebook.py -v`
-  (8/8), `npm run format:check` and `git diff --check` (exit 0), and confirmed
-  runtime code/metadata/later cells match HEAD. No new GPU execution or full
-  application suite was run.
-- No provider credential/Tatu connection, schedule, unattended delivery or
-  production-company resource change resulted. Next actual Tatu action remains
-  legitimate isolated free-inference entitlement outside protected resources;
-  online AI/scheduler/browser CRUD gates remain unchecked.
+- A short Portuguese Qwen3-8B answer was reported. It was user evidence, not
+  an agent GPU run, repeated benchmark, 27B test or Tatu connection. Personal
+  resource measurements and installation metadata are not part of this public log.
+- The earlier model diagnostic remained history. Root confirmed the notebook
+  fix's Windows/Linux CI and fresh static/mock/format checks; the earlier
+  189-test application result was not a new GPU execution.
+
+## 2026-10-13 - Personal Colab implementation and local checks
+
+- Backend/frontend/notebook implemented encrypted pairing, scoped hashed
+  credentials, async jobs, Tatu context consent and PROCESSAR without private
+  output. Operator/vault/Groq credential collisions were closed in route tests.
+  SYSTEM_RUN_TOKEN became independent; platform access alone grants no dispatch.
+- Final version 2 checks passed format/lint/types/205 tests/build, connector11/
+  original notebook8/client18, production audit0 and static review without blocker.
+  Packaging initially failed on a Windows/WSL path boundary, then was corrected
+  using process-only settings while preserving export guards.
+- Eligible paid entitlement/positive units were observed, not guaranteed.
+  Current runtime model loading/pairing/first Tatu answer remained open; prior
+  manual output did not establish the new session or live integration.
+
+## 2026-10-13 - Private version 2 published and guarded
+
+- Private version 2 deployed with three migrations/15 D1 tables, preserving
+  owner-only access and zero automations. Only server Colab gateway configuration
+  was added; encryption and other settings were preserved.
+- Both 22-case phases passed: before configuration, 18 ordinary/discovery/MCP
+  and two system cases401/two runtime503; after configuration all22 invalid or
+  insufficient-credential cases401. Native task read remained positive. Probes
+  created no owner data/job/inference/due execution.
+- Private publication/gateway acceptance checked; owner pair/first response,
+  active behavior, browser/mobile, scheduling and new public CI remain open.
+  Expiry denies access, but DB/memory cleanup is not timed physical erasure.
+
+## 2026-10-13 - Public/private configuration and documentation
+
+- Private origins/IDs/accounts, personal checkout/name/resource data and exact
+  operations records were removed from forward public docs/source. Exact prior
+  evidence was preserved privately outside Git; old Git history was not rewritten.
+- Public hosting is generic; export needs valid explicit per-process identity.
+  Companion origin/project uses hidden VM input with exact sealed binding before
+  HTTP, without personal defaults. Current checks: lint/types/210 tests/build,
+  companion13/original notebook8; backend artifact unchanged from private v2.
+- Updated README EN/PT, complete current-state PRD, scope/roadmap, generic setup,
+  ADRs and compact brain navigation. No new inference/pairing/schedule or whole
+  online stage completion is claimed. Public publication/remote CI remains root-owned.

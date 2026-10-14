@@ -38,8 +38,8 @@ conta; não há garantia de serviço gratuito ilimitado.
 
 ### Evidência real — 12 de outubro de 2026
 
-O endpoint privado publicado é
-`https://tatu-brasil-beta-vitti.craftystar18.chatgpt.site/mcp`. Neste cliente e
+O endpoint usa a origem HTTPS privada da instalação mais `/mcp`; receba essa
+configuração do operador, sem publicá-la em código ou notas. Neste cliente e
 para esta conta autenticada pela plataforma, `tatu_listar_tarefas` retornou `[]`
 sem erro. `tatu_preparar_tarefa` recebeu o pedido diário às 09:00 de três notícias
 de IA em `America/Sao_Paulo` e retornou uma proposta `create_briefing` com prazo

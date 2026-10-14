@@ -188,18 +188,12 @@ export async function authenticate(
   }
 }
 
-/** The owner-private Sites platform boundary permits a shared updater, never user impersonation. */
+/** An independent operator secret authorizes dispatch; platform service access alone never does. */
 export function permitsSystemRun(
   request: Request,
   environment: CloudEnv,
 ): boolean {
   if (!permitsCloudMutation(request, environment)) return false;
-  if (
-    environment.AUTH_MODE === 'sites' &&
-    environment.SITES_OWNER_PRIVATE === '1' &&
-    typeof environment.SITE_PROJECT_ID === 'string'
-  )
-    return true;
   const secret = environment.SYSTEM_RUN_TOKEN;
   const supplied = request.headers.get('authorization');
   if (typeof secret !== 'string' || secret.length < 32 || !supplied)

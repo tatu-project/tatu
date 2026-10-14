@@ -1,11 +1,11 @@
 # Security architecture and agent boundaries
 
-Status: accepted architecture and private QA beta published on October 12, 2026.
-The dated 189-test suite, fixture/SQL boundaries, real HTTPS negative guards and
-authenticated native MCP read/proposal pass. Web owner cookie sign-in/CRUD,
-real inference, scheduled task runs, mobile visual QA and manual/standalone OAuth
-remain open. The final 189-pass/zero-fail suite includes the local-session
-regression fix; the cloud bundle matches the published artifact. Neither these
+Status: private Colab version 2 published October 13, 2026. Historical version 2
+proof is 205 tests/Python11+8; current public-source checks are 210 tests/Python13+8.
+Static review and two 22-case gateway phases pass; native task read remains verified. Real owner Colab
+pairing/first Tatu answer, active behavior, browser CRUD/mobile QA, scheduled
+delivery and new GitHub/remote CI remain open. Historical October 12 proof is
+separate. Neither these
 checks nor publication prove full release acceptance, native control, audio, or E2EE. Completion
 belongs to [`ROADMAP.md`](../ROADMAP.md). [ADR-0024](decisions/ADR-0024-mobile-cloud-security-and-agent-boundaries.md)
 records the decision and alternatives. No 100%-secure claim is made.
@@ -36,7 +36,7 @@ Current implementation pointers are [`vault.ts`](../apps/cloud/src/vault.ts),
 [`workspace.ts`](../apps/cloud/src/workspace.ts). Final static review has no
 blocking findings; this remains a bounded reviewed QA release, not a universal
 security guarantee. Exact deployment/probe evidence and gaps are in
-[DEPLOYMENT.md](DEPLOYMENT.md#october-12-private-publication-evidence).
+[DEPLOYMENT.md](DEPLOYMENT.md#october-13-private-colab-publication-evidence).
 
 ## Identity, owner isolation, and portable deployment
 
@@ -53,13 +53,23 @@ Moving between Sites/providers requires reauthentication and an explicit owner
 remap; copying raw Site user IDs is not portable authorization. See
 [`auth.ts`](../apps/cloud/src/auth.ts) and [`storage.ts`](../apps/cloud/src/storage.ts).
 
-The single-owner QA `/api/system/run-due` route trusts the same-origin private
-Sites boundary, not service-only identity. Token-auth access passed and anonymous
-access failed; ordinary owner browser sessions were not shown to be excluded.
-Require independently verifiable dispatch authority before wider sharing or
-multiple owners. Native automations are empty; prompt-based platform scheduling
+Published `/api/system/run-due` code requires independent
+`SYSTEM_RUN_TOKEN`, including private Sites; absent that secret it is disabled.
+Platform gateway bypass or Colab pair/session credentials establish neither
+owner identity nor dispatcher authority. Route fixtures reject these broader
+credentials, including operator/vault/Groq collisions during bootstrap.
+The October 12 private-boundary probe is historical; the new live status-only
+probes reject system requests before/after service-token configuration without
+executing due work. Native automations are empty; prompt-based platform scheduling
 has no verified code-dispatch mapping or guaranteed free cadence. Scheduling
 stays disabled; portable code Cron has separate account/deployment requirements.
+
+For the Colab adapter, expiry immediately denies credential use and late
+completion; it does not schedule physical deletion. Payload/hash cleanup
+requires subsequent configured scoped access/revoke/delete/retention. Disabling
+configuration provides no guaranteed timed database erase. Notebook cleanup
+clears references without guaranteed physical Python memory erasure; selected
+context is plaintext in the Google VM and not E2EE against that executor.
 
 ## Operational secrets and the separate private vault
 

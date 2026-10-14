@@ -203,6 +203,33 @@ test('declared-only checkout copy succeeds and leaves legitimate Git metadata un
     await readFile(join(artifact, 'server/index.js'), 'utf8'),
   );
 });
+test('private export preserves a synthetic identity and refuses a mismatched checkout before writes', async (context) => {
+  const { workspace, artifact } = await fixture(context);
+  const snapshot = await createSiteSnapshot(artifact, workspace);
+  const checkout = join(workspace, 'tmp/mismatched-site');
+  await mkdir(join(checkout, '.openai'), { recursive: true });
+  await writeFile(
+    join(checkout, '.openai/hosting.json'),
+    JSON.stringify({ project_id: 'appgprj_other_synthetic' }),
+  );
+  await writeFile(join(checkout, 'README.md'), 'preserve this checkout');
+  assert.equal(snapshot.projectId, 'appgprj_test1234567890');
+  assert.equal(
+    JSON.parse(
+      await readFile(join(snapshot.directory, '.openai/hosting.json'), 'utf8'),
+    ).project_id,
+    snapshot.projectId,
+  );
+  await assert.rejects(
+    copySiteSnapshot(snapshot.directory, checkout, workspace),
+    /identity mismatch/u,
+  );
+  assert.equal(
+    await readFile(join(checkout, 'README.md'), 'utf8'),
+    'preserve this checkout',
+  );
+  assert.equal((await readdir(checkout)).includes('dist'), false);
+});
 test('platform path casing aliases preserve a declared-only checkout and Git metadata', async (context) => {
   const { workspace, artifact } = await fixture(context);
   const snapshot = await createSiteSnapshot(artifact, workspace);

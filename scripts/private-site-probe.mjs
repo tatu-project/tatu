@@ -3,10 +3,9 @@ import process from 'node:process';
 import console from 'node:console';
 import { URL } from 'node:url';
 import { setTimeout, clearTimeout } from 'node:timers';
+import { privateSiteOrigin } from './site-config.mjs';
 
 const { fetch, AbortSignal, TextDecoder } = globalThis;
-const approvedOrigin =
-  'https://tatu-brasil-beta-vitti.craftystar18.chatgpt.site';
 let failed = false;
 const report = (label, status, pass, kind, metadata = {}) => {
   if (pass === false) failed = true;
@@ -111,6 +110,7 @@ async function run(credentials) {
   )
     throw new Error('invalid_input');
   const origin = new URL(credentials.origin);
+  const approvedOrigin = privateSiteOrigin(process.env.SITE_ORIGIN);
   if (
     origin.origin !== approvedOrigin ||
     origin.protocol !== 'https:' ||
@@ -304,22 +304,15 @@ async function run(credentials) {
     method: 'POST',
     headers: { origin: approvedOrigin },
   });
-  await request('private_system_metadata_only', '/api/system/run-due', {
-    method: 'POST',
-    headers: { ...service, origin: approvedOrigin },
-    test: (status) => status === 200,
-    schema: (value) => ({
-      pass:
-        Object.keys(value).every((field) =>
-          ['processed', 'dispatched'].includes(field),
-        ) &&
-        (value.dispatched === true ||
-          (Number.isInteger(value.processed) &&
-            value.processed >= 0 &&
-            value.processed <= 3)),
-      metadata: { fields: fieldNames(value) },
-    }),
-  });
+  await request(
+    'service_system_without_independent_token_denied',
+    '/api/system/run-due',
+    {
+      method: 'POST',
+      headers: { ...service, origin: approvedOrigin },
+      test: (status) => status === 401,
+    },
+  );
   report('direct_origin', null, null, 'not_available');
   report('positive_personal_workspace', null, null, 'user_login_needed');
 }

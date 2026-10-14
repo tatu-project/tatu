@@ -7,6 +7,7 @@ import {
 import { createRemoteServices } from './providers.js';
 import { handleMcp } from './mcp.js';
 import { runDue } from './scheduler.js';
+import { handleColabOwner, handleColabRuntime } from './colab.js';
 import { WorkspaceStore, ownerForIdentity } from './storage.js';
 import { failure, handleWorkspace, json, proposeMessage } from './workspace.js';
 import type {
@@ -79,6 +80,13 @@ export function createCloudWorker(dependencies: CloudDependencies = {}) {
           await runDue(env);
           return secure(json({ dispatched: true }));
         }
+        if (url.pathname.startsWith('/api/colab/runtime/'))
+          return secure(await handleColabRuntime(request, env));
+        if (
+          request.headers.has('OAI-Sites-Authorization') ||
+          request.headers.get('authorization')?.startsWith('Bearer colab_')
+        )
+          return secure(json({ error: 'Acesso não autorizado.' }, 401));
         if (request.method === 'GET' && url.pathname === '/') {
           const bytes = crypto.getRandomValues(new Uint8Array(18));
           const nonce = btoa(String.fromCharCode(...bytes));
@@ -156,6 +164,8 @@ export function createCloudWorker(dependencies: CloudDependencies = {}) {
               429,
             ),
           );
+        if (url.pathname.startsWith('/api/colab/'))
+          return secure(await handleColabOwner(request, env, owner));
         return secure(await handleWorkspace(request, env, store, services));
       } catch (error) {
         return secure(failure(error));
