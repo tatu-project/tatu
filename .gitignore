@@ -54,5 +54,6 @@ brain/.trash/
 
 # Temporary files
 tmp/
+.playwright-mcp/
 temp/
 *.tmp

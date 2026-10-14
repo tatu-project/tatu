@@ -10,18 +10,22 @@ and exact operational release records are private and never shipped in source.
 Private version 2 is published: three migrations/15 D1 tables, bounded Colab
 adapter, preserved owner-only audience and no automations. Two phases of 22
 negative gateway probes pass; native task listing returns an empty result.
-Owner-reported ChatGPT sign-in is separate from independent browser CRUD proof.
-Actual owner Colab pairing/first Tatu answer, active behavior, mobile/PWA smoke
-and scheduled delivery remain unverified.
+On October 14 the owner reported Qwen loading, pairing and real Tatu replies on
+version 2. This is owner-observed use, not a controlled current-revision probe,
+guardrail-quality test or independent full browser CRUD proof. Stop/active,
+mobile/PWA and scheduled-delivery acceptance remain open.
 
 Recorded version 2 code proof is 205 tests/build/format/lint/types, zero known
-production vulnerabilities and no blocking static finding. Current public-source
-checks pass lint/types/210 tests/build and companion13/original notebook8 checks;
-backend artifact remains identical to the verified private version. Public
+production vulnerabilities and no blocking static finding. October 13 public-source
+checks passed lint/types/210 tests/build and companion13/original notebook8;
+that backend artifact was identical to the verified private version. Historical public
 [47bfc1e](https://github.com/tatu-project/tatu/commit/47bfc1e7de4e44a4bf9b074618df0d921db48b1b)/
 [CI38500459769](https://github.com/tatu-project/tatu/actions/runs/38500459769)
-passed Windows/Linux; this does not complete owner model loading/pairing/first
-answer or the other live acceptance gates.
+passed Windows/Linux. The October 14 connection/status/public-probe/history
+candidate passed root format/lint/types/226 tests/build after the manual-tab fix.
+Final browser, private/public publication and remote CI evidence are pending;
+the candidate is not the same artifact as historical version 2. No old
+deployment record or owner report satisfies the new controlled live test.
 
 The October 12 baseline and October 13 version 2 are historical release records,
 not a public install address or invitation. Exact identifiers/hash/configuration

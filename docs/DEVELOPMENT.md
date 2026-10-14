@@ -63,8 +63,12 @@ Never commit actual origins, IDs or generated private metadata. See
 [ADR-0026](decisions/ADR-0026-public-source-private-installation-configuration.md).
 
 Private version 2 is published with three migrations and verified negative
-gateway/MCP evidence. Positive browser CRUD/mobile visuals, actual owner Colab
-pairing/first Tatu answer and unattended scheduling remain open. Sites native scheduling
+gateway/MCP evidence. On October 14 the owner reported loaded Qwen, pairing and
+real replies on version 2; this is attributed use, not a controlled new-revision
+probe or guardrail-quality proof. Full browser CRUD/mobile/PWA, current-revision
+live response/history/stop/active checks and unattended scheduling remain open.
+Built-browser fixture checks validate candidate layout/status behavior separately
+from Google inference. Sites native scheduling
 must be connected and tested before `SCHEDULER_ENABLED` changes from false.
 `apps/cloud/wrangler.jsonc` is independent Workers/D1/Access configuration with a
 one-minute Cron; it requires its own account, hostname, Access policy, bindings,

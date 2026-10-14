@@ -4,11 +4,13 @@ Assistente pessoal brasileiro, open source sob licença MIT, com backend online
 e aplicativo web em português para celular e desktop. Prioriza opções gratuitas,
 provedores substituíveis e hospedagem própria opcional. [Read in English](README.md).
 
-**Estado atual:** a versão privada 2 está publicada. O proprietário relatou login
-pelo ChatGPT funcionando; listagem/propostas MCP foram verificadas. O adaptador
-Qwen/Colab está implantado, mas pareamento e primeira resposta dentro do Tatu
-seguem sem comprovação. Visual/PWA no celular e entrega agendada também estão
-abertos. [ROADMAP.md](ROADMAP.md) separa as evidências.
+**Estado atual:** a versão privada 2 está publicada. Em 14 de outubro, o
+proprietário relatou Qwen carregado, pareamento e respostas reais no Tatu;
+listagem/propostas MCP têm verificação independente. Monitor de conexão, teste
+de resposta separado e controle de histórico por envio estão implementados na
+próxima revisão, com validação de navegador/publicação ainda pendente. O relato
+não conclui aceitação de visual/PWA, guardrails ou agendamento.
+[ROADMAP.md](ROADMAP.md) separa as evidências.
 
 URLs, IDs, contas, credenciais e registros operacionais privados não entram no
 código público. Receba acesso/configuração do responsável pela sua instalação.
@@ -32,26 +34,37 @@ exato no Tatu e confirme `PROCESSAR` no modo manual. Modo ativo é opcional, at�
 20 minutos, e exige benefício pago elegível com unidades Colab positivas.
 Não é um backend gratuito permanente.
 
+O painel atualizado distingue pareamento válido de resposta recebida. Seu teste
+aritmético público exige autorização, consome um pedido da cota e salva uma
+conversa separada, sem histórico anterior, notas ou memórias. Confira resposta,
+modelo e tempo reais; receber texto e acertar a conta são resultados separados.
+Em Conversas, **Usar histórico desta conversa** vale para o próximo envio, sem
+apagar mensagens salvas. O contador inclui somente notas/memórias selecionadas:
+zero não significa histórico desligado.
+
 ## Implementado e ainda pendente
 
-| Capacidade                                  | Evidência                                | Validação restante                                |
-| ------------------------------------------- | ---------------------------------------- | ------------------------------------------------- |
-| Conversas, notas, memória, tarefas e leitor | Testes SQL/API/interface                 | CRUD autenticado e visual no celular              |
-| Workers AI/Groq e chaves opcionais          | Adapters, cotas e falhas testados        | Resposta real e ciclo da conexão                  |
-| Qwen/Colab pessoal                          | Implantação e limites de segurança/jobs  | Pareamento, primeira resposta e modo ativo real   |
-| MCP                                         | Listagem e propostas nativas verificadas | Confirmação, OAuth independente/diretório público |
-| Boletim diário                              | RSS e execução durável implementados     | Ocorrência real; ponte gerenciada desativada      |
-| NotebookLM Audio Overviews                  | Exportação de texto/importação manual    | Áudio pelo usuário; automação Enterprise futura   |
+| Capacidade                                  | Evidência                                                | Validação restante                                    |
+| ------------------------------------------- | -------------------------------------------------------- | ----------------------------------------------------- |
+| Conversas, notas, memória, tarefas e leitor | Testes SQL/API/interface                                 | CRUD autenticado e visual no celular                  |
+| Workers AI/Groq e chaves opcionais          | Adapters, cotas e falhas testados                        | Resposta real e ciclo da conexão                      |
+| Qwen/Colab pessoal                          | Versão 2 e respostas relatadas; testes de segurança/jobs | Teste controlado da revisão atual e parada/modo ativo |
+| MCP                                         | Listagem e propostas nativas verificadas                 | Confirmação, OAuth independente/diretório público     |
+| Boletim diário                              | RSS e execução durável implementados                     | Ocorrência real; ponte gerenciada desativada          |
+| NotebookLM Audio Overviews                  | Exportação de texto/importação manual                    | Áudio pelo usuário; automação Enterprise futura       |
 
 O caso de referência é notícias de IA às **09:00, America/Sao_Paulo**. Fontes
 são preservadas e trechos RSS não são apresentados como inferência. A proposta
 MCP ainda exige confirmação no Tatu.
 
-A versão privada 2 tem prova de 205 testes, três migrações/15 tabelas D1 e duas
-fases de 22 testes negativos no gateway. O código público atual passa lint/types/
-210 testes/build e conector Colab13/notebook original8; auditoria de produção
-sem vulnerabilidades conhecidas e revisão estática sem bloqueios. Isso não
-comprova pareamento, CRUD ou entrega agendada. Não há espera obrigatória de 30 dias.
+A prova histórica da versão privada 2 inclui 205 testes, três migrações/15
+tabelas D1 e duas fases de 22 testes negativos no gateway. Em 13 de outubro,
+o código público passou 210 testes/build e conector13/notebook original8;
+auditoria de produção sem vulnerabilidades conhecidas. O candidato de 14 de
+outubro passa format/lint/types/226 testes/build após corrigir a troca de aba
+no modo manual; navegador e publicação têm verificações separadas. Testes e
+respostas relatadas não comprovam CRUD completo, qualidade dos guardrails ou
+entrega agendada. Não há espera obrigatória de 30 dias.
 
 ## Privacidade e limites
 

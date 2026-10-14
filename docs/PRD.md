@@ -1,6 +1,8 @@
 # Tatu product requirements and current state
 
-Snapshot: October 13, 2026, private version 2. This PRD connects user needs to
+Snapshot: October 14, 2026. Private version 2 is published; the next connection/
+context usability revision is implemented with final publication evidence pending.
+This PRD connects user needs to
 implemented behavior, evidence and remaining acceptance. [PROJECT.md](../PROJECT.md)
 owns product scope, [ROADMAP.md](../ROADMAP.md) owns progress, [ADRs](decisions/README.md)
 own technical choices, and code/tests define behavior. This is a navigable current
@@ -37,6 +39,10 @@ Primary scenarios:
 
 - Ask a question, review exact selected context, receive an authorized model
   answer, reopen a conversation and explicitly delete it.
+- Exclude prior conversation turns from one request without deleting saved
+  messages; inspect selected notes/memories separately from conversation history.
+- Authorize a public arithmetic probe in a separate conversation, inspect the
+  real reply/model/elapsed time and distinguish received text from correctness.
 - Add/edit/delete a preference or note and deliberately select it for a turn;
   complete transcripts do not automatically become permanent memories.
 - Request a daily briefing, inspect/confirm its expiring proposal, pause/edit/
@@ -50,29 +56,39 @@ Primary scenarios:
 
 ## 3. Current evidence and scope
 
-| Area                     | Implemented                                                | Verified                                                         | Remaining                                                         |
-| ------------------------ | ---------------------------------------------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------- |
-| Identity/D1              | Verified ingress mapped to internal owner, scoped SQL      | Auth/CSRF/cross-owner fixtures and private gateway denial        | Independently observed browser owner CRUD/session flow            |
-| Portuguese workspace/PWA | Chat, notes, memory, controls, reader; online-only actions | Client checks and hosted code                                    | Mobile visuals, PWA installation and positive browser smoke       |
-| Conversations/context    | Persistent turns, revisions, selected context/deletion     | SQL/API/client checks                                            | Owner end-to-end conversation with live model                     |
-| Workers AI/Groq          | Replaceable adapters, optional encrypted BYOK, quotas      | Provider/security fixtures                                       | Configured provider turn and credential lifecycle                 |
-| Colab                    | Sealed pairing, scoped sessions/jobs, generic companion    | Private v2, crypto/SQL/client/mock checks and two 22-case phases | Current VM loading, owner pair/first Tatu answer, active behavior |
-| Briefings                | Curated RSS, citations, scheduling/retry/results           | Fixtures and earlier legacy delivery proof                       | New actual hosted due occurrence/delivery                         |
-| MCP                      | Bounded authenticated tools/private native connection      | Native task list/proposal calls                                  | Broader confirmation, standalone OAuth/public directory           |
-| Audio                    | Reviewed cited-text export/manual NotebookLM handoff       | Client checks                                                    | Actual user-generated audio; automatic Enterprise adapter         |
-| Private credentials      | Server operational encryption/bounded rotation             | Crypto/owner/CAS/redaction checks                                | Live lifecycle and future client-held password vault              |
-| Native/account actions   | Scope and permission boundaries                            | Accepted architecture only                                       | Packages, companion and official action adapters                  |
+| Area                     | Implemented                                                       | Verified                                                          | Remaining                                                         |
+| ------------------------ | ----------------------------------------------------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Identity/D1              | Verified ingress mapped to internal owner, scoped SQL             | Auth/CSRF/cross-owner fixtures and private gateway denial         | Independently observed browser owner CRUD/session flow            |
+| Portuguese workspace/PWA | Chat, notes, memory, controls, reader; online-only actions        | Client checks and hosted code                                     | Mobile visuals, PWA installation and positive browser smoke       |
+| Conversations/context    | Persistent turns, per-request history selection, context/deletion | SQL/API/client checks; owner-observed v2 replies                  | Current-revision browser/history acceptance                       |
+| Workers AI/Groq          | Replaceable adapters, optional encrypted BYOK, quotas             | Provider/security fixtures                                        | Configured provider turn and credential lifecycle                 |
+| Colab                    | Sealed pairing/jobs, status monitor and isolated response probe   | Private v2, owner-observed pair/replies, crypto/SQL/client checks | Controlled current-revision probe, cancellation/stop/active proof |
+| Briefings                | Curated RSS, citations, scheduling/retry/results                  | Fixtures and earlier legacy delivery proof                        | New actual hosted due occurrence/delivery                         |
+| MCP                      | Bounded authenticated tools/private native connection             | Native task list/proposal calls                                   | Broader confirmation, standalone OAuth/public directory           |
+| Audio                    | Reviewed cited-text export/manual NotebookLM handoff              | Client checks                                                     | Actual user-generated audio; automatic Enterprise adapter         |
+| Private credentials      | Server operational encryption/bounded rotation                    | Crypto/owner/CAS/redaction checks                                 | Live lifecycle and future client-held password vault              |
+| Native/account actions   | Scope and permission boundaries                                   | Accepted architecture only                                        | Packages, companion and official action adapters                  |
 
 Private version 2 is published with three migrations and 15 D1 tables. Its
 recorded release proof includes 205 application tests, static review without
 blocking findings, zero known production dependency vulnerabilities and two
-22-case negative gateway phases. Current public-source checks pass lint/types/
+22-case negative gateway phases. October 13 public-source checks passed lint/types/
 210 tests/build plus 13 companion/eight original notebook checks. These Python
 checks are static/mock/interop, not an agent-run GPU session.
 
-An owner reported ChatGPT sign-in and one earlier short Qwen3-8B answer. Those
-are attributed observations, not current model-loading/pairing/browser CRUD or
-scheduled-delivery proof. Public [47bfc1e](https://github.com/tatu-project/tatu/commit/47bfc1e7de4e44a4bf9b074618df0d921db48b1b)
+On October 14 the owner reported loaded Qwen3-8B, pairing and real replies inside
+the published version 2. Earlier ChatGPT sign-in and manual model output remain
+attributed history. The new candidate passed root format/lint/types/226 tests/
+build after the manual-tab fix. Initial actual-built browser checks use mocked
+APIs at 1440×1000 and 390×844: no horizontal overflow, mode-specific consent
+visibility, isolated request capture and distinct expected/divergent reply states.
+These verify layout/client behavior, not real Google inference or model latency.
+The later expired-feedback correction passes 26 web tests; final browser retest/
+full CI/publication checks remain separate and pending.
+The owner-observed replies do not prove a controlled current-revision probe,
+guardrail quality, full browser CRUD or scheduled delivery. A repeated refusal
+after a subject change suggests possible conversational carryover, not a proven
+static refusal defect. Historical public [47bfc1e](https://github.com/tatu-project/tatu/commit/47bfc1e7de4e44a4bf9b074618df0d921db48b1b)
 and [CI38500459769](https://github.com/tatu-project/tatu/actions/runs/38500459769)
 are verified, with Windows/Linux success for that revision. Public source omits private install metadata, credentials and exact
 personal operational records.
@@ -85,6 +101,10 @@ personal operational records.
 - Keep preferences/instructions and notes separate, editable and deletable.
 - Preview exact bounded context and obtain required consent; exclude operational
   credentials and private-vault material.
+- Offer default-on **Usar histórico desta conversa** for the next turn. An
+  explicit false omits previous turns while retaining current input and chosen
+  notes/memories; it never deletes saved messages. The counter reports selected
+  notes/memories only and cannot imply that zero excludes conversation history.
 - Safely render untrusted text and show unavailable/offline/stopped/failed/quota
   states without invented replies.
 - Provide a PWA shell without personal API caching or offline actions that
@@ -117,11 +137,28 @@ selection/consent and eligible paid entitlement with positive Colab units; it
 stops within 20 minutes/20 replies. Observed eligibility is not permanent balance
 or availability. This route cannot provide unattended daily scheduling.
 
+The connection panel separates disconnected/pending/paired/expired/revoked
+states from actual response evidence, with next-step instructions and remaining
+session time. A valid pairing does not prove that the notebook is serving.
+The optional probe explicitly discloses a public 17 × 19 question, one normal
+quota request and a saved separate conversation. It sends no prior history,
+selected notes/memories or open draft through the existing chat/job path.
+The result displays actual reply, model and elapsed time; expected `323` is
+checked separately from receipt. Cancellation/expiry/timeout must never fabricate
+success; this simple probe is not a guardrail, web-research or scheduling test.
+
+Colab context is bounded to 12 messages. Oldest complete historical pairs are
+removed as necessary, preserving system instructions, the current message and
+explicit selected context; byte/token limits remain enforced. Other remote
+providers retain their eight-pair history bound. An oversized mandatory context
+fails visibly rather than dropping the user's explicit selection silently.
+
 Credentials are hashed, owner-scoped, expiring/revocable and limited to inference
 claim/complete. Jobs bind conversation/revision, cancellation, fenced short
 lease, TTL and input/output bounds. Stale/duplicate completion must not append
-after cancellation/deletion/replacement. Pairing, first Tatu answer and live
-stop/revoke/active behavior require separate proof.
+after cancellation/deletion/replacement. Owner-observed version 2 pairing/replies
+remain distinct from a controlled current-revision probe and live stop/revoke/
+active acceptance.
 
 ## 6. Tasks, research and delivery
 
@@ -239,16 +276,16 @@ provide procedures.
 
 ## 11. Nonfunctional acceptance
 
-| Requirement            | Evidence required                                                                              |
-| ---------------------- | ---------------------------------------------------------------------------------------------- |
-| Privacy/authentication | Missing/forged/cross-owner/CSRF misuse fails before private access; no secret projections/logs |
-| Reliability            | Restart/duplicate/lease/retry/outage/rollback preserve one result                              |
-| Budget safety          | Deterministic input/output/concurrency/shared caps; no paid fallback                           |
-| Mobile usability       | Positive CRUD/reopen/delete/task/reader/responsive/PWA flow                                    |
-| Compute                | Actual pair/first answer; stop/revoke/expiry/active behavior separately verified               |
-| Scheduling             | Real hosted due occurrence with sources/trace/no duplication                                   |
-| Portability            | Neutral public build, safe explicit configuration and separate independent deployment proof    |
-| Release quality        | Format/lint/types/tests/build, security review, gateway smoke and actual public CI             |
+| Requirement            | Evidence required                                                                                           |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Privacy/authentication | Missing/forged/cross-owner/CSRF misuse fails before private access; no secret projections/logs              |
+| Reliability            | Restart/duplicate/lease/retry/outage/rollback preserve one result                                           |
+| Budget safety          | Deterministic input/output/concurrency/shared caps; no paid fallback                                        |
+| Mobile usability       | Positive CRUD/reopen/delete/task/reader/responsive/PWA flow                                                 |
+| Compute                | Controlled current-revision pair/probe/history flow; stop/revoke/expiry/active behavior separately verified |
+| Scheduling             | Real hosted due occurrence with sources/trace/no duplication                                                |
+| Portability            | Neutral public build, safe explicit configuration and separate independent deployment proof                 |
+| Release quality        | Format/lint/types/tests/build, security review, gateway smoke and actual public CI                          |
 
 A short manual model run does not justify latency, continuous uptime,
 unlimited-free capacity or E2EE SLA claims. Keep failures visible and traces
@@ -262,10 +299,12 @@ scheduling and MCP/private publication. Code/gateway/publication checks are
 verified; whole online stages are not complete. [ROADMAP.md](../ROADMAP.md)
 contains the exact checks, not inferred completion from this PRD.
 
-Next: verify/load Qwen in the current Google VM, enter private installation
-configuration, pair and obtain the first Tatu answer. Then prove browser/mobile
-flows, live active behavior and hosted scheduled delivery. Verified public
-source/remote CI remains separate from private deployment and owner live use. Native packages/device
+Next: publish the reviewed usability revision, then verify the explicit public
+probe and history selection on that deployed revision with authorized compute.
+Owner-observed version 2 replies are an initial integration observation, not
+completion of those checks. Then prove browser/mobile flows, live active behavior
+and hosted scheduled delivery. Historical public-source/remote CI remains
+separate from the new revision's private deployment and owner live use. Native packages/device
 companion, connected accounts, automatic audio, private password vault and broad
 agent workflows require independent later acceptance.
 

@@ -503,3 +503,29 @@ Use [[templates/Session]] for future entries. Record outcomes and durable contex
   model/pair/first Tatu answer, active behavior or scheduled proof was added.
   Next real acceptance remains owner Google-VM loading/pairing/first response;
   private handoff metadata stays outside public source and no full stage is done.
+
+## 2026-10-14 - Owner-observed replies and connection/history revision
+
+- The owner reported loaded Qwen3-8B, pairing and real replies inside published
+  version 2. No private transcript, installation identity, account measurements
+  or screenshots are included here. This is owner-observed integration evidence,
+  not an independent controlled probe, guardrail-quality test or scheduling proof.
+- The next candidate implements responsive connection steps/consents, collapsed
+  ciphertext, state/countdown and an explicit public arithmetic probe through
+  existing chat/jobs. The probe saves a separate conversation, uses normal quota
+  and omits history/notes/memories; receipt/model/time and correctness are separate.
+- Per-turn history defaults true; false preserves saved turns while excluding
+  them from the next provider request. Colab trims old complete pairs within its
+  12-message/byte/token limits, retaining mandatory current/system/selected context.
+  Repeated refusal after a new subject may be conversational carryover; cause and
+  guardrail behavior are not established by the report.
+- Root format/lint/types/226 tests/build passed after the manual-tab fix. Initial
+  actual-built browser fixtures at 1440×1000/390×844 showed no horizontal
+  overflow, correct mode-specific consent visibility, isolated request data and
+  distinct expected/divergent response rendering. They are mocked visual/client
+  checks, not Google inference or model-latency proof. The later expired-feedback
+  correction passes 26 web tests; final browser retest/full CI/private/public
+  publication and remote CI remain pending root evidence.
+  Controlled current-revision live probe/history/stop/active acceptance and all
+  whole online stages remain open. No production resource/audience change or
+  new provider key, scheduled task, paid fallback or dependency is implied.

@@ -151,6 +151,53 @@ test('provider context fits newest complete turn pairs while current message and
   assert.equal(turns.data.messages.length, 24);
 });
 
+test('ordinary provider retains eight short prior pairs by default and honors explicit per-turn history exclusion', async (context) => {
+  type Message = Parameters<RemoteServices['reply']>[1][number];
+  const captured: Message[][] = [];
+  const f = fixture(
+    fixtureServices(async (_owner, messages) => {
+      captured.push([...messages]);
+      return {
+        reply: 'Short fixture answer.',
+        model: { provider: 'fixture', name: 'test-only' },
+      };
+    }),
+  );
+  context.after(() => f.db.close());
+  let conversationId: string | undefined;
+  for (let index = 0; index < 10; index++) {
+    const result = await f.call<{ conversationId: string }>(
+      '/api/chat/messages',
+      'POST',
+      {
+        ...(conversationId ? { conversationId } : {}),
+        message: `Benign question ${index}`,
+      },
+    );
+    assert.equal(result.response.status, 200);
+    conversationId = result.data.conversationId;
+  }
+  assert.equal(captured.at(-1)!.length, 18);
+  assert.equal(captured.at(-1)![1].content, 'Benign question 1');
+  assert.equal(
+    (
+      await f.call('/api/chat/messages', 'POST', {
+        conversationId,
+        message: 'A fresh question.',
+        includeHistory: false,
+      })
+    ).response.status,
+    200,
+  );
+  assert.deepEqual(captured.at(-1)!.slice(1), [
+    { role: 'user', content: 'A fresh question.' },
+  ]);
+  const saved = await f.call<{ messages: unknown[] }>(
+    '/api/conversations/' + conversationId,
+  );
+  assert.equal(saved.data.messages.length, 22);
+});
+
 test('oversized mandatory message or explicit context returns precise 413 before dispatch or conversation mutation', async (context) => {
   let calls = 0;
   const f = fixture(

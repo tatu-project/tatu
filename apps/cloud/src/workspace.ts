@@ -27,6 +27,7 @@ function providerContext(
   selected: string | undefined,
   history: readonly StoredMessage[],
   contextKey: string,
+  maxMessages = Infinity,
 ): ProviderMessage[] {
   const system: ProviderMessage[] = [
     {
@@ -65,8 +66,9 @@ function providerContext(
   const newest = pairs.slice(-8);
   while (
     newest.length &&
-    serializedBytes([...system, ...newest.flat(), current]) >
-      PROVIDER_CONTEXT_MAX_BYTES
+    (system.length + newest.length * 2 + 1 > maxMessages ||
+      serializedBytes([...system, ...newest.flat(), current]) >
+        PROVIDER_CONTEXT_MAX_BYTES)
   )
     newest.shift();
   return [...system, ...newest.flat(), current];
@@ -534,6 +536,7 @@ async function chat(
       'timezone',
       'provider',
       'contextConsent',
+      'includeHistory',
     ]) ||
     !safeAssistantText(input.message, 16_384) ||
     (input.conversationId !== undefined &&
@@ -541,6 +544,8 @@ async function chat(
     (input.timezone !== undefined && !validTimezone(input.timezone)) ||
     (input.provider !== undefined && input.provider !== 'colab') ||
     (input.contextConsent !== undefined && input.contextConsent !== true) ||
+    (input.includeHistory !== undefined &&
+      typeof input.includeHistory !== 'boolean') ||
     (input.provider === 'colab' && input.contextConsent !== true)
   )
     throw new AssistantError('invalid_input');
@@ -595,8 +600,9 @@ async function chat(
       ? providerContext(
           input.message,
           memoryIds.length || noteIds.length ? selected : undefined,
-          conversation?.messages ?? [],
+          input.includeHistory === false ? [] : (conversation?.messages ?? []),
           contextKey,
+          input.provider === 'colab' ? 12 : Infinity,
         )
       : undefined;
   if (input.provider === 'colab' && messages) {

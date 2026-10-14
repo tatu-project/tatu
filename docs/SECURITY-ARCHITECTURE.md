@@ -1,10 +1,14 @@
 # Security architecture and agent boundaries
 
 Status: private Colab version 2 published October 13, 2026. Historical version 2
-proof is 205 tests/Python11+8; current public-source checks are 210 tests/Python13+8.
-Static review and two 22-case gateway phases pass; native task read remains verified. Real owner Colab
-pairing/first Tatu answer, active behavior, browser CRUD/mobile QA, scheduled
-delivery remain open. Public [47bfc1e](https://github.com/tatu-project/tatu/commit/47bfc1e7de4e44a4bf9b074618df0d921db48b1b)/
+proof is 205 tests/Python11+8; October 13 public-source checks are 210 tests/Python13+8.
+Static review and two 22-case gateway phases pass; native task read remains verified.
+On October 14 the owner observed Colab loading/pairing/replies on version 2.
+The connection/public-probe/history candidate passed root format/lint/types/226
+tests/build after the manual-tab fix; final browser/publication evidence is pending.
+Controlled current-revision live acceptance, guardrail quality, stop/active,
+browser CRUD/mobile/PWA and scheduled delivery remain open. Historical public
+[47bfc1e](https://github.com/tatu-project/tatu/commit/47bfc1e7de4e44a4bf9b074618df0d921db48b1b)/
 [CI38500459769](https://github.com/tatu-project/tatu/actions/runs/38500459769)
 passed Windows/Linux. Historical October 12 proof is separate. Neither these
 checks nor publication prove full release acceptance, native control, audio, or E2EE. Completion
@@ -13,19 +17,19 @@ records the decision and alternatives. No 100%-secure claim is made.
 
 [Verified app revision 4323d45](https://github.com/tatu-project/tatu/commit/4323d4584c0e8a9cce9857ff521ae1f5f27beafe)
 has [successful Windows/Linux CI](https://github.com/tatu-project/tatu/actions/runs/38336981415).
-The final local 189 tests/eight export cases pass with no failures/skips; the
-cloud bundle remains unchanged. This closes the repository/CI gate only, not
+The historical October 12 local 189 tests/eight export cases passed with no
+failures/skips and an unchanged bundle at that time. This closed the repository/CI gate only, not
 the remaining web/mobile/AI/scheduling or planned privacy guarantees.
 
 ## Current protection versus planned privacy
 
-| Boundary               | Current code/platform fact                                                                                                                                            | Limit or remaining acceptance                                                                                                                          |
-| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Transport              | Private QA Site published over HTTPS; live unauthenticated/forged identity and foreign-Origin requests are rejected.                                                  | Positive owner sign-in/CRUD, direct Worker-origin behavior, mobile visual QA, and provider calls remain unverified.                                    |
-| D1 storage             | The platform encrypts storage; application records for messages, notes, and preferences are currently plaintext to the server.                                        | Disk encryption is not application E2EE and does not prevent an authorized runtime from reading content.                                               |
-| Operational API keys   | Server AES-256-GCM envelopes, bounded current/previous keyring and compare-and-swap rotation pass fixture tests; the native runtime `v1` master secret is configured. | The server can decrypt keys: not E2EE. No real owner provider key/call was used; live connection/provider revocation and OAuth acceptance remain open. |
-| Assistant context      | Selected conversation/memory/note context is sent to the authorized remote model route.                                                                               | The receiving provider can process that plaintext. Deleting Tatu records does not erase the provider's copies.                                         |
-| Password/private vault | A separate user-held-key E2EE/zero-knowledge vault is planned.                                                                                                        | Not implemented or verified. The client key must never reach the server; lock/recovery/export and independent security tests are required.             |
+| Boundary               | Current code/platform fact                                                                                                                                            | Limit or remaining acceptance                                                                                                                            |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Transport              | Private QA Site published over HTTPS; live unauthenticated/forged identity and foreign-Origin requests are rejected.                                                  | Owner-observed sign-in/Colab replies are separate from controlled current-revision proof, full CRUD, direct Worker-origin and mobile/PWA acceptance.     |
+| D1 storage             | The platform encrypts storage; application records for messages, notes, and preferences are currently plaintext to the server.                                        | Disk encryption is not application E2EE and does not prevent an authorized runtime from reading content.                                                 |
+| Operational API keys   | Server AES-256-GCM envelopes, bounded current/previous keyring and compare-and-swap rotation pass fixture tests; the native runtime `v1` master secret is configured. | The server can decrypt keys: not E2EE. No real owner provider key/call was used; live connection/provider revocation and OAuth acceptance remain open.   |
+| Assistant context      | Current input, optional per-turn history and selected notes/memories go to the authorized model; disabling history preserves saved turns.                             | The receiving provider can process that plaintext. The note/memory counter does not count history; deleting Tatu records does not erase provider copies. |
+| Password/private vault | A separate user-held-key E2EE/zero-knowledge vault is planned.                                                                                                        | Not implemented or verified. The client key must never reach the server; lock/recovery/export and independent security tests are required.               |
 
 Cloudflare documents provider-managed encryption at rest and TLS between Workers
 and D1. This platform property does not change which content Tatu's runtime can

@@ -6,6 +6,7 @@ import { ColabStore } from './colab-store.js';
 import { base64, hash } from './colab-crypto.js';
 import type { CloudEnv, RemoteServices } from './types.js';
 import { AssistantError } from '@tatu/shared';
+import { WorkspaceStore, ownerForIdentity } from './storage.js';
 
 const origin = 'https://tatu.test';
 const encoder = new TextEncoder();
@@ -192,6 +193,188 @@ const fixture = () => {
   };
   return { db, env, call, pair, remoteCalls: () => remoteCalls };
 };
+
+test('Colab queued context preserves mandatory messages and newest complete pairs within the Python twelve-message bound', async (t) => {
+  for (const withSelected of [false, true]) {
+    await t.test(`selected context: ${withSelected}`, async (t) => {
+      const f = fixture();
+      t.after(() => f.db.close());
+      const p = await f.pair();
+      const owner = await ownerForIdentity(f.db, {
+        issuer: 'fixture-only',
+        subject: 'alice',
+      });
+      const store = new WorkspaceStore(f.db, owner);
+      const conversation = await store.createConversation('Short turns');
+      for (let index = 0; index < 10; index++) {
+        const token = await store.claimTurn(conversation.id, index);
+        await store.appendTurn(
+          conversation.id,
+          index,
+          token,
+          `Question ${index}`,
+          `Answer ${index}`,
+          '',
+        );
+      }
+      const note = await store.createNote(
+        'Selected title',
+        'Selected note content',
+      );
+      const memory = await store.createMemory(
+        'Selected preference',
+        'preference',
+      );
+      const queued = await f.call<Queued>('/api/chat/messages', 'POST', {
+        provider: 'colab',
+        contextConsent: true,
+        conversationId: conversation.id,
+        message: 'Explain solar energy.',
+        ...(withSelected ? { noteIds: [note.id], memoryIds: [memory.id] } : {}),
+      });
+      assert.equal(queued.status, 202);
+      const claim = await f.call<Claimed>(
+        '/api/colab/runtime/claim',
+        'POST',
+        {},
+        null,
+        {
+          authorization: `Bearer ${p.sessionToken}`,
+        },
+      );
+      assert.equal(claim.status, 200);
+      const messages = claim.data.job!.messages;
+      assert.equal(messages.length, withSelected ? 11 : 12);
+      assert.equal(messages[0].role, 'system');
+      assert.deepEqual(messages.at(-1), {
+        role: 'user',
+        content: 'Explain solar energy.',
+      });
+      if (withSelected) {
+        assert.equal(messages[1].role, 'system');
+        assert.ok(messages[1].content.includes('Selected note content'));
+        assert.ok(messages[1].content.includes('Selected preference'));
+      }
+      const history = messages.slice(withSelected ? 2 : 1, -1);
+      const firstIndex = withSelected ? 6 : 5;
+      assert.deepEqual(
+        history,
+        Array.from({ length: 10 - firstIndex }, (_, offset) => [
+          { role: 'user', content: `Question ${firstIndex + offset}` },
+          { role: 'assistant', content: `Answer ${firstIndex + offset}` },
+        ]).flat(),
+      );
+      assert.equal(
+        (await store.conversation(conversation.id))!.messages.length,
+        20,
+      );
+      assert.equal(f.remoteCalls(), 0);
+    });
+  }
+});
+
+test('Colab history exclusion is explicit per turn, does not erase records, and rejects malformed flags', async (t) => {
+  for (const includeHistory of [undefined, true, false]) {
+    await t.test(`includeHistory: ${includeHistory}`, async (t) => {
+      const f = fixture();
+      t.after(() => f.db.close());
+      const p = await f.pair();
+      const owner = await ownerForIdentity(f.db, {
+        issuer: 'fixture-only',
+        subject: 'alice',
+      });
+      const store = new WorkspaceStore(f.db, owner);
+      const conversation = await store.createConversation('Synthetic context');
+      const token = await store.claimTurn(conversation.id, 0);
+      await store.appendTurn(
+        conversation.id,
+        0,
+        token,
+        'Previous synthetic question',
+        'Synthetic refusal for the previous question.',
+        '',
+      );
+      const note = await store.createNote(
+        'Chosen note',
+        'Benign selected content',
+      );
+      const input = {
+        provider: 'colab',
+        contextConsent: true,
+        conversationId: conversation.id,
+        message: 'What is two plus two?',
+        noteIds: [note.id],
+        ...(includeHistory === undefined ? {} : { includeHistory }),
+      };
+      for (const invalid of [null, 'false', 0, {}, []]) {
+        assert.equal(
+          (
+            await f.call('/api/chat/messages', 'POST', {
+              ...input,
+              includeHistory: invalid,
+            })
+          ).status,
+          400,
+        );
+      }
+      assert.equal(
+        (await f.call('/api/chat/messages', 'POST', input)).status,
+        202,
+      );
+      const claim = await f.call<Claimed>(
+        '/api/colab/runtime/claim',
+        'POST',
+        {},
+        null,
+        { authorization: `Bearer ${p.sessionToken}` },
+      );
+      const messages = claim.data.job!.messages;
+      assert.equal(messages.length, includeHistory === false ? 3 : 5);
+      assert.equal(
+        JSON.stringify(messages).includes('Synthetic refusal'),
+        includeHistory !== false,
+      );
+      assert.ok(messages[1].content.includes('Benign selected content'));
+      assert.deepEqual(messages.at(-1), {
+        role: 'user',
+        content: 'What is two plus two?',
+      });
+      assert.equal(
+        (await store.conversation(conversation.id))!.messages.length,
+        2,
+      );
+      // A new conversation remains isolated even when history is enabled.
+      assert.equal(
+        (await f.call('/api/colab/jobs/' + claim.data.job!.id, 'DELETE'))
+          .status,
+        200,
+      );
+      assert.equal(
+        (
+          await f.call('/api/chat/messages', 'POST', {
+            provider: 'colab',
+            contextConsent: true,
+            message: 'Explain daylight.',
+            includeHistory: true,
+          })
+        ).status,
+        202,
+      );
+      const payloads = f.db.database
+        .prepare('SELECT payload_json FROM colab_jobs ORDER BY rowid')
+        .all() as { payload_json: string }[];
+      const isolated = JSON.parse(payloads.at(-1)!.payload_json) as {
+        role: string;
+        content: string;
+      }[];
+      assert.equal(isolated.length, 2);
+      assert.equal(
+        JSON.stringify(isolated).includes('Synthetic refusal'),
+        false,
+      );
+    });
+  }
+});
 
 test('operator, vault or stored AI credential collision disables Colab before envelope or machine authorization', async () => {
   const keys = await crypto.subtle.generateKey(
