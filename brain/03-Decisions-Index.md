@@ -3,7 +3,7 @@ title: Decisions Index
 tags:
   - tatu
   - decisions
-updated: 2026-10-13
+updated: 2026-10-15
 ---
 
 # Decisions Index
@@ -12,6 +12,7 @@ Individual technical decisions are authoritative only when recorded under [`docs
 
 ## Accepted ADRs
 
+- [ADR-0027: Free no-training agent](../docs/decisions/ADR-0027-free-agent-telegram-first.md) — Telegram-first, Free Resource Radar, BYOK model selector, approvals; Colab advanced.
 - [ADR-0026: Public/private configuration](../docs/decisions/ADR-0026-public-source-private-installation-configuration.md) — identity-neutral builds, private export input and hidden VM metadata.
 - [ADR-0025: Personal Colab connection](../docs/decisions/ADR-0025-personal-colab-connection.md) — encrypted owner pairing/scoped inference; actual pairing/answer remains open.
 - [ADR-0024: Mobile cloud security](../docs/decisions/ADR-0024-mobile-cloud-security-and-agent-boundaries.md) — operational encryption versus planned client-key vault/native/action boundaries.

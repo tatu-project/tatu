@@ -6,6 +6,7 @@ Use sequential files named `NNNN-short-title.md`, beginning with `0001`. Each re
 
 ## Accepted records
 
+- [ADR-0027: Free no-training agent, Telegram-first](ADR-0027-free-agent-telegram-first.md) - accepted October 15, 2026 as product direction; not implemented.
 - [ADR-0026: Public source and private installation configuration](ADR-0026-public-source-private-installation-configuration.md) - accepted October 13, 2026; generic public metadata, explicit private export identity and hidden VM configuration without rewriting Git history.
 - [ADR-0025: Personal Colab connection](ADR-0025-personal-colab-connection.md) - accepted/implemented and privately published October 13, 2026; local/gateway checks pass, real pairing/active behavior/new GitHub CI pending; paid units observed rather than guaranteed.
 - [ADR-0024: Mobile cloud security and agent boundaries](ADR-0024-mobile-cloud-security-and-agent-boundaries.md) - accepted October 12, 2026; server operational encryption, separate planned client-key vault, typed owner actions, and independently verified native/audio boundaries.

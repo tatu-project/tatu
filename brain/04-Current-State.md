@@ -3,11 +3,15 @@ title: Current State
 tags:
   - tatu
   - current-state
-updated: 2026-10-14
+updated: 2026-10-15
 ---
 
 # Current State
 
+- October 15 direction reset ([ADR-0027](../docs/decisions/ADR-0027-free-agent-telegram-first.md)):
+  Telegram-first free agent, no training on user data, Free Resource Radar,
+  BYOK/in-chat model selection, tools with approvals; Colab is advanced.
+  Nothing implemented yet; next is ROADMAP Stage 12.
 - Private version 3 is published at the existing owner-only installation,
   preserving three migrations/15 D1 tables, existing secrets and zero automations.
   Sixteen live access/readiness checks pass; direct-origin/positive owner-browser

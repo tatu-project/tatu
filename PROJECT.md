@@ -4,7 +4,8 @@
 > Project name: Tatu (decided)
 > License: MIT (decided)
 > Project start: August 26, 2026
-> Last updated: October 14, 2026
+> Last updated: October 15, 2026
+> Direction (October 15): Telegram-first free agent with a no-training gate, Free Resource Radar, BYOK model selection and approvals; see [ADR-0027](docs/decisions/ADR-0027-free-agent-telegram-first.md). Not implemented yet.
 
 ## 1. Executive summary
 
@@ -69,7 +70,7 @@ Capability request
 
 The initial online release may use a compatible Workers AI model within a sponsored free allowance when the binding is available, or an official Groq API with the user's optional encrypted BYOK credential. Provider adapters remain replaceable. No automatic paid fallback is part of this release.
 
-Explicit manual redirects to ChatGPT, Grok, or Gemini may help a user continue independently when a route is unavailable. Consumer login or subscription does not grant API access; redirects are manual, not autonomous execution. Do not scrape consumer sessions. Unpaid Gemini is not the default for personal context because its provider terms require a separate privacy decision. Any later paid enhancement must be voluntary and cannot weaken the normal free-first path.
+Explicit manual redirects to ChatGPT, Grok, or Gemini may help a user continue independently when a route is unavailable. Consumer login or subscription does not grant API access; redirects are manual, not autonomous execution. Do not scrape consumer sessions. Unpaid Gemini and other free tiers that train on user data are not eligible routes (section 2.10). Any later paid enhancement must be voluntary and cannot weaken the normal free-first path.
 
 ### 2.3 Beginner-simple, developer-powerful
 
@@ -98,6 +99,14 @@ The official project name is **Tatu**: a short, Brazilian, easy-to-pronounce ani
 ### 2.8 Public source and private installation configuration
 
 Public code/docs contain no actual keys, private installation URLs/IDs, account details, personal screenshots or operational release records. Exact evidence and configuration remain private outside Git. Public hosting uses a generic template; normal builds are identity-neutral and managed export requires explicit valid per-process `SITE_PROJECT_ID`. The Colab companion receives origin/project through hidden VM inputs and verifies bootstrap binding before HTTP. [ADR-0026](docs/decisions/ADR-0026-public-source-private-installation-configuration.md) records this separation. Forward-source cleanup does not rewrite prior Git history. [PRD.md](docs/PRD.md) connects current behavior and planned requirements without replacing this document or ROADMAP.
+
+### 2.9 Telegram-first, simple setup
+
+Accepted October 15, 2026 ([ADR-0027](docs/decisions/ADR-0027-free-agent-telegram-first.md)). The first user surface is a Telegram bot answering only allowlisted owner IDs, backed by the free serverless runtime; the web app/PWA handles settings and long results, and native store apps come later. Setup target: create a bot with @BotFather, one-click deploy, paste the bot token and optionally one key, in under five minutes without a terminal. Personal Colab becomes an advanced option.
+
+### 2.10 No training on user data
+
+A model, compute or tool route is eligible by default only when its current official terms state that inputs/outputs are not used for training, recorded with source URL and check date. Free routes that train, or whose policy is unknown, are excluded. A versioned Free Resource Radar tracks free models/compute/tools and their limits and data policies; its scheduled searcher may only propose changes, because web content is untrusted, and a route becomes eligible only through a reviewed registry change. Owners may add any provider or OpenAI-compatible endpoint with their own key and switch models in chat; Tatu never falls back to a paid route the owner did not add.
 
 ## 3. Origin and first real use case
 
