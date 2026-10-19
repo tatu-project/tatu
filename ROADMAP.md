@@ -1,6 +1,6 @@
 # Tatu Roadmap
 
-> Direction (October 15): Telegram-first free no-training agent; see the direction reset and Stages 12–15 below.
+> Direction (October 15): Telegram-first free no-training agent; see the direction reset and Stages 12–16 below.
 > Current status: private version 3 is published with connection monitor/public probe/per-turn history controls; final root format/lint/types/226 tests/build, Python13+8, mocked desktop/mobile browser checks and 16 bounded live access/readiness checks pass. Direct-origin/positive owner-browser probes have explicit gaps. Public [78f5c2b](https://github.com/tatu-project/tatu/commit/78f5c2bf2816e12879cf41fa5732e54c33290dd9)/[CI38567151349](https://github.com/tatu-project/tatu/actions/runs/38567151349) passed Windows/Linux. October 14 owner-observed version 2 replies are separate from controlled version 3 inference/history/stop/active acceptance. Full browser/PWA, guardrails and scheduling remain open; no whole online stage is complete.
 > Rule: check an item only after its acceptance criterion has been verified.
 > Compact session context: [`brain/04-Current-State.md`](brain/04-Current-State.md).
@@ -469,6 +469,15 @@ Outcome: a nontechnical person installs their own Tatu for free in under five mi
 - [ ] One-click deploy plus guided bot-token/key entry, with no terminal.
 - [ ] Portuguese and English setup guides verified by a fresh user on a clean account.
 - [ ] Public MIT release with honest limits (free quotas, model quality, no training gate).
+
+## Stage 16 — Agent team in Telegram topics
+
+Outcome: the owner runs a small team of named agents in one Telegram group, coordinated by a chief of staff, approving consequential actions with one tap. Scope: [PROJECT.md section 2.11](PROJECT.md#211-bounded-agent-team).
+
+- [ ] Owner creates an agent by describing it (name, role, instructions, tools, routines); each maps to one forum topic of the owner supergroup.
+- [ ] Each agent keeps separate memory/history; the chief-of-staff topic routes requests and hands work to another agent with context.
+- [ ] Agent routines run on schedule and post in their topic; quotas are shared, visible and stop honestly.
+- [ ] Irreversible agent actions use the Stage 14 approval flow; audit shows which agent proposed what.
 
 ## Later accepted outcomes — separate verification
 

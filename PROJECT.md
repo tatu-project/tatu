@@ -5,7 +5,7 @@
 > License: MIT (decided)
 > Project start: August 26, 2026
 > Last updated: October 15, 2026
-> Direction (October 15): Telegram-first free agent with a no-training gate, Free Resource Radar, BYOK model selection and approvals; see [ADR-0027](docs/decisions/ADR-0027-free-agent-telegram-first.md). Not implemented yet.
+> Direction (October 15–18): Telegram-first free agent with a no-training gate, Free Resource Radar, BYOK model selection, approvals and a bounded agent team (section 2.11); see [ADR-0027](docs/decisions/ADR-0027-free-agent-telegram-first.md). Not implemented yet.
 
 ## 1. Executive summary
 
@@ -107,6 +107,10 @@ Accepted October 15, 2026 ([ADR-0027](docs/decisions/ADR-0027-free-agent-telegra
 ### 2.10 No training on user data
 
 A model, compute or tool route is eligible by default only when its current official terms state that inputs/outputs are not used for training, recorded with source URL and check date. Free routes that train, or whose policy is unknown, are excluded. A versioned Free Resource Radar tracks free models/compute/tools and their limits and data policies; its scheduled searcher may only propose changes, because web content is untrusted, and a route becomes eligible only through a reviewed registry change. Owners may add any provider or OpenAI-compatible endpoint with their own key and switch models in chat; Tatu never falls back to a paid route the owner did not add.
+
+### 2.11 Bounded agent team
+
+Accepted October 18, 2026 (user decision, extends [ADR-0027](docs/decisions/ADR-0027-free-agent-telegram-first.md)). After the single Telegram assistant works, the owner may create named agents with a role, instructions, own memory, allowed tools and routines (for example support, growth, community), plus one chief-of-staff agent that routes requests and hands work between agents with context. In Telegram they live as topics of one owner supergroup served by a single bot; separate bots per agent are an optional later setup. Every irreversible action (send, post, buy, delete, merge) still needs the owner's one-tap approval enforced in code, and every agent action is audited. Agent runs share the owner's free-route quotas, which are shown and stop honestly when exhausted. Code-changing agents (bug fix to pull request) are later work that requires an explicitly verified execution environment.
 
 ## 3. Origin and first real use case
 
@@ -541,7 +545,7 @@ The release is gated by observable checks, not elapsed calendar days:
 - Payments and autonomous purchases.
 - Device control.
 - Marketplace.
-- General multi-agent workflows.
+- General multi-agent workflows beyond the bounded agent team in section 2.11.
 - Dozens of integrations.
 - Full event-condition engine.
 - Open public signups, billing, and broad public multi-tenant SaaS operations beyond the private beta's required authentication and owner isolation.
@@ -723,7 +727,7 @@ Future possibilities, not current commitments:
 - Payment initiation through supported wallets.
 - General device control.
 - Plugin marketplace.
-- Multi-agent workflows.
+- Multi-agent workflows beyond the bounded agent team in section 2.11.
 
 ## 31. Source-of-truth rule
 
