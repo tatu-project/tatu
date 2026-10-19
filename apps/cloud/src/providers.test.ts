@@ -519,3 +519,98 @@ test('actual sponsored dispatch failure consumes both budgets without refund', a
     assert.equal(row?.active, 0);
   }
 });
+
+test('owner route preference reorders only among configured routes; auto keeps fixed precedence', async (t) => {
+  const { DB } = fixture(t);
+  const sponsored = 'gsk_' + 'b'.repeat(40),
+    used: string[] = [];
+  const fetcher: typeof fetch = async (input, init) => {
+    const url = String(input);
+    if (url.endsWith('/models'))
+      return Response.json({ data: [{ id: 'openai/gpt-oss-20b' }] });
+    used.push(new Headers(init?.headers).get('authorization') ?? '');
+    return Response.json({
+      choices: [{ message: { content: 'resposta groq' } }],
+    });
+  };
+  const env = {
+    DB,
+    TATU_ENCRYPTION_KEY: master,
+    TATU_ENABLE_SPONSORED_GROQ: 'true',
+    TATU_GROQ_API_KEY: sponsored,
+    AI: {
+      async run() {
+        used.push('workers-ai');
+        return { response: 'resposta workers' };
+      },
+    },
+  };
+  const services = createRemoteServices(env, fetcher);
+  const ask = (preferred?: Parameters<typeof services.reply>[3]) =>
+    services.reply(
+      'alice',
+      [{ role: 'user', content: 'Olá' }],
+      new AbortController().signal,
+      preferred,
+    );
+  assert.deepEqual(
+    (await services.routes!('alice')).map((route) => [
+      route.id,
+      route.configured,
+    ]),
+    [
+      ['groq', false],
+      ['groq-sponsored', true],
+      ['workers-ai', true],
+    ],
+  );
+  await ask();
+  await ask('auto');
+  await ask('groq');
+  await ask('workers-ai');
+  assert.deepEqual(used, [
+    `Bearer ${sponsored}`,
+    `Bearer ${sponsored}`,
+    `Bearer ${sponsored}`,
+    'workers-ai',
+  ]);
+  used.length = 0;
+  await services.connect('alice', { provider: 'groq', apiKey: key });
+  assert.equal((await services.routes!('alice'))[0].configured, true);
+  await ask('auto');
+  await ask('groq-sponsored');
+  const reply = await ask('workers-ai');
+  assert.equal(reply.model.provider, 'workers-ai');
+  assert.deepEqual(used, [
+    `Bearer ${key}`,
+    `Bearer ${sponsored}`,
+    'workers-ai',
+  ]);
+  assert.equal(
+    (await services.status('alice', 'workers-ai')).model,
+    '@cf/openai/gpt-oss-20b',
+  );
+  // An unconfigured preference falls back to the default order, never a new route.
+  used.length = 0;
+  const bare = createRemoteServices(
+    { DB, TATU_ENCRYPTION_KEY: master },
+    fetcher,
+  );
+  await bare.reply(
+    'alice',
+    [{ role: 'user', content: 'Olá' }],
+    new AbortController().signal,
+    'workers-ai',
+  );
+  assert.deepEqual(used, [`Bearer ${key}`]);
+  await assert.rejects(
+    bare.reply(
+      'bob',
+      [{ role: 'user', content: 'Olá' }],
+      new AbortController().signal,
+      'groq-sponsored',
+    ),
+    (error) =>
+      error instanceof ProviderError && error.message === 'unavailable',
+  );
+});

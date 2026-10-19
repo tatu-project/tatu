@@ -116,6 +116,26 @@ it cannot be described as still invisible to that runtime/provider. Locking,
 recovery, encrypted export, key loss, ciphertext tampering, and owner isolation
 require independent tests before the private vault is advertised as available.
 
+## Telegram webhook boundary
+
+`POST /api/telegram/webhook` (migration `0004_telegram.sql`) is a machine route
+beside system dispatch, before owner identity resolution. It fails closed (404)
+unless `TELEGRAM_BOT_TOKEN`, a 32+ character `TELEGRAM_WEBHOOK_SECRET` and a
+numeric `TELEGRAM_OWNER_IDS` allowlist are valid, compares the secret header in
+constant time (401 otherwise), bounds the body to 64 KB and parses updates
+strictly; after authentication unprocessable updates are acknowledged with 200
+and ignored, and processing is at-most-once. Only private chats from allowlisted user IDs cost a D1 write; others
+get 200 with no owner row and no reply. `update_id` is idempotent. Owners derive
+from issuer `telegram:<bot id>` plus user ID, never the Telegram ID as owner key.
+Outbound Bot API calls use redirect refusal, 5-second timeouts (2 s for typing), bounded reads
+and plain text; errors never carry the token-bearing URL. Bot token and webhook
+secret join the content denylist. `/modelo` stores an owner route preference
+that reorders only already configured routes. Telegram turns send the owner's newest saved
+memories (about 1500 bytes, labelled as data) to the chosen route; they are
+omitted rather than failing when context is tight, and `/esquecer` deletes one. These properties are
+fixture-tested; live Telegram delivery is not yet verified. See
+[TELEGRAM.md](TELEGRAM.md).
+
 ## Account actions and platform boundaries
 
 External actions use typed capabilities backed by an official authorized API,

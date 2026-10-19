@@ -76,9 +76,9 @@ build success is not permission to deploy to a personal or production account.
 
 ## Private Sites lane
 
-Use an eligible hosting account and owner-only access. Apply the three immutable
+Use an eligible hosting account and owner-only access. Apply the four immutable
 migrations under `apps/cloud/migrations`; the current schema includes workspace,
-provider and Colab tables. Configure values/secrets through the runtime control
+provider, Colab and Telegram/preference tables. Configure values/secrets through the runtime control
 plane:
 
 | Configuration                              | Purpose                                                                                    |
@@ -167,6 +167,9 @@ From your authorized checkout/account, maintainers configure
 exact origin, migrations and secrets. Authorization maps verified issuer/subject
 to internal owners; migration requires reauthentication/explicit remap.
 
+Always apply pending migrations before deploying a new Worker version; new
+code may read tables that only a newer migration creates.
+
 ```sh
 cd apps/cloud
 npx --no-install wrangler login
@@ -181,7 +184,9 @@ account. Secret operations can create a version; review target/account first.
 Set `AUTH_MODE=cloudflare-access`, Access validation parameters and exact origin.
 Use Workers AI only if entitled/bound; otherwise authorized Groq or an honest
 unavailable state. No automatic paid fallback. Enable portable Cron only after
-review; configuration alone does not prove an actual due run. The current
+review; configuration alone does not prove an actual due run. The optional
+Telegram bot (`TELEGRAM_*` secrets, Access bypass only for
+`/api/telegram/webhook`) is described in [TELEGRAM.md](TELEGRAM.md). The current
 Colab pairing adapter targets private managed Sites, not a proven portable lane.
 
 Official references: [D1 setup](https://developers.cloudflare.com/d1/get-started/),

@@ -16,8 +16,10 @@ import type {
   CloudExecution,
   D1Database,
   D1PreparedStatement,
+  ModelRoute,
   VerifiedIdentity,
 } from './types.js';
+import { MODEL_ROUTES } from './types.js';
 import { nextRunAt } from './scheduler.js';
 import { supportsCloudTopic } from './feed.js';
 export class CloudUnsupportedTopicError extends AssistantError {
@@ -326,6 +328,80 @@ export class WorkspaceStore {
         'DELETE FROM conversations WHERE owner_id=? AND id=?',
         this.ownerId,
         id,
+      ).run(),
+    );
+  }
+  async modelRoute(): Promise<ModelRoute> {
+    let row: { model_route: string } | null;
+    try {
+      row = await this.sql(
+        'SELECT model_route FROM owner_preferences WHERE owner_id=?',
+        this.ownerId,
+      ).first<{ model_route: string }>();
+    } catch (error) {
+      // Code deployed before migration 0004 keeps the default route working.
+      if (error instanceof Error && /no such table/iu.test(error.message))
+        return 'auto';
+      throw error;
+    }
+    return MODEL_ROUTES.includes(row?.model_route as ModelRoute)
+      ? (row!.model_route as ModelRoute)
+      : 'auto';
+  }
+  async setModelRoute(route: ModelRoute) {
+    if (!MODEL_ROUTES.includes(route))
+      throw new AssistantError('invalid_input');
+    await this.sql(
+      'INSERT INTO owner_preferences (owner_id,model_route,updated_at) VALUES (?,?,?) ON CONFLICT(owner_id) DO UPDATE SET model_route=excluded.model_route,updated_at=excluded.updated_at',
+      this.ownerId,
+      route,
+      new Date().toISOString(),
+    ).run();
+  }
+  /** The mapped id may be stale after a web deletion; callers re-read it. */
+  async telegramConversation(): Promise<string | null> {
+    const row = await this.sql(
+      'SELECT conversation_id FROM telegram_chats WHERE owner_id=?',
+      this.ownerId,
+    ).first<{ conversation_id: string | null }>();
+    return row?.conversation_id && validLocalId(row.conversation_id)
+      ? row.conversation_id
+      : null;
+  }
+  async setTelegramConversation(id: string | null) {
+    if (id !== null && !validLocalId(id))
+      throw new AssistantError('invalid_input');
+    await this.sql(
+      'INSERT INTO telegram_chats (owner_id,conversation_id,updated_at) VALUES (?,?,?) ON CONFLICT(owner_id) DO UPDATE SET conversation_id=excluded.conversation_id,updated_at=excluded.updated_at',
+      this.ownerId,
+      id,
+      new Date().toISOString(),
+    ).run();
+  }
+  /** Maps a new conversation only if no other turn mapped one first; returns the winner. */
+  async adoptTelegramConversation(
+    id: string,
+    expected: string | null,
+  ): Promise<string | null> {
+    if (!validLocalId(id) || (expected !== null && !validLocalId(expected)))
+      throw new AssistantError('invalid_input');
+    await this.sql(
+      'INSERT INTO telegram_chats (owner_id,conversation_id,updated_at) VALUES (?,?,?) ON CONFLICT(owner_id) DO UPDATE SET conversation_id=excluded.conversation_id,updated_at=excluded.updated_at WHERE telegram_chats.conversation_id IS NULL OR telegram_chats.conversation_id=?',
+      this.ownerId,
+      id,
+      new Date().toISOString(),
+      expected,
+    ).run();
+    return this.telegramConversation();
+  }
+  /** Frees one slot under the per-owner cap, never touching the kept id. */
+  async deleteOldestConversation(keep: string | null): Promise<boolean> {
+    return changed(
+      await this.sql(
+        'DELETE FROM conversations WHERE owner_id=? AND id=(SELECT id FROM conversations WHERE owner_id=? AND id<>? ORDER BY updated_at,id LIMIT 1)',
+        this.ownerId,
+        this.ownerId,
+        keep ?? '',
       ).run(),
     );
   }

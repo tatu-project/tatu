@@ -198,7 +198,10 @@ export function permitsSystemRun(
   const supplied = request.headers.get('authorization');
   if (typeof secret !== 'string' || secret.length < 32 || !supplied)
     return false;
-  const expected = `Bearer ${secret}`;
+  return constantTimeEqual(supplied, `Bearer ${secret}`);
+}
+/** Compares secrets without an early exit on the first differing character. */
+export function constantTimeEqual(supplied: string, expected: string): boolean {
   if (supplied.length !== expected.length) return false;
   let mismatch = 0;
   for (let index = 0; index < expected.length; index++)

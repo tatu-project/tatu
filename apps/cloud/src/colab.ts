@@ -25,6 +25,8 @@ export function denyColabSecrets(value: string, env: CloudEnv) {
       env.SYSTEM_RUN_TOKEN,
       env.TATU_ENCRYPTION_KEY,
       env.TATU_PREVIOUS_ENCRYPTION_KEY,
+      env.TELEGRAM_BOT_TOKEN,
+      env.TELEGRAM_WEBHOOK_SECRET,
     ].some(
       (secret) =>
         typeof secret === 'string' &&

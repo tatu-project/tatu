@@ -444,6 +444,8 @@ Outcome: the owner chats with Tatu in Telegram, served by the free Worker, with 
 
 Acceptance test: from a phone, a non-owner message is ignored, and the owner gets a real reply, switches model with `/modelo` and sees the next reply use it.
 
+Implementation note (October 19, 2026): `POST /api/telegram/webhook` ([telegram.ts](apps/cloud/src/telegram.ts), migration `0004_telegram.sql`, [setup guide](docs/TELEGRAM.md)) verifies the secret header in constant time, processes only allowlisted private chats, records update IDs at-most-once, and supports `/start`, `/ajuda`, `/novo`, `/memoria`, `/esquecer` and `/modelo` with honest failure texts. Fixture checks pass: format/lint/types/build and 239 of 246 tests (the 1 IPv6 and 6 cancelled `apps/api` cases fail identically without these changes in this container). Independent review found no blocking issue; its fixes were applied. No item is checked: no real bot, phone, model reply or free-plan CPU measurement has been verified. The Telegram owner is currently separate from the web owner, and the Sites private lane cannot receive webhooks; use the independent Workers lane with an Access bypass for that path.
+
 ## Stage 13 — Free Resource Radar and no-training gate
 
 Outcome: Tatu only uses free routes whose verified terms say no training, and learns about new free offers safely.

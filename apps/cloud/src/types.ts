@@ -28,6 +28,9 @@ export interface CloudEnv {
   SITES_OWNER_PRIVATE?: string;
   SYSTEM_RUN_TOKEN?: string;
   TATU_COLAB_SITES_SERVICE_TOKEN?: string;
+  TELEGRAM_BOT_TOKEN?: string;
+  TELEGRAM_WEBHOOK_SECRET?: string;
+  TELEGRAM_OWNER_IDS?: string;
   [key: string]: unknown;
 }
 export interface CloudContext {
@@ -51,6 +54,20 @@ export interface RemoteStatus {
   model: string | null;
   reason: string;
 }
+/** Owner-selected model route; 'auto' keeps the fixed default precedence. */
+export type ModelRoute = 'auto' | 'groq' | 'groq-sponsored' | 'workers-ai';
+export const MODEL_ROUTES: readonly ModelRoute[] = [
+  'auto',
+  'groq',
+  'groq-sponsored',
+  'workers-ai',
+];
+export interface ModelRouteStatus {
+  id: Exclude<ModelRoute, 'auto'>;
+  model: string;
+  /** Configured for this owner; external quota is still checked per call. */
+  configured: boolean;
+}
 export interface RemoteServices {
   reply(
     ownerId: string,
@@ -59,8 +76,11 @@ export interface RemoteServices {
       content: string;
     }[],
     signal: AbortSignal,
+    preferred?: ModelRoute,
   ): Promise<RemoteReply>;
-  status(ownerId: string): Promise<RemoteStatus>;
+  status(ownerId: string, preferred?: ModelRoute): Promise<RemoteStatus>;
+  /** Routes in default precedence order; absent in fixtures without routing. */
+  routes?(ownerId: string): Promise<ModelRouteStatus[]>;
   connections(ownerId: string): Promise<unknown>;
   connect(ownerId: string, input: unknown): Promise<unknown>;
   disconnect(ownerId: string, id: string): Promise<boolean>;

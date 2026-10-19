@@ -11,7 +11,8 @@ updated: 2026-10-15
 - October 15 direction reset ([ADR-0027](../docs/decisions/ADR-0027-free-agent-telegram-first.md)):
   Telegram-first free agent, no training on user data, Free Resource Radar,
   BYOK/in-chat model selection, tools with approvals; Colab is advanced.
-  Nothing implemented yet; next is ROADMAP Stage 12.
+  Stage 12 Telegram webhook is implemented and fixture-tested (Oct 19), not
+  yet verified with a real bot/phone; Stage 16 agent team is accepted scope.
 - Private version 3 is published at the existing owner-only installation,
   preserving three migrations/15 D1 tables, existing secrets and zero automations.
   Sixteen live access/readiness checks pass; direct-origin/positive owner-browser

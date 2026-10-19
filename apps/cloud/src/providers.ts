@@ -1,4 +1,10 @@
-import type { CloudEnv, RemoteServices, RemoteStatus } from './types.js';
+import type {
+  CloudEnv,
+  ModelRoute,
+  ModelRouteStatus,
+  RemoteServices,
+  RemoteStatus,
+} from './types.js';
 import { PROVIDER_CONTEXT_MAX_BYTES } from './types.js';
 import { hasTextSecret } from '@tatu/shared';
 import { sealSecret, openFromKeyring, type SecretEnvelope } from './vault.js';
@@ -108,11 +114,26 @@ export function createRemoteServices(
       .bind(owner, 'groq')
       .first<{ envelope_json: string }>();
   const workers = () => object(env.AI) && typeof env.AI.run === 'function';
-  async function choose(owner: string): Promise<{
+  const sponsoredGroq = () =>
+    env.TATU_ENABLE_SPONSORED_GROQ === 'true' &&
+    validKey(env.TATU_GROQ_API_KEY);
+  /** A preferred route wins only while configured; otherwise the fixed precedence applies, never a new route. */
+  async function choose(
+    owner: string,
+    preferred: ModelRoute = 'auto',
+  ): Promise<{
     provider: 'groq' | 'workers-ai';
     key?: string;
     sponsored: boolean;
   }> {
+    if (preferred === 'groq-sponsored' && sponsoredGroq())
+      return {
+        provider: 'groq',
+        key: env.TATU_GROQ_API_KEY as string,
+        sponsored: true,
+      };
+    if (preferred === 'workers-ai' && workers())
+      return { provider: 'workers-ai', sponsored: true };
     const row = await connection(owner);
     if (row) {
       try {
@@ -165,11 +186,12 @@ export function createRemoteServices(
         throw new ProviderError('unavailable');
       }
     }
-    if (
-      env.TATU_ENABLE_SPONSORED_GROQ === 'true' &&
-      validKey(env.TATU_GROQ_API_KEY)
-    )
-      return { provider: 'groq', key: env.TATU_GROQ_API_KEY, sponsored: true };
+    if (sponsoredGroq())
+      return {
+        provider: 'groq',
+        key: env.TATU_GROQ_API_KEY as string,
+        sponsored: true,
+      };
     if (workers()) return { provider: 'workers-ai', sponsored: true };
     throw new ProviderError('unavailable');
   }
@@ -259,9 +281,24 @@ export function createRemoteServices(
         .run();
       return (result.meta.changes ?? 0) > 0;
     },
-    async status(owner): Promise<RemoteStatus> {
+    async routes(owner): Promise<ModelRouteStatus[]> {
+      return [
+        {
+          id: 'groq',
+          model: GROQ_MODEL,
+          configured: Boolean(await connection(owner)),
+        },
+        {
+          id: 'groq-sponsored',
+          model: GROQ_MODEL,
+          configured: sponsoredGroq(),
+        },
+        { id: 'workers-ai', model: WORKERS_MODEL, configured: workers() },
+      ];
+    },
+    async status(owner, preferred): Promise<RemoteStatus> {
       try {
-        const route = await choose(owner);
+        const route = await choose(owner, preferred);
         return {
           configured: true,
           available: false,
@@ -277,7 +314,7 @@ export function createRemoteServices(
         };
       }
     },
-    async reply(owner, messages, signal) {
+    async reply(owner, messages, signal, preferred) {
       if (
         !Array.isArray(messages) ||
         messages.length < 1 ||
@@ -294,7 +331,7 @@ export function createRemoteServices(
         throw new ProviderError('invalid_input', 422);
       const bytes = encoder.encode(JSON.stringify(messages)).length;
       if (bytes > MAX_CONTEXT) throw new ProviderError('invalid_input', 422);
-      const route = await choose(owner);
+      const route = await choose(owner, preferred);
       const units = bytes + MAX_OUTPUT;
       let globalRelease: QuotaReservation | undefined;
       let release: QuotaReservation | undefined;

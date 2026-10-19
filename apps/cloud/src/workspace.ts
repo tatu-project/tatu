@@ -18,11 +18,12 @@ import type { StoredMessage } from './storage.js';
 import { ColabStore } from './colab-store.js';
 import { configuredColab, denyColabSecrets } from './colab.js';
 
-class ContextTooLargeError extends Error {}
-type ProviderMessage = Parameters<RemoteServices['reply']>[1][number];
+export class ContextTooLargeError extends Error {}
+export type ProviderMessage = Parameters<RemoteServices['reply']>[1][number];
 const serializedBytes = (messages: readonly ProviderMessage[]) =>
   new TextEncoder().encode(JSON.stringify(messages)).byteLength;
-function providerContext(
+/** Shared by web and Telegram chat so prompt and history bounds stay identical. */
+export function providerContext(
   message: string,
   selected: string | undefined,
   history: readonly StoredMessage[],
@@ -273,7 +274,7 @@ export async function handleWorkspace(
     return json({ authenticated: true });
   if (path === '/api/assistant/status' && method === 'GET')
     return json({
-      ...(await services.status(store.ownerId)),
+      ...(await services.status(store.ownerId, await store.modelRoute())),
       colab: env.DB
         ? await new ColabStore(env.DB, store.ownerId).status(
             configuredColab(env),
@@ -691,7 +692,12 @@ async function chat(
       let output;
       try {
         output = await Promise.race([
-          services.reply(store.ownerId, messages!, signal),
+          services.reply(
+            store.ownerId,
+            messages!,
+            signal,
+            await store.modelRoute(),
+          ),
           aborted,
         ]);
       } finally {
