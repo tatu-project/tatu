@@ -1,5 +1,6 @@
 # Tatu Roadmap
 
+> Direction (October 15): Telegram-first free no-training agent; see the direction reset and Stages 12–16 below.
 > Current status: private version 3 is published with connection monitor/public probe/per-turn history controls; final root format/lint/types/226 tests/build, Python13+8, mocked desktop/mobile browser checks and 16 bounded live access/readiness checks pass. Direct-origin/positive owner-browser probes have explicit gaps. Public [78f5c2b](https://github.com/tatu-project/tatu/commit/78f5c2bf2816e12879cf41fa5732e54c33290dd9)/[CI38567151349](https://github.com/tatu-project/tatu/actions/runs/38567151349) passed Windows/Linux. October 14 owner-observed version 2 replies are separate from controlled version 3 inference/history/stop/active acceptance. Full browser/PWA, guardrails and scheduling remain open; no whole online stage is complete.
 > Rule: check an item only after its acceptance criterion has been verified.
 > Compact session context: [`brain/04-Current-State.md`](brain/04-Current-State.md).
@@ -427,6 +428,58 @@ guaranteed permanently. Hosted scheduling still needs entitlement outside
 protected production resources, independent dispatch and a real due task.
 Full browser CRUD/mobile/PWA and guardrail-quality acceptance remain open;
 native MCP read/proposal already works.
+
+## Direction reset — October 15, 2026
+
+The user chose a simpler free agent combining Grok Bot, Muse and Dots patterns: Telegram first, free always-on runtime, no training on user data, Free Resource Radar, BYOK with in-chat model selection, tools with approvals, and Colab as an advanced option. [ADR-0027](docs/decisions/ADR-0027-free-agent-telegram-first.md) records scope, sources and free-plan limits. Stages 7–11 keep their evidence; their remaining open items continue only where the new stages reuse them.
+
+## Stage 12 — Telegram bot on the free runtime
+
+Outcome: the owner chats with Tatu in Telegram, served by the free Worker, with no PC or paid service.
+
+- [ ] Webhook update handler with Telegram secret-token verification, owner allowlist and idempotent update IDs.
+- [ ] Owner text message receives a real model reply from one eligible route; unavailable/quota states answer honestly.
+- [x] Conversation history, `/memoria` notes and `/modelo` selection persist in D1 per owner.
+- [ ] Handlers stay within free-plan CPU/subrequest/D1 limits under fixture load tests.
+
+Acceptance test: from a phone, a non-owner message is ignored, and the owner gets a real reply, switches model with `/modelo` and sees the next reply use it.
+
+Implementation note (October 19, 2026): `POST /api/telegram/webhook` ([telegram.ts](apps/cloud/src/telegram.ts), migration `0004_telegram.sql`, [setup guide](docs/TELEGRAM.md)) verifies the secret header in constant time, processes only allowlisted private chats, records update IDs at-most-once, and supports `/start`, `/ajuda`, `/novo`, `/memoria`, `/esquecer` and `/modelo` with honest failure texts. Fixture checks pass: format/lint/types/build and 239 of 246 tests (the 1 IPv6 and 6 cancelled `apps/api` cases fail identically without these changes in this container). Independent review found no blocking issue; its fixes were applied. No item is checked: no real bot, phone, model reply or free-plan CPU measurement has been verified. Live evidence (October 23, 2026, dedicated Cloudflare account, `workers.dev`, Telegram-only mode): the owner's phone received `/start` help, a real Workers AI (`@cf/openai/gpt-oss-20b`) reply stored in D1, `/memoria` save/list and `/modelo workers-ai` followed by a reply on that route. Bounded HTTPS probes returned 401 for the web API without login and for missing/wrong webhook secrets, and a non-allowlisted update with the valid secret was accepted with no owner, update or message row. Two runtime defects found live were fixed (`redirect: 'error'` is rejected by Workers; gpt-oss returns a chat completion). Still open: a real second Telegram account being ignored, honest unavailable/quota replies live, and free-plan CPU measurement. Deployment now publishes automatically from `main` after CI ([DEPLOYMENT.md](docs/DEPLOYMENT.md#automatic-deployment-from-main)); the private account IDs and webhook secret stay outside Git. The Telegram owner is currently separate from the web owner, and the Sites private lane cannot receive webhooks; use the independent Workers lane with an Access bypass for that path.
+
+## Stage 13 — Free Resource Radar and no-training gate
+
+Outcome: Tatu only uses free routes whose verified terms say no training, and learns about new free offers safely.
+
+- [ ] Versioned registry schema (provider, model, limits, training, retention, region, terms URL, checked date, status) with validation tests.
+- [ ] Router refuses unverified or training-allowed routes by default; BYOK routes show their recorded policy.
+- [ ] Initial entries verified against official terms (Groq, Cloudflare Workers AI, Cerebras, OpenCode Zen, OpenRouter, Mistral, Gemini), each marked eligible or excluded with sources.
+- [ ] Scheduled searcher proposes registry changes as untrusted suggestions; nothing becomes eligible without review.
+
+## Stage 14 — Agent tools, routines and approvals
+
+Outcome: Tatu plans and uses tools and runs routines by itself, asking before consequential actions.
+
+- [ ] Tool loop with web search/RSS, reminders, scheduled routines, memory and notes, split into persisted steps within free limits.
+- [ ] A Cron dispatcher delivers a real scheduled routine to Telegram without any device running (reuses Stage 10 durability).
+- [ ] Irreversible actions require an inline-button approval bound to the exact action, expiring and single-use, with an audit record.
+- [ ] First OAuth/MCP connector (Gmail or Calendar) with least-privilege scopes and revocation.
+
+## Stage 15 — Five-minute setup and public release
+
+Outcome: a nontechnical person installs their own Tatu for free in under five minutes.
+
+- [ ] One-click deploy plus guided bot-token/key entry, with no terminal.
+- [ ] Portuguese and English setup guides verified by a fresh user on a clean account.
+- [ ] Public MIT release with honest limits (free quotas, model quality, no training gate).
+
+## Stage 16 — Agent team in Telegram topics
+
+Outcome: the owner runs a small team of named agents in one Telegram group, coordinated by a chief of staff, approving consequential actions with one tap. Scope: [PROJECT.md section 2.11](PROJECT.md#211-bounded-agent-team).
+
+- [ ] Owner creates an agent by describing it (name, role, instructions, tools, routines); each maps to one forum topic of the owner supergroup.
+- [ ] Each agent keeps separate memory/history; the chief-of-staff topic routes requests and hands work to another agent with context.
+- [ ] Agent routines run on schedule and post in their topic; quotas are shared, visible and stop honestly.
+- [ ] Irreversible agent actions use the Stage 14 approval flow; audit shows which agent proposed what.
 
 ## Later accepted outcomes — separate verification
 

@@ -54,7 +54,7 @@ async function signingKeys(
   const cached = caches.get(domain);
   if (!refresh && cached && cached.expires > now) return cached.keys;
   const response = await fetcher(`https://${domain}/cdn-cgi/access/certs`, {
-    redirect: 'error',
+    redirect: 'manual',
     signal: AbortSignal.timeout(3000),
   });
   if (
@@ -198,7 +198,10 @@ export function permitsSystemRun(
   const supplied = request.headers.get('authorization');
   if (typeof secret !== 'string' || secret.length < 32 || !supplied)
     return false;
-  const expected = `Bearer ${secret}`;
+  return constantTimeEqual(supplied, `Bearer ${secret}`);
+}
+/** Compares secrets without an early exit on the first differing character. */
+export function constantTimeEqual(supplied: string, expected: string): boolean {
   if (supplied.length !== expected.length) return false;
   let mismatch = 0;
   for (let index = 0; index < expected.length; index++)

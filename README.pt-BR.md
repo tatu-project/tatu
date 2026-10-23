@@ -28,6 +28,9 @@ O caminho online padrão não exige PC ligado, Node.js, Ollama nem modelo local.
 O modelo Colab fica na VM Google. Rotas ausentes, computação parada, cotas e
 falhas são mostradas claramente; não há resposta inventada ou fallback pago.
 
+Para conversar pelo **Telegram**, siga [o guia do Telegram](docs/TELEGRAM.md)
+(webhook no Worker gratuito, só IDs autorizados).
+
 Para **Meu Qwen no Google Colab**, siga [o guia](docs/COLAB-CONNECTION.md).
 Receba origem/ID de forma privada e informe-os só nos campos ocultos do notebook.
 O pareamento usa chave efêmera e dados criptografados no Tatu. Revise o contexto

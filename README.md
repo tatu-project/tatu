@@ -31,6 +31,9 @@ model download. Colab loads its model in the Google VM. Missing routes, stopped
 compute, limits and network failures are shown honestly; no fabricated answer
 or automatic paid fallback substitutes.
 
+To chat from **Telegram**, follow [the Telegram guide](docs/TELEGRAM.md)
+(Portuguese; webhook on the free Worker, owner allowlist).
+
 For **Meu Qwen no Google Colab**, follow [the connection guide](docs/COLAB-CONNECTION.md).
 Get your installation's origin/project ID privately, then enter them only in
 hidden notebook prompts. Ephemeral-key pairing displays encrypted data in Tatu.

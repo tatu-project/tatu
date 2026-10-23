@@ -57,3 +57,6 @@ tmp/
 .playwright-mcp/
 temp/
 *.tmp
+
+# Generated private deployment configuration
+apps/cloud/wrangler.deploy.jsonc

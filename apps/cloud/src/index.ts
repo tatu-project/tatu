@@ -8,6 +8,7 @@ import { createRemoteServices } from './providers.js';
 import { handleMcp } from './mcp.js';
 import { runDue } from './scheduler.js';
 import { handleColabOwner, handleColabRuntime } from './colab.js';
+import { handleTelegramWebhook } from './telegram.js';
 import { WorkspaceStore, ownerForIdentity } from './storage.js';
 import { failure, handleWorkspace, json, proposeMessage } from './workspace.js';
 import type {
@@ -38,6 +39,8 @@ const secure = (response: Response, nonce?: string): Response => {
 export interface CloudDependencies {
   authenticate?: Authenticate;
   services?: (env: CloudEnv) => RemoteServices;
+  /** Tests stub the Telegram Bot API here; production uses global fetch. */
+  telegramFetch?: typeof fetch;
 }
 /** Tests inject identity here; production never reads a body/header owner override. */
 export function createCloudWorker(dependencies: CloudDependencies = {}) {
@@ -46,10 +49,9 @@ export function createCloudWorker(dependencies: CloudDependencies = {}) {
     async fetch(
       request: Request,
       env: CloudEnv,
-      _context?: CloudContext,
+      context?: CloudContext,
     ): Promise<Response> {
       try {
-        void _context;
         const url = new URL(request.url);
         const mutation = !['GET', 'HEAD'].includes(request.method);
         if (
@@ -80,6 +82,16 @@ export function createCloudWorker(dependencies: CloudDependencies = {}) {
           await runDue(env);
           return secure(json({ dispatched: true }));
         }
+        if (url.pathname === '/api/telegram/webhook')
+          return secure(
+            await handleTelegramWebhook(
+              request,
+              env,
+              (dependencies.services ?? createRemoteServices)(env),
+              context,
+              dependencies.telegramFetch,
+            ),
+          );
         if (url.pathname.startsWith('/api/colab/runtime/'))
           return secure(await handleColabRuntime(request, env));
         if (
