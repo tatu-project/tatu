@@ -1,0 +1,106 @@
+name: Deploy
+
+# Publishes the Cloudflare Worker after CI passes on main. Account-specific
+# values live in the `production` environment; repositories without
+# TATU_SITE_ORIGIN skip the job, so forks never try to deploy.
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: >-
+      vars.TATU_SITE_ORIGIN != '' &&
+      ((github.event_name == 'workflow_dispatch' &&
+      github.ref == 'refs/heads/main') ||
+      (github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.head_repository.full_name == github.repository))
+    runs-on: ubuntu-latest
+    # Restrict this environment's deployment branches to main in the
+    # repository settings and keep the Cloudflare secrets there.
+    environment: production
+    env:
+      TATU_D1_DATABASE_ID: ${{ vars.TATU_D1_DATABASE_ID }}
+      TATU_SITE_ORIGIN: ${{ vars.TATU_SITE_ORIGIN }}
+      TATU_AUTH_MODE: ${{ vars.TATU_AUTH_MODE }}
+      TATU_SCHEDULER_ENABLED: ${{ vars.TATU_SCHEDULER_ENABLED }}
+      TATU_ACCESS_TEAM_DOMAIN: ${{ vars.TATU_ACCESS_TEAM_DOMAIN }}
+      TATU_ACCESS_AUDIENCE: ${{ vars.TATU_ACCESS_AUDIENCE }}
+      DEPLOY_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+    steps:
+      - name: Skip superseded commits
+        id: tip
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tip=$(gh api "repos/${{ github.repository }}/commits/main" --jq .sha)
+          if [ "$tip" = "$DEPLOY_SHA" ]; then
+            echo "current=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::$DEPLOY_SHA is no longer the tip of main; skipping."
+            echo "current=false" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.tip.outputs.current == 'true'
+        uses: actions/checkout@v4
+        with:
+          # Deploy exactly the commit CI verified.
+          ref: ${{ env.DEPLOY_SHA }}
+      - if: steps.tip.outputs.current == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.13.0
+          cache: npm
+      # Credentials are scoped to the steps that need them, never to npm ci/build.
+      - if: steps.tip.outputs.current == 'true'
+        name: Require deployment credentials
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          test -n "$CLOUDFLARE_API_TOKEN" || { echo '::error::Secret CLOUDFLARE_API_TOKEN ausente.'; exit 1; }
+          test -n "$CLOUDFLARE_ACCOUNT_ID" || { echo '::error::Secret CLOUDFLARE_ACCOUNT_ID ausente.'; exit 1; }
+      - if: steps.tip.outputs.current == 'true'
+        run: npm ci
+      - if: steps.tip.outputs.current == 'true'
+        run: npm run build
+      - if: steps.tip.outputs.current == 'true'
+        run: node scripts/cloud-deploy-config.mjs
+      # Migrations first: new code may read tables only a newer migration
+      # creates. Keep migrations additive; there is no automatic rollback.
+      - if: steps.tip.outputs.current == 'true'
+        name: Apply D1 migrations
+        working-directory: apps/cloud
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx --no-install wrangler d1 migrations apply tatu --remote --config wrangler.deploy.jsonc
+      - if: steps.tip.outputs.current == 'true'
+        name: Deploy Worker
+        working-directory: apps/cloud
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx --no-install wrangler deploy --config wrangler.deploy.jsonc
+      # Behind Cloudflare Access /api/health is not public unless bypassed.
+      - if: steps.tip.outputs.current == 'true' && env.TATU_AUTH_MODE != 'cloudflare-access'
+        name: Smoke check
+        run: |
+          for attempt in 1 2 3 4 5 6; do
+            status=$(curl -sS -o /dev/null -w '%{http_code}' -m 15 "$TATU_SITE_ORIGIN/api/health" || true)
+            [ "$status" = 200 ] && exit 0
+            sleep 10
+          done
+          echo "::error::Health check returned $status"
+          exit 1

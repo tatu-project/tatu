@@ -189,6 +189,45 @@ Telegram bot (`TELEGRAM_*` secrets, Access bypass only for
 `/api/telegram/webhook`) is described in [TELEGRAM.md](TELEGRAM.md). The current
 Colab pairing adapter targets private managed Sites, not a proven portable lane.
 
+### Automatic deployment from `main`
+
+[`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml) publishes the
+Worker after the CI workflow succeeds for a push to `main`, deploying exactly
+the commit CI verified. It applies pending D1 migrations, then deploys, then
+checks `/api/health`. Repositories without `TATU_SITE_ORIGIN` skip the job, so
+forks never try to deploy. Worker secrets (`TELEGRAM_*`, encryption keys) are
+set once with `wrangler secret put` and survive deploys; they are not stored in
+GitHub.
+
+The job runs in the `production` environment. Create it under Settings →
+Environments, restrict its deployment branches to `main`, and store the two
+Cloudflare secrets there (not as repository secrets) so a workflow pushed to
+another branch cannot read them. A commit that is no longer the tip of `main`
+is skipped, so out-of-order CI completions never roll back production. Manual
+**Run workflow** (`workflow_dispatch`) only deploys from `main` and does not
+wait for CI. Keep D1 migrations additive: they run before the deploy and there
+is no automatic rollback (`wrangler rollback` is manual). In
+`cloudflare-access` mode the health smoke check is skipped unless you add an
+Access bypass for `/api/health`.
+
+Configure the `production` environment (secrets) and repository variables:
+
+| Kind       | Name                     | Value                                                               |
+| ---------- | ------------------------ | ------------------------------------------------------------------- |
+| Env secret | `CLOUDFLARE_API_TOKEN`   | Account token: Workers Scripts Edit, D1 Edit, Account Settings Read |
+| Env secret | `CLOUDFLARE_ACCOUNT_ID`  | The dedicated Tatu account ID                                       |
+| Variable   | `TATU_D1_DATABASE_ID`    | UUID of the `tatu` D1 database                                      |
+| Variable   | `TATU_SITE_ORIGIN`       | Public HTTPS origin, e.g. `https://tatu.<sub>.workers.dev`          |
+| Variable   | `TATU_AUTH_MODE`         | Optional: `telegram-only` (default) or `cloudflare-access`          |
+| Variable   | `TATU_SCHEDULER_ENABLED` | Optional: `false` (default); `true` also enables the Cron           |
+
+`cloudflare-access` additionally needs `TATU_ACCESS_TEAM_DOMAIN` and
+`TATU_ACCESS_AUDIENCE`. `node scripts/cloud-deploy-config.mjs` generates the
+ignored `apps/cloud/wrangler.deploy.jsonc` from these values, so account IDs
+stay out of Git (variable values such as the origin do appear in deploy logs;
+they are not secrets). Use a dedicated Cloudflare account so the token cannot reach
+unrelated production resources, and renew the token before it expires.
+
 Official references: [D1 setup](https://developers.cloudflare.com/d1/get-started/),
 [migrations](https://developers.cloudflare.com/d1/reference/migrations/),
 [secrets](https://developers.cloudflare.com/workers/configuration/secrets/),
