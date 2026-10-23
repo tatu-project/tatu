@@ -70,7 +70,7 @@ async function telegramCall(
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(payload),
-        redirect: 'error',
+        redirect: 'manual',
         signal: AbortSignal.timeout(timeout),
       },
     );

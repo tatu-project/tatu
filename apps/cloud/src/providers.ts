@@ -233,7 +233,7 @@ export function createRemoteServices(
           'https://api.groq.com/openai/v1/models',
           {
             headers: { authorization: `Bearer ${input.apiKey}` },
-            redirect: 'error',
+            redirect: 'manual',
             signal: AbortSignal.timeout(10000),
           },
         );
@@ -384,7 +384,7 @@ export function createRemoteServices(
                 stream: false,
                 reasoning_effort: 'low',
               }),
-              redirect: 'error',
+              redirect: 'manual',
               signal: timed,
             },
           );
@@ -428,7 +428,16 @@ export function createRemoteServices(
             }),
             abort,
           ]);
-          output = object(raw) ? raw.response : undefined;
+          // Older models return { response }; gpt-oss returns a chat completion.
+          output = !object(raw)
+            ? undefined
+            : typeof raw.response === 'string'
+              ? raw.response
+              : Array.isArray(raw.choices) &&
+                  object(raw.choices[0]) &&
+                  object(raw.choices[0].message)
+                ? raw.choices[0].message.content
+                : undefined;
         }
         if (
           typeof output !== 'string' ||

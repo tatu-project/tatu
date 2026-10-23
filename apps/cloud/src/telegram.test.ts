@@ -64,7 +64,7 @@ function fixture(
   ) => {
     const url = String(input);
     assert.ok(url.startsWith(`https://api.telegram.org/bot${token}/`));
-    assert.equal(init?.redirect, 'error');
+    assert.equal(init?.redirect, 'manual');
     calls.push({
       method: url.slice(url.lastIndexOf('/') + 1),
       body: JSON.parse(String(init?.body)) as Record<string, unknown>,

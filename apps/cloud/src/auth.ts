@@ -54,7 +54,7 @@ async function signingKeys(
   const cached = caches.get(domain);
   if (!refresh && cached && cached.expires > now) return cached.keys;
   const response = await fetcher(`https://${domain}/cdn-cgi/access/certs`, {
-    redirect: 'error',
+    redirect: 'manual',
     signal: AbortSignal.timeout(3000),
   });
   if (
